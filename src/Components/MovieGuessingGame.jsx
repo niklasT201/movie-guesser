@@ -2,13 +2,38 @@ import React, { useState, useEffect } from 'react';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
+const GAME_MODES = {
+  EASY: {
+    name: 'Easy',
+    titleLengthLimit: 20,
+    guessLimit: Infinity,
+    timeLimit: Infinity
+  },
+  NORMAL: {
+    name: 'Normal',
+    titleLengthLimit: Infinity,
+    guessLimit: 5,
+    timeLimit: Infinity
+  },
+  HARD: {
+    name: 'Hard',
+    titleLengthLimit: Infinity,
+    guessLimit: 2,
+    timeLimit: 60
+  }
+};
+
 const MovieGuessingGame = () => {
   const [currentMovie, setCurrentMovie] = useState(null);
   const [questionsAsked, setQuestionsAsked] = useState(1);
   const [score, setScore] = useState(0);
-  const [gameState, setGameState] = useState('loading'); // 'loading', 'playing', 'won', 'lost'
+  const [gameState, setGameState] = useState('loading');
   const [guess, setGuess] = useState('');
   const [revealedClues, setRevealedClues] = useState([]);
+  const [gameMode, setGameMode] = useState(null);
+  const [guessesRemaining, setGuessesRemaining] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  const [usedMovies, setUsedMovies] = useState(new Set());
 
   // Function to format currency
   const formatCurrency = (amount) => {
@@ -20,34 +45,71 @@ const MovieGuessingGame = () => {
     }).format(amount);
   };
 
+  // Timer effect for hard mode
+  useEffect(() => {
+    let timer;
+    if (timeRemaining !== null && timeRemaining > 0 && gameState === 'playing') {
+      timer = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            setGameState('lost');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [timeRemaining, gameState]);
+
   // Function to get a random popular movie
   const fetchRandomMovie = async () => {
     try {
-      // First get a list of popular movies
-      const response = await fetch(
-        `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${Math.floor(Math.random() * 5) + 1}`
-      );
-      const data = await response.json();
-      const randomMovie = data.results[Math.floor(Math.random() * data.results.length)];
+      let validMovie = null;
+      let attempts = 0;
+      const maxAttempts = 10;
 
-      // Then get detailed information for the chosen movie
-      const detailResponse = await fetch(
-        `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
-      );
-      const movieDetail = await detailResponse.json();
+      while (!validMovie && attempts < maxAttempts) {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${Math.floor(Math.random() * 5) + 1}`
+        );
+        const data = await response.json();
+        
+        // Filter movies based on game mode and already used movies
+        const eligibleMovies = data.results.filter(movie => {
+          const titleLength = movie.title.length;
+          return (
+            !usedMovies.has(movie.id) &&
+            (gameMode === 'EASY' ? titleLength <= GAME_MODES.EASY.titleLengthLimit : true)
+          );
+        });
+
+        if (eligibleMovies.length > 0) {
+          const randomMovie = eligibleMovies[Math.floor(Math.random() * eligibleMovies.length)];
+          
+          const detailResponse = await fetch(
+            `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
+          );
+          const movieDetail = await detailResponse.json();
+          
+          validMovie = {
+            id: movieDetail.id,
+            title: movieDetail.title,
+            year: new Date(movieDetail.release_date).getFullYear().toString(),
+            director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
+            genre: movieDetail.genres.map(g => g.name).join(", "),
+            actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
+            plot: movieDetail.overview,
+            budget: movieDetail.budget,
+            revenue: movieDetail.revenue,
+            runtime: movieDetail.runtime,
+            rating: movieDetail.vote_average.toFixed(1)
+          };
+        }
+        attempts++;
+      }
       
-      return {
-        title: movieDetail.title,
-        year: new Date(movieDetail.release_date).getFullYear().toString(),
-        director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
-        genre: movieDetail.genres.map(g => g.name).join(", "),
-        actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
-        plot: movieDetail.overview,
-        budget: movieDetail.budget,
-        revenue: movieDetail.revenue,
-        runtime: movieDetail.runtime,
-        rating: movieDetail.vote_average.toFixed(1)
-      };
+      return validMovie;
     } catch (error) {
       console.error("Error fetching movie:", error);
       return null;
@@ -70,40 +132,46 @@ const MovieGuessingGame = () => {
     ];
   };
 
-  // Initialize game
+  // Initialize game when mode is selected
   useEffect(() => {
-    startNewGame();
-  }, []);
+    if (gameMode) {
+      startNewGame();
+    }
+  }, [gameMode]);
 
-  // Function to get a random clue
   const getRandomClue = (excludeIds = []) => {
     const clues = getClues();
     const availableClues = clues.filter(clue => !excludeIds.includes(clue.id));
+    if (availableClues.length === 0) return null;
     return availableClues[Math.floor(Math.random() * availableClues.length)];
   };
 
   const getClue = () => {
     if (questionsAsked >= 9) {
-      setGameState('lost');
+      if (gameMode === 'HARD') {
+        setTimeRemaining(GAME_MODES.HARD.timeLimit);
+      }
       return;
     }
     
-    const randomClue = getRandomClue(revealedClues);
+    const randomClue = getRandomClue(revealedClues.map(c => c.id));
     if (randomClue) {
-      setRevealedClues([...revealedClues, randomClue.id]);
-      setQuestionsAsked(questionsAsked + 1);
+      setRevealedClues(prev => [...prev, randomClue]);
+      setQuestionsAsked(prev => prev + 1);
     }
   };
 
   const makeGuess = () => {
+    if (!currentMovie) return;
+    
     if (guess.toLowerCase() === currentMovie.title.toLowerCase()) {
       const newPoints = Math.max(10 - questionsAsked, 1) * 100;
-      setScore(score + newPoints);
+      setScore(prev => prev + newPoints);
       setGameState('won');
     } else {
-      setQuestionsAsked(questionsAsked + 1);
+      setGuessesRemaining(prev => prev - 1);
       setGuess('');
-      if (questionsAsked >= 9) {
+      if (guessesRemaining <= 1) {
         setGameState('lost');
       }
     }
@@ -111,31 +179,69 @@ const MovieGuessingGame = () => {
 
   const startNewGame = async () => {
     setGameState('loading');
+    setRevealedClues([]); // Reset revealed clues
+    
     const movie = await fetchRandomMovie();
     if (movie) {
       setCurrentMovie(movie);
       setQuestionsAsked(1);
       setGameState('playing');
       setGuess('');
+      setUsedMovies(prev => new Set([...prev, movie.id]));
+      setTimeRemaining(null);
+      
+      // Reset guesses based on game mode
+      setGuessesRemaining(
+        gameMode === 'EASY' ? Infinity :
+        gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
+        GAME_MODES.HARD.guessLimit
+      );
       
       // Get initial random clue
       const initialClue = { id: 1, type: "Year", value: movie.year };
-      setRevealedClues([initialClue.id]);
+      setRevealedClues([initialClue]);
     } else {
-      // Handle error case
       alert('Error loading movie. Please try again.');
       setGameState('playing');
     }
   };
 
+  const selectGameMode = (mode) => {
+    setGameMode(mode);
+    setScore(0);
+    setUsedMovies(new Set());
+    setRevealedClues([]); // Reset revealed clues when changing mode
+  };
+
+  if (!gameMode) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Select Game Mode</h1>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          {Object.keys(GAME_MODES).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => selectGameMode(mode)}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              {GAME_MODES[mode].name}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (gameState === 'loading') {
     return (
-      <div style={{ 
-        maxWidth: '600px', 
-        margin: '0 auto', 
-        padding: '20px',
-        textAlign: 'center' 
-      }}>
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', textAlign: 'center' }}>
         Loading...
       </div>
     );
@@ -144,28 +250,31 @@ const MovieGuessingGame = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
       <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>Movie Guessing Game</h1>
-        <div>Score: {score} | Questions Left: {9 - questionsAsked}</div>
+        <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>
+          Movie Guessing Game - {GAME_MODES[gameMode].name} Mode
+        </h1>
+        <div>
+          Score: {score} | Questions Left: {9 - questionsAsked}
+          {gameMode !== 'EASY' && ` | Guesses Left: ${guessesRemaining}`}
+          {timeRemaining !== null && ` | Time: ${timeRemaining}s`}
+        </div>
       </div>
 
       <div style={{ marginBottom: '20px' }}>
         <h3>Revealed Clues:</h3>
-        {currentMovie && revealedClues.map(clueId => {
-          const clue = getClues().find(c => c.id === clueId);
-          return (
-            <div 
-              key={clue.id} 
-              style={{ 
-                border: '1px solid #ccc', 
-                padding: '10px', 
-                marginBottom: '10px', 
-                borderRadius: '4px' 
-              }}
-            >
-              <strong>{clue.type}:</strong> {clue.value}
-            </div>
-          );
-        })}
+        {revealedClues && revealedClues.map(clue => (
+          <div 
+            key={clue.id} 
+            style={{ 
+              border: '1px solid #ccc', 
+              padding: '10px', 
+              marginBottom: '10px', 
+              borderRadius: '4px' 
+            }}
+          >
+            <strong>{clue.type}:</strong> {clue.value}
+          </div>
+        ))}
       </div>
 
       {gameState === 'playing' && (
@@ -185,13 +294,15 @@ const MovieGuessingGame = () => {
             />
             <button
               onClick={makeGuess}
+              disabled={!guess}
               style={{
                 padding: '8px 16px',
                 backgroundColor: '#007bff',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: !guess ? 'not-allowed' : 'pointer',
+                opacity: !guess ? 0.5 : 1
               }}
             >
               Guess
@@ -216,55 +327,48 @@ const MovieGuessingGame = () => {
         </div>
       )}
 
-      {gameState === 'won' && (
+      {(gameState === 'won' || gameState === 'lost') && (
         <div style={{ 
           padding: '20px', 
-          backgroundColor: '#d4edda', 
+          backgroundColor: gameState === 'won' ? '#d4edda' : '#f8d7da', 
           borderRadius: '4px',
           marginTop: '20px'
         }}>
-          <h3>Congratulations!</h3>
-          <p>You won! Points earned: {Math.max(10 - questionsAsked, 1) * 100}</p>
-          <button
-            onClick={startNewGame}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '10px'
-            }}
-          >
-            Play Again
-          </button>
-        </div>
-      )}
-
-      {gameState === 'lost' && (
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: '#f8d7da', 
-          borderRadius: '4px',
-          marginTop: '20px'
-        }}>
-          <h3>Game Over</h3>
-          <p>The movie was: {currentMovie.title}</p>
-          <button
-            onClick={startNewGame}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '10px'
-            }}
-          >
-            Try Again
-          </button>
+          <h3>{gameState === 'won' ? 'Congratulations!' : 'Game Over'}</h3>
+          <p>
+            {gameState === 'won' 
+              ? `You won! Points earned: ${Math.max(10 - questionsAsked, 1) * 100}`
+              : `The movie was: ${currentMovie?.title}`
+            }
+          </p>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button
+              onClick={startNewGame}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: gameState === 'won' ? '#28a745' : '#dc3545',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Play Again
+            </button>
+            <button
+              onClick={() => setGameMode(null)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Change Mode
+            </button>
+          </div>
         </div>
       )}
     </div>
