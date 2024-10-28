@@ -1,58 +1,100 @@
 import React, { useState, useEffect } from 'react';
 
+const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
+
 const MovieGuessingGame = () => {
-  const [currentMovie, setCurrentMovie] = useState({
-    title: "The Dark Knight",
-    year: "2008",
-    director: "Christopher Nolan",
-    genre: "Action, Crime, Drama",
-    actors: "Christian Bale, Heath Ledger, Aaron Eckhart",
-    plot: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice."
-  });
-  
-  const [questionsAsked, setQuestionsAsked] = useState(1); // Start with 1 since we show initial clue
+  const [currentMovie, setCurrentMovie] = useState(null);
+  const [questionsAsked, setQuestionsAsked] = useState(1);
   const [score, setScore] = useState(0);
-  const [gameState, setGameState] = useState('playing');
+  const [gameState, setGameState] = useState('loading'); // 'loading', 'playing', 'won', 'lost'
   const [guess, setGuess] = useState('');
   const [revealedClues, setRevealedClues] = useState([]);
 
-  const clues = [
-    { id: 1, type: "Year", value: currentMovie.year },
-    { id: 2, type: "Genre", value: currentMovie.genre },
-    { id: 3, type: "Director", value: currentMovie.director },
-    { id: 4, type: "Main Actor", value: currentMovie.actors.split(',')[0] },
-    { id: 5, type: "Plot Hint", value: currentMovie.plot },
-  ];
+  // Function to format currency
+  const formatCurrency = (amount) => {
+    if (!amount) return "Not Available";
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Function to get a random popular movie
+  const fetchRandomMovie = async () => {
+    try {
+      // First get a list of popular movies
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${Math.floor(Math.random() * 5) + 1}`
+      );
+      const data = await response.json();
+      const randomMovie = data.results[Math.floor(Math.random() * data.results.length)];
+
+      // Then get detailed information for the chosen movie
+      const detailResponse = await fetch(
+        `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
+      );
+      const movieDetail = await detailResponse.json();
+      
+      return {
+        title: movieDetail.title,
+        year: new Date(movieDetail.release_date).getFullYear().toString(),
+        director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
+        genre: movieDetail.genres.map(g => g.name).join(", "),
+        actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
+        plot: movieDetail.overview,
+        budget: movieDetail.budget,
+        revenue: movieDetail.revenue,
+        runtime: movieDetail.runtime,
+        rating: movieDetail.vote_average.toFixed(1)
+      };
+    } catch (error) {
+      console.error("Error fetching movie:", error);
+      return null;
+    }
+  };
+
+  // Get clues for current movie
+  const getClues = () => {
+    if (!currentMovie) return [];
+    return [
+      { id: 1, type: "Year", value: currentMovie.year },
+      { id: 2, type: "Genre", value: currentMovie.genre },
+      { id: 3, type: "Director", value: currentMovie.director },
+      { id: 4, type: "Main Actors", value: currentMovie.actors },
+      { id: 5, type: "Plot", value: currentMovie.plot },
+      { id: 6, type: "Budget", value: formatCurrency(currentMovie.budget) },
+      { id: 7, type: "Box Office", value: formatCurrency(currentMovie.revenue) },
+      { id: 8, type: "Runtime", value: `${currentMovie.runtime} minutes` },
+      { id: 9, type: "Rating", value: `${currentMovie.rating}/10` }
+    ];
+  };
+
+  // Initialize game
+  useEffect(() => {
+    startNewGame();
+  }, []);
 
   // Function to get a random clue
   const getRandomClue = (excludeIds = []) => {
+    const clues = getClues();
     const availableClues = clues.filter(clue => !excludeIds.includes(clue.id));
     return availableClues[Math.floor(Math.random() * availableClues.length)];
   };
 
-  // Initialize game with one random clue
-  useEffect(() => {
-    const initialClue = getRandomClue();
-    setRevealedClues([initialClue.id]);
-  }, []); // Empty dependency array means this runs once on mount
-  
   const getClue = () => {
     if (questionsAsked >= 9) {
       setGameState('lost');
       return;
     }
     
-    const availableClues = clues.filter(
-      clue => !revealedClues.includes(clue.id)
-    );
-    
-    if (availableClues.length > 0) {
-      const randomClue = availableClues[Math.floor(Math.random() * availableClues.length)];
+    const randomClue = getRandomClue(revealedClues);
+    if (randomClue) {
       setRevealedClues([...revealedClues, randomClue.id]);
       setQuestionsAsked(questionsAsked + 1);
     }
   };
-  
+
   const makeGuess = () => {
     if (guess.toLowerCase() === currentMovie.title.toLowerCase()) {
       const newPoints = Math.max(10 - questionsAsked, 1) * 100;
@@ -66,27 +108,38 @@ const MovieGuessingGame = () => {
       }
     }
   };
-  
-  const startNewGame = () => {
-    // In a real implementation, this would fetch a new random movie
-    setCurrentMovie({
-      title: "Inception",
-      year: "2010",
-      director: "Christopher Nolan",
-      genre: "Action, Adventure, Sci-Fi",
-      actors: "Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page",
-      plot: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O."
-    });
-    
-    // Reset game state but start with one random clue
-    setQuestionsAsked(1);
-    setGameState('playing');
-    setGuess('');
-    
-    // Get initial random clue for new game
-    const initialClue = getRandomClue();
-    setRevealedClues([initialClue.id]);
+
+  const startNewGame = async () => {
+    setGameState('loading');
+    const movie = await fetchRandomMovie();
+    if (movie) {
+      setCurrentMovie(movie);
+      setQuestionsAsked(1);
+      setGameState('playing');
+      setGuess('');
+      
+      // Get initial random clue
+      const initialClue = { id: 1, type: "Year", value: movie.year };
+      setRevealedClues([initialClue.id]);
+    } else {
+      // Handle error case
+      alert('Error loading movie. Please try again.');
+      setGameState('playing');
+    }
   };
+
+  if (gameState === 'loading') {
+    return (
+      <div style={{ 
+        maxWidth: '600px', 
+        margin: '0 auto', 
+        padding: '20px',
+        textAlign: 'center' 
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
@@ -97,25 +150,22 @@ const MovieGuessingGame = () => {
 
       <div style={{ marginBottom: '20px' }}>
         <h3>Revealed Clues:</h3>
-        {revealedClues.length === 0 ? (
-          <p>Loading initial clue...</p>
-        ) : (
-          clues
-            .filter(clue => revealedClues.includes(clue.id))
-            .map(clue => (
-              <div 
-                key={clue.id} 
-                style={{ 
-                  border: '1px solid #ccc', 
-                  padding: '10px', 
-                  marginBottom: '10px', 
-                  borderRadius: '4px' 
-                }}
-              >
-                <strong>{clue.type}:</strong> {clue.value}
-              </div>
-            ))
-        )}
+        {currentMovie && revealedClues.map(clueId => {
+          const clue = getClues().find(c => c.id === clueId);
+          return (
+            <div 
+              key={clue.id} 
+              style={{ 
+                border: '1px solid #ccc', 
+                padding: '10px', 
+                marginBottom: '10px', 
+                borderRadius: '4px' 
+              }}
+            >
+              <strong>{clue.type}:</strong> {clue.value}
+            </div>
+          );
+        })}
       </div>
 
       {gameState === 'playing' && (
