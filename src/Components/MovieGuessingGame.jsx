@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const MovieGuessingGame = () => {
   const [currentMovie, setCurrentMovie] = useState({
@@ -10,12 +10,12 @@ const MovieGuessingGame = () => {
     plot: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice."
   });
   
-  const [questionsAsked, setQuestionsAsked] = useState(0);
+  const [questionsAsked, setQuestionsAsked] = useState(1); // Start with 1 since we show initial clue
   const [score, setScore] = useState(0);
-  const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
+  const [gameState, setGameState] = useState('playing');
   const [guess, setGuess] = useState('');
   const [revealedClues, setRevealedClues] = useState([]);
-  
+
   const clues = [
     { id: 1, type: "Year", value: currentMovie.year },
     { id: 2, type: "Genre", value: currentMovie.genre },
@@ -23,6 +23,18 @@ const MovieGuessingGame = () => {
     { id: 4, type: "Main Actor", value: currentMovie.actors.split(',')[0] },
     { id: 5, type: "Plot Hint", value: currentMovie.plot },
   ];
+
+  // Function to get a random clue
+  const getRandomClue = (excludeIds = []) => {
+    const availableClues = clues.filter(clue => !excludeIds.includes(clue.id));
+    return availableClues[Math.floor(Math.random() * availableClues.length)];
+  };
+
+  // Initialize game with one random clue
+  useEffect(() => {
+    const initialClue = getRandomClue();
+    setRevealedClues([initialClue.id]);
+  }, []); // Empty dependency array means this runs once on mount
   
   const getClue = () => {
     if (questionsAsked >= 9) {
@@ -56,6 +68,7 @@ const MovieGuessingGame = () => {
   };
   
   const startNewGame = () => {
+    // In a real implementation, this would fetch a new random movie
     setCurrentMovie({
       title: "Inception",
       year: "2010",
@@ -64,10 +77,15 @@ const MovieGuessingGame = () => {
       actors: "Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page",
       plot: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O."
     });
-    setQuestionsAsked(0);
+    
+    // Reset game state but start with one random clue
+    setQuestionsAsked(1);
     setGameState('playing');
     setGuess('');
-    setRevealedClues([]);
+    
+    // Get initial random clue for new game
+    const initialClue = getRandomClue();
+    setRevealedClues([initialClue.id]);
   };
 
   return (
@@ -80,7 +98,7 @@ const MovieGuessingGame = () => {
       <div style={{ marginBottom: '20px' }}>
         <h3>Revealed Clues:</h3>
         {revealedClues.length === 0 ? (
-          <p>No clues revealed yet</p>
+          <p>Loading initial clue...</p>
         ) : (
           clues
             .filter(clue => revealedClues.includes(clue.id))
