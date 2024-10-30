@@ -1,11 +1,12 @@
-import MovieGuessingGame from './Components/MovieGuessingGame'
+import React from 'react';
+import GameHub from './Components/GameHub';
 
 function App() {
   return (
-    <div>
-      <MovieGuessingGame />
+    <div className="App">
+      <GameHub />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
