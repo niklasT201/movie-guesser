@@ -31,12 +31,15 @@ const GAME_MODES = {
 
 const MovieCriteriaGame = () => {
   const [gameMode, setGameMode] = useState(null);
+const [criteriaChangeMode, setCriteriaChangeMode] = useState('multiple');
+const [randomMode, setRandomMode] = useState(false);
   const [score, setScore] = useState(0);
   const [currentCriteria, setCurrentCriteria] = useState(null);
   const [criteriaType, setCriteriaType] = useState(null);
   const [guess, setGuess] = useState('');
   const [gameState, setGameState] = useState('playing');
   const [guessesRemaining, setGuessesRemaining] = useState(3);
+  const [notification, setNotification] = useState(null);
 
   // Function to get a random year between 1970 and current year
   const getRandomYear = () => {
@@ -149,19 +152,39 @@ const MovieCriteriaGame = () => {
 
       if (isCorrect) {
         setScore(prev => prev + 100);
-        generateNewCriteria();
+        setNotification({ type: 'success', message: 'Correct! Great job!' });
+        
+        // Generate new criteria if in multiple mode or random mode
+        if (randomMode || criteriaChangeMode === 'multiple') {
+          generateNewCriteria();
+        } else {
+          // Just reset guesses and guess input for same criteria
+          setGuessesRemaining(3);
+          setGuess('');
+        }
       } else {
         setGuessesRemaining(prev => prev - 1);
         setScore(prev => prev - 50);
+        setNotification({ type: 'error', message: 'Incorrect. Try again!' });
         if (guessesRemaining <= 1) {
           setGameState('lost');
         }
+        setGuess('');
       }
-      setGuess('');
     } catch (error) {
       console.error("Error verifying guess:", error);
     }
   };
+
+  // Effect to clear notification after 3 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const styles = {
     container: {
@@ -259,14 +282,71 @@ const MovieCriteriaGame = () => {
       color: 'white',
       cursor: 'pointer',
       fontSize: '14px'
-    }
+    },
+    notification: {
+        padding: '12px 24px',
+        borderRadius: '8px',
+        color: 'white',
+        fontWeight: 'bold',
+        marginTop: '16px',
+        textAlign: 'center',
+      },
+      success: {
+        backgroundColor: '#22c55e',
+      },
+      error: {
+        backgroundColor: '#ef4444',
+      },
+      selectors: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        marginBottom: '20px',
+        padding: '10px',
+        backgroundColor: '#f3f4f6',
+        borderRadius: '8px',
+      },
   };
 
   if (!gameMode) {
     return (
       <div style={styles.container}>
         <div style={styles.card}>
-          <h1 style={styles.title}>Movie Criteria Challenge</h1>
+        <h1 style={styles.title}>Movie Criteria Challenge</h1>
+          
+          <div style={styles.selectors}>
+            <div>
+              <label>
+                <input 
+                  type="radio" 
+                  value="single" 
+                  checked={criteriaChangeMode === 'single'} 
+                  onChange={() => setCriteriaChangeMode('single')}
+                />
+                Keep same criteria
+              </label>
+              <label>
+                <input 
+                  type="radio" 
+                  value="multiple" 
+                  checked={criteriaChangeMode === 'multiple'} 
+                  onChange={() => setCriteriaChangeMode('multiple')}
+                />
+                Change criteria each round
+              </label>
+            </div>
+            <div>
+              <label>
+                <input 
+                  type="checkbox" 
+                  checked={randomMode} 
+                  onChange={(e) => setRandomMode(e.target.checked)}
+                />
+                Random Mode (overrides other settings)
+              </label>
+            </div>
+          </div>
+  
           <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
             Select your game mode
           </p>
@@ -346,7 +426,7 @@ const MovieCriteriaGame = () => {
         </div>
 
         <div style={styles.criteria}>
-          Find a movie {criteriaType === 'year' ? 'from' : 'with'} {criteriaType}:{' '}
+          A movie {criteriaType === 'year' ? 'from' : 'with'} {criteriaType}:{' '}
           {currentCriteria}
         </div>
 
@@ -370,6 +450,17 @@ const MovieCriteriaGame = () => {
             Guess
           </button>
         </div>
+        
+        {notification && (
+          <div 
+            style={{
+              ...styles.notification,
+              ...(notification.type === 'success' ? styles.success : styles.error)
+            }}
+          >
+            {notification.message}
+          </div>
+        )}
       </div>
     </div>
   );
