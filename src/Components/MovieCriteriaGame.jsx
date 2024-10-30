@@ -297,14 +297,30 @@ const [randomMode, setRandomMode] = useState(false);
       error: {
         backgroundColor: '#ef4444',
       },
-      selectors: {
+      selectorContainer: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
-        marginBottom: '20px',
-        padding: '10px',
-        backgroundColor: '#f3f4f6',
+        gap: '12px',
+        marginBottom: '24px',
+        alignItems: 'center', // Center all selector content
+      },
+      selectorGroup: {
+        display: 'flex',
+        gap: '12px',
+        justifyContent: 'center', // Center the button group
+      },
+      selectorButton: {
+        width: '200px', // Fixed width for all selector buttons
+        padding: '12px',
         borderRadius: '8px',
+        border: 'none',
+        color: 'white',
+        fontWeight: '500',
+        cursor: 'pointer',
+        transition: 'background-color 0.2s',
+        fontSize: '14px',
+        textAlign: 'center',
+        height: '50px', // Even shorter height
       },
   };
 
@@ -314,65 +330,70 @@ const [randomMode, setRandomMode] = useState(false);
         <div style={styles.card}>
         <h1 style={styles.title}>Movie Criteria Challenge</h1>
           
-          <div style={styles.selectors}>
-            <div>
-              <label>
-                <input 
-                  type="radio" 
-                  value="single" 
-                  checked={criteriaChangeMode === 'single'} 
-                  onChange={() => setCriteriaChangeMode('single')}
-                />
-                Keep same criteria
-              </label>
-              <label>
-                <input 
-                  type="radio" 
-                  value="multiple" 
-                  checked={criteriaChangeMode === 'multiple'} 
-                  onChange={() => setCriteriaChangeMode('multiple')}
-                />
-                Change criteria each round
-              </label>
-            </div>
-            <div>
-              <label>
-                <input 
-                  type="checkbox" 
-                  checked={randomMode} 
-                  onChange={(e) => setRandomMode(e.target.checked)}
-                />
-                Random Mode (overrides other settings)
-              </label>
-            </div>
+        <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
+          Select your game settings
+        </p>
+
+        <div style={styles.selectorContainer}>
+          <div style={styles.selectorGroup}>
+            <button
+              onClick={() => setCriteriaChangeMode('single')}
+              style={{
+                ...styles.selectorButton,
+                backgroundColor: criteriaChangeMode === 'single' ? '#22c55e' : '#9ca3af',
+              }}
+            >
+              Keep same criteria
+            </button>
+            <button
+              onClick={() => setCriteriaChangeMode('multiple')}
+              style={{
+                ...styles.selectorButton,
+                backgroundColor: criteriaChangeMode === 'multiple' ? '#3b82f6' : '#9ca3af',
+              }}
+            >
+              Change criteria each round
+            </button>
           </div>
-  
-          <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
-            Select your game mode
-          </p>
-          <div style={styles.modeSelection}>
-            {Object.entries(GAME_MODES).map(([mode, details]) => (
-              <button
-                key={mode}
-                onClick={() => setGameMode(mode)}
-                style={{
-                  ...styles.modeCard,
-                  backgroundColor: details.color
-                }}
-              >
-                <div style={{ fontSize: '20px', marginBottom: '8px' }}>
-                  {details.name}
-                </div>
-                <div style={{ fontSize: '14px', opacity: '0.9' }}>
-                  {details.description}
-                </div>
-              </button>
-            ))}
-          </div>
+          <button
+            onClick={() => setRandomMode(!randomMode)}
+            style={{
+              ...styles.selectorButton,
+              backgroundColor: randomMode ? '#8b5cf6' : '#9ca3af',
+              width: '200px', // Fixed width for the random mode button
+              alignSelf: 'center', // Center the random mode button
+            }}
+          >
+            Random Mode
+          </button>
+        </div>
+
+        <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
+          Select your game mode
+        </p>
+        <div style={styles.modeSelection}>
+          {Object.entries(GAME_MODES).map(([mode, details]) => (
+            <button
+              key={mode}
+              onClick={() => setGameMode(mode)}
+              style={{
+                ...styles.modeCard,
+                backgroundColor: details.color
+              }}
+            >
+              <div style={{ fontSize: '20px', marginBottom: '8px' }}>
+                {details.name}
+              </div>
+              <div style={{ fontSize: '14px', opacity: '0.9' }}>
+                {details.description}
+              </div>
+            </button>
+          ))}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (gameState === 'lost') {
     return (
