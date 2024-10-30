@@ -213,27 +213,150 @@ const MovieGuessingGame = () => {
     setRevealedClues([]); // Reset revealed clues when changing mode
   };
 
+  const styles = {
+    container: {
+      maxWidth: '800px',
+      margin: '0 auto',
+      padding: '20px',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    },
+    card: {
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      padding: '24px',
+      marginBottom: '20px'
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px'
+    },
+    title: {
+      fontSize: '24px',
+      fontWeight: 'bold',
+      margin: '0'
+    },
+    stats: {
+      display: 'flex',
+      gap: '20px'
+    },
+    statItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '8px 16px',
+      backgroundColor: '#f3f4f6',
+      borderRadius: '8px',
+      fontSize: '14px'
+    },
+    clueCard: {
+      backgroundColor: '#f8f9fa',
+      borderRadius: '8px',
+      padding: '16px',
+      marginBottom: '12px',
+      border: '1px solid #e5e7eb'
+    },
+    clueType: {
+      fontWeight: '500',
+      color: '#6b7280',
+      marginBottom: '4px'
+    },
+    clueValue: {
+      fontSize: '16px'
+    },
+    inputGroup: {
+      display: 'flex',
+      gap: '12px',
+      marginBottom: '16px'
+    },
+    input: {
+      flex: '1',
+      padding: '12px',
+      borderRadius: '8px',
+      border: '1px solid #e5e7eb',
+      fontSize: '16px'
+    },
+    button: {
+      padding: '12px 24px',
+      borderRadius: '8px',
+      border: 'none',
+      backgroundColor: '#3b82f6',
+      color: 'white',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s'
+    },
+    secondaryButton: {
+      backgroundColor: '#6b7280'
+    },
+    disabledButton: {
+      opacity: '0.5',
+      cursor: 'not-allowed'
+    },
+    modeSelection: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gap: '16px',
+      padding: '32px'
+    },
+    modeCard: {
+      padding: '24px',
+      borderRadius: '12px',
+      textAlign: 'center',
+      cursor: 'pointer',
+      transition: 'transform 0.2s',
+      border: 'none'
+    },
+    gameOverCard: {
+      padding: '24px',
+      borderRadius: '12px',
+      textAlign: 'center',
+      marginTop: '24px'
+    },
+    badge: {
+      padding: '4px 12px',
+      borderRadius: '16px',
+      fontSize: '14px',
+      fontWeight: '500',
+      backgroundColor: '#e5e7eb',
+      marginLeft: '8px'
+    }
+  };
+
   if (!gameMode) {
     return (
-      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Select Game Mode</h1>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-          {Object.keys(GAME_MODES).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => selectGameMode(mode)}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              {GAME_MODES[mode].name}
-            </button>
-          ))}
+      <div style={styles.container}>
+        <div style={styles.card}>
+          <h1 style={styles.title}>Movie Guessing Game</h1>
+          <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
+            Select your challenge level
+          </p>
+          <div style={styles.modeSelection}>
+            {Object.keys(GAME_MODES).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => selectGameMode(mode)}
+                style={{
+                  ...styles.modeCard,
+                  backgroundColor: mode === 'EASY' ? '#22c55e' : 
+                                 mode === 'NORMAL' ? '#3b82f6' : 
+                                 '#ef4444',
+                  color: 'white'
+                }}
+              >
+                <div style={{ fontSize: '20px', marginBottom: '8px' }}>
+                  {GAME_MODES[mode].name}
+                </div>
+                <div style={{ fontSize: '14px', opacity: '0.9' }}>
+                  {mode === 'EASY' && "Unlimited guesses"}
+                  {mode === 'NORMAL' && "5 guesses"}
+                  {mode === 'HARD' && "2 guesses • 60s timer"}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -241,138 +364,130 @@ const MovieGuessingGame = () => {
 
   if (gameState === 'loading') {
     return (
-      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', textAlign: 'center' }}>
-        Loading...
+      <div style={{ ...styles.container, textAlign: 'center' }}>
+        <div style={styles.card}>
+          Loading your challenge...
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '24px', marginBottom: '10px' }}>
-          Movie Guessing Game - {GAME_MODES[gameMode].name} Mode
-        </h1>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <div style={styles.header}>
+          <h1 style={styles.title}>
+            Movie Guesser
+            <span style={styles.badge}>{GAME_MODES[gameMode].name}</span>
+          </h1>
+          <div style={styles.stats}>
+            <div style={styles.statItem}>
+              Score: {score}
+            </div>
+            <div style={styles.statItem}>
+              Clues: {9 - questionsAsked}
+            </div>
+            {gameMode !== 'EASY' && (
+              <div style={styles.statItem}>
+                Guesses: {guessesRemaining}
+              </div>
+            )}
+            {timeRemaining !== null && (
+              <div style={styles.statItem}>
+                Time: {timeRemaining}s
+              </div>
+            )}
+          </div>
+        </div>
+
         <div>
-          Score: {score} | Questions Left: {9 - questionsAsked}
-          {gameMode !== 'EASY' && ` | Guesses Left: ${guessesRemaining}`}
-          {timeRemaining !== null && ` | Time: ${timeRemaining}s`}
+          {revealedClues.map(clue => (
+            <div key={clue.id} style={styles.clueCard}>
+              <div style={styles.clueType}>{clue.type}</div>
+              <div style={styles.clueValue}>{clue.value}</div>
+            </div>
+          ))}
+
+          {gameState === 'playing' && (
+            <div style={{ marginTop: '24px' }}>
+              <div style={styles.inputGroup}>
+                <input
+                  type="text"
+                  placeholder="Enter your guess..."
+                  value={guess}
+                  onChange={(e) => setGuess(e.target.value)}
+                  style={styles.input}
+                />
+                <button
+                  onClick={makeGuess}
+                  disabled={!guess}
+                  style={{
+                    ...styles.button,
+                    ...((!guess) && styles.disabledButton)
+                  }}
+                >
+                  Guess
+                </button>
+              </div>
+              <button
+                onClick={getClue}
+                disabled={questionsAsked >= 9}
+                style={{
+                  ...styles.button,
+                  ...styles.secondaryButton,
+                  width: '100%',
+                  ...(questionsAsked >= 9 && styles.disabledButton)
+                }}
+              >
+                Get Clue ({9 - questionsAsked} left)
+              </button>
+            </div>
+          )}
+
+          {(gameState === 'won' || gameState === 'lost') && (
+            <div style={{
+              ...styles.gameOverCard,
+              backgroundColor: gameState === 'won' ? '#dcfce7' : '#fee2e2'
+            }}>
+              <h3 style={{ fontSize: '20px', marginBottom: '12px' }}>
+                {gameState === 'won' ? 'Congratulations!' : 'Game Over'}
+              </h3>
+              <p style={{ marginBottom: '20px' }}>
+                {gameState === 'won'
+                  ? `You won! Points earned: ${Math.max(10 - questionsAsked, 1) * 100}`
+                  : `The movie was: ${currentMovie?.title}`}
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button
+                  onClick={startNewGame}
+                  style={styles.button}
+                >
+                  Play Again
+                </button>
+                <button
+                  onClick={() => setGameMode(null)}
+                  style={{
+                    ...styles.button,
+                    backgroundColor: '#6b7280'
+                  }}
+                >
+                  Change Mode
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      <div style={{ marginBottom: '20px' }}>
-        <h3>Revealed Clues:</h3>
-        {revealedClues && revealedClues.map(clue => (
-          <div 
-            key={clue.id} 
-            style={{ 
-              border: '1px solid #ccc', 
-              padding: '10px', 
-              marginBottom: '10px', 
-              borderRadius: '4px' 
-            }}
-          >
-            <strong>{clue.type}:</strong> {clue.value}
-          </div>
-        ))}
-      </div>
-
-      {gameState === 'playing' && (
-        <div>
-          <div style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
-            <input
-              type="text"
-              placeholder="Enter your guess..."
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              style={{ 
-                padding: '8px', 
-                borderRadius: '4px', 
-                border: '1px solid #ccc',
-                flex: 1
-              }}
-            />
-            <button
-              onClick={makeGuess}
-              disabled={!guess}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: !guess ? 'not-allowed' : 'pointer',
-                opacity: !guess ? 0.5 : 1
-              }}
-            >
-              Guess
-            </button>
-          </div>
-          <button
-            onClick={getClue}
-            disabled={questionsAsked >= 9}
-            style={{
-              width: '100%',
-              padding: '8px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: questionsAsked >= 9 ? 'not-allowed' : 'pointer',
-              opacity: questionsAsked >= 9 ? 0.5 : 1
-            }}
-          >
-            Get Clue ({9 - questionsAsked} left)
-          </button>
-        </div>
-      )}
-
-      {(gameState === 'won' || gameState === 'lost') && (
-        <div style={{ 
-          padding: '20px', 
-          backgroundColor: gameState === 'won' ? '#d4edda' : '#f8d7da', 
-          borderRadius: '4px',
-          marginTop: '20px'
-        }}>
-          <h3>{gameState === 'won' ? 'Congratulations!' : 'Game Over'}</h3>
-          <p>
-            {gameState === 'won' 
-              ? `You won! Points earned: ${Math.max(10 - questionsAsked, 1) * 100}`
-              : `The movie was: ${currentMovie?.title}`
-            }
-          </p>
-          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-            <button
-              onClick={startNewGame}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: gameState === 'won' ? '#28a745' : '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Play Again
-            </button>
-            <button
-              onClick={() => setGameMode(null)}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Change Mode
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 export default MovieGuessingGame;
+
+// timer after all 9 questions visible
+// question films of one special year
+// maybe german/english
+// wrong question removes 100 points
+// speedrun mode
+// reason for coming back each day
+// dark mode/ light mode
