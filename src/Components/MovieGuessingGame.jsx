@@ -45,10 +45,20 @@ const MovieGuessingGame = () => {
     }).format(amount);
   };
 
+    // Function to handle giving up
+    const handleGiveUp = () => {
+      setGameState('lost');
+    };
+
   // Timer effect for hard mode
   useEffect(() => {
     let timer;
-    if (timeRemaining !== null && timeRemaining > 0 && gameState === 'playing') {
+    if (gameMode === 'HARD' && questionsAsked >= 9 && gameState === 'playing' && !timeRemaining) {
+      // Start 60 second timer when all clues are revealed in hard mode
+      setTimeRemaining(60);
+    }
+    
+    if (timeRemaining > 0 && gameState === 'playing') {
       timer = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
@@ -59,8 +69,9 @@ const MovieGuessingGame = () => {
         });
       }, 1000);
     }
+
     return () => clearInterval(timer);
-  }, [timeRemaining, gameState]);
+  }, [timeRemaining, gameState, questionsAsked, gameMode]);
 
   // Function to get a random popular movie
   const fetchRandomMovie = async () => {
@@ -322,6 +333,26 @@ const MovieGuessingGame = () => {
       fontWeight: '500',
       backgroundColor: '#e5e7eb',
       marginLeft: '8px'
+    },
+    backButton: {
+      position: 'absolute',
+      top: '20px',
+      left: '20px',
+      padding: '8px 16px',
+      borderRadius: '8px',
+      border: 'none',
+      backgroundColor: '#6b7280',
+      color: 'white',
+      cursor: 'pointer',
+      fontSize: '14px'
+    },
+    timer: {
+      padding: '8px 16px',
+      backgroundColor: timeRemaining && timeRemaining <= 10 ? '#ef4444' : '#3b82f6',
+      color: 'white',
+      borderRadius: '8px',
+      fontWeight: '500',
+      transition: 'background-color 0.3s'
     }
   };
 
@@ -374,6 +405,13 @@ const MovieGuessingGame = () => {
 
   return (
     <div style={styles.container}>
+      <button 
+        onClick={() => setGameMode(null)} 
+        style={styles.backButton}
+      >
+        ← Back to Modes
+      </button>
+
       <div style={styles.card}>
         <div style={styles.header}>
           <h1 style={styles.title}>
@@ -392,8 +430,8 @@ const MovieGuessingGame = () => {
                 Guesses: {guessesRemaining}
               </div>
             )}
-            {timeRemaining !== null && (
-              <div style={styles.statItem}>
+            {timeRemaining > 0 && (
+              <div style={styles.timer}>
                 Time: {timeRemaining}s
               </div>
             )}
@@ -429,18 +467,32 @@ const MovieGuessingGame = () => {
                   Guess
                 </button>
               </div>
-              <button
-                onClick={getClue}
-                disabled={questionsAsked >= 9}
-                style={{
-                  ...styles.button,
-                  ...styles.secondaryButton,
-                  width: '100%',
-                  ...(questionsAsked >= 9 && styles.disabledButton)
-                }}
-              >
-                Get Clue ({9 - questionsAsked} left)
-              </button>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                <button
+                  onClick={getClue}
+                  disabled={questionsAsked >= 9}
+                  style={{
+                    ...styles.button,
+                    ...styles.secondaryButton,
+                    flex: '1',
+                    ...(questionsAsked >= 9 && styles.disabledButton)
+                  }}
+                >
+                  Get Clue ({9 - questionsAsked} left)
+                </button>
+                {gameMode === 'EASY' && (
+                  <button
+                    onClick={handleGiveUp}
+                    style={{
+                      ...styles.button,
+                      backgroundColor: '#ef4444',
+                      flex: '0 0 auto'
+                    }}
+                  >
+                    Give Up
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
@@ -484,7 +536,6 @@ const MovieGuessingGame = () => {
 
 export default MovieGuessingGame;
 
-// timer after all 9 questions visible
 // question films of one special year
 // maybe german/english
 // wrong question removes 100 points
