@@ -229,6 +229,7 @@ const MovieGuessingGame = () => {
       maxWidth: '800px',
       margin: '0 auto',
       padding: '20px',
+      marginTop: 50,
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     card: {

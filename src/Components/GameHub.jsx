@@ -17,7 +17,7 @@ const GameHub = () => {
 
   const styles = {
     container: {
-      maxWidth: '1200px',
+      maxWidth: '900px',
       margin: '0 auto',
       padding: '20px',
       fontFamily: 'system-ui, -apple-system, sans-serif'
