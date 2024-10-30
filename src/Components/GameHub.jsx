@@ -1,5 +1,6 @@
 import React from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
+import MoviewCriteriaGame from './MovieCriteriaGame'
 
 const GameHub = () => {
   const [selectedGame, setSelectedGame] = React.useState(null);
@@ -11,6 +12,13 @@ const GameHub = () => {
       description: 'Test your movie knowledge! Guess the movie from various clues.',
       icon: '🎬',
       component: MovieGuessingGame
+    },
+    {
+      id: 'movie-criteria',
+      title: 'Movie Criteria Challenge',
+      description: 'Find movies matching specific years, directors, or actors!',
+      icon: '🎯',
+      component: MoviewCriteriaGame
     }
     // Future games can be added here
   ];
