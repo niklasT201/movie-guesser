@@ -36,8 +36,6 @@ const MovieCriteriaGame = () => {
   const [criteriaType, setCriteriaType] = useState(null);
   const [guess, setGuess] = useState('');
   const [gameState, setGameState] = useState('playing');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [guessesRemaining, setGuessesRemaining] = useState(3);
 
   // Function to get a random year between 1970 and current year
@@ -56,13 +54,11 @@ const MovieCriteriaGame = () => {
       const data = await response.json();
       const person = data.results[Math.floor(Math.random() * data.results.length)];
       
-      // Get more details about the person to ensure they match the type
       const detailResponse = await fetch(
         `https://api.themoviedb.org/3/person/${person.id}?api_key=${API_KEY}&append_to_response=credits`
       );
       const detailData = await detailResponse.json();
       
-      // Check if person has worked in the required role
       const hasRole = type === 'director' 
         ? detailData.credits.crew?.some(credit => credit.job === "Director")
         : detailData.credits.cast?.length > 0;
@@ -70,7 +66,6 @@ const MovieCriteriaGame = () => {
       if (hasRole) {
         return person.name;
       } else {
-        // Try again if person doesn't match criteria
         return getRandomPerson(type);
       }
     } catch (error) {
@@ -96,7 +91,6 @@ const MovieCriteriaGame = () => {
     
     setCurrentCriteria(newCriteria);
     setGuessesRemaining(3);
-    setSearchResults([]);
     setGuess('');
   };
 
@@ -107,32 +101,36 @@ const MovieCriteriaGame = () => {
     }
   }, [gameMode]);
 
-  // Function to search movies
-  const searchMovies = async (query) => {
-    try {
-      setIsSearching(true);
-      const response = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${query}&page=1`
-      );
-      const data = await response.json();
-      setSearchResults(data.results.slice(0, 5));
-      setIsSearching(false);
-    } catch (error) {
-      console.error("Error searching movies:", error);
-      setIsSearching(false);
-    }
-  };
-
   // Function to verify guess
-  const verifyGuess = async (movieId) => {
+  const verifyGuess = async () => {
+    if (!guess.trim()) return;
+    
     try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&append_to_response=credits`
+      // Search for the movie
+      const searchResponse = await fetch(
+        `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&query=${guess}&page=1`
       );
-      const movie = await response.json();
-      const releaseYear = new Date(movie.release_date).getFullYear();
-      const director = movie.credits.crew.find(person => person.job === "Director")?.name;
-      const actors = movie.credits.cast.map(actor => actor.name);
+      const searchData = await searchResponse.json();
+      
+      if (searchData.results.length === 0) {
+        setGuessesRemaining(prev => prev - 1);
+        setScore(prev => prev - 50);
+        setGuess('');
+        if (guessesRemaining <= 1) {
+          setGameState('lost');
+        }
+        return;
+      }
+
+      const movie = searchData.results[0];
+      const movieResponse = await fetch(
+        `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${API_KEY}&append_to_response=credits`
+      );
+      const movieData = await movieResponse.json();
+
+      const releaseYear = new Date(movieData.release_date).getFullYear();
+      const director = movieData.credits.crew.find(person => person.job === "Director")?.name;
+      const actors = movieData.credits.cast.map(actor => actor.name);
 
       let isCorrect = false;
       switch (criteriaType) {
@@ -160,7 +158,6 @@ const MovieCriteriaGame = () => {
         }
       }
       setGuess('');
-      setSearchResults([]);
     } catch (error) {
       console.error("Error verifying guess:", error);
     }
@@ -226,28 +223,17 @@ const MovieCriteriaGame = () => {
       borderRadius: '8px',
       fontSize: '14px'
     },
+    inputGroup: {
+      display: 'flex',
+      gap: '12px',
+      marginBottom: '16px'
+    },
     input: {
-      width: '100%',
+      flex: '1',
       padding: '12px',
       borderRadius: '8px',
       border: '1px solid #e5e7eb',
-      fontSize: '16px',
-      marginBottom: '12px'
-    },
-    searchResults: {
-      marginTop: '12px'
-    },
-    searchItem: {
-      padding: '12px',
-      borderRadius: '8px',
-      border: '1px solid #e5e7eb',
-      marginBottom: '8px',
-      cursor: 'pointer',
-      transition: 'background-color 0.2s'
-    },
-    gameOver: {
-      textAlign: 'center',
-      marginTop: '24px'
+      fontSize: '16px'
     },
     button: {
       padding: '12px 24px',
@@ -257,6 +243,22 @@ const MovieCriteriaGame = () => {
       color: 'white',
       fontWeight: '500',
       cursor: 'pointer'
+    },
+    gameOver: {
+      textAlign: 'center',
+      marginTop: '24px'
+    },
+    backButton: {
+      position: 'absolute',
+      top: '20px',
+      left: '20px',
+      padding: '8px 16px',
+      borderRadius: '8px',
+      border: 'none',
+      backgroundColor: '#6b7280',
+      color: 'white',
+      cursor: 'pointer',
+      fontSize: '14px'
     }
   };
 
@@ -301,13 +303,23 @@ const MovieCriteriaGame = () => {
             <p>Final Score: {score}</p>
             <button 
               onClick={() => {
-                setScore(0);
                 setGameState('playing');
+                setScore(0);
                 generateNewCriteria();
               }}
               style={styles.button}
             >
               Play Again
+            </button>
+            <button
+              onClick={() => setGameMode(null)}
+              style={{
+                ...styles.button,
+                backgroundColor: '#6b7280',
+                marginLeft: '12px'
+              }}
+            >
+              Change Mode
             </button>
           </div>
         </div>
@@ -317,6 +329,13 @@ const MovieCriteriaGame = () => {
 
   return (
     <div style={styles.container}>
+      <button 
+        onClick={() => setGameMode(null)} 
+        style={styles.backButton}
+      >
+        ← Back to Modes
+      </button>
+
       <div style={styles.card}>
         <div style={styles.header}>
           <h1 style={styles.title}>Movie Criteria Challenge</h1>
@@ -331,38 +350,25 @@ const MovieCriteriaGame = () => {
           {currentCriteria}
         </div>
 
-        <input
-          type="text"
-          value={guess}
-          onChange={(e) => {
-            setGuess(e.target.value);
-            if (e.target.value.length > 2) {
-              searchMovies(e.target.value);
-            } else {
-              setSearchResults([]);
-            }
-          }}
-          placeholder="Search for a movie..."
-          style={styles.input}
-        />
-
-        <div style={styles.searchResults}>
-          {isSearching && <div>Searching...</div>}
-          {searchResults.map(movie => (
-            <div
-              key={movie.id}
-              onClick={() => verifyGuess(movie.id)}
-              style={styles.searchItem}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'white';
-              }}
-            >
-              {movie.title} ({new Date(movie.release_date).getFullYear()})
-            </div>
-          ))}
+        <div style={styles.inputGroup}>
+          <input
+            type="text"
+            value={guess}
+            onChange={(e) => setGuess(e.target.value)}
+            placeholder="Enter movie title..."
+            style={styles.input}
+          />
+          <button 
+            onClick={verifyGuess}
+            disabled={!guess.trim()}
+            style={{
+              ...styles.button,
+              opacity: !guess.trim() ? 0.5 : 1,
+              cursor: !guess.trim() ? 'not-allowed' : 'pointer'
+            }}
+          >
+            Guess
+          </button>
         </div>
       </div>
     </div>
