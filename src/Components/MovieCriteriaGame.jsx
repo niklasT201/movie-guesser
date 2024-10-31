@@ -324,13 +324,13 @@ const [randomMode, setRandomMode] = useState(false);
     return (
       <div style={styles.container}>
         <div style={styles.card}>
-        <h1 style={styles.title}>Movie Criteria Challenge</h1>
+          <h1 style={styles.title}>Movie Criteria Challenge</h1>
           
-        <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
-          Select your game settings
-        </p>
+          <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
+            Select your game settings
+          </p>
 
-        <div style={styles.selectorContainer}>
+          <div style={styles.selectorContainer}>
           <button
             onClick={() => setCriteriaChangeMode('single')}
             style={{
@@ -360,33 +360,46 @@ const [randomMode, setRandomMode] = useState(false);
           </button>
         </div>
 
-        <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
-          Select your game mode
-        </p>
-        <div style={styles.modeSelection}>
-          {Object.entries(GAME_MODES).map(([mode, details]) => (
-            <button
-              key={mode}
-              onClick={() => setGameMode(mode)}
-              style={{
-                ...styles.modeCard,
-                backgroundColor: details.color
-              }}
-            >
-              <div style={{ fontSize: '20px', marginBottom: '8px' }}>
-                {details.name}
-              </div>
-              <div style={{ fontSize: '14px', opacity: '0.9' }}>
-                {details.description}
-              </div>
-            </button>
-          ))}
+         <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
+            Select your game mode
+          </p>
+          <div style={styles.modeSelection}>
+            {Object.entries(GAME_MODES).map(([mode, details]) => (
+              <button
+                key={mode}
+                onClick={() => setGameMode(mode)}
+                style={{
+                  ...styles.modeCard,
+                  backgroundColor: 'white',
+                  color: details.color,
+                  border: `2px solid ${details.color}`,
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = details.color;
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.color = details.color;
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                <div style={{ fontSize: '20px', marginBottom: '8px' }}>
+                  {details.name}
+                </div>
+                <div style={{ fontSize: '14px', opacity: '0.9' }}>
+                  {details.description}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-
+    );
+  }
+  
   if (gameState === 'lost') {
     return (
       <div style={styles.container}>

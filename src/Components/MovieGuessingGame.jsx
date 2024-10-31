@@ -226,7 +226,7 @@ const MovieGuessingGame = () => {
     setGameMode(mode);
     setScore(0);
     setUsedMovies(new Set());
-    setRevealedClues([]); // Reset revealed clues when changing mode
+    setRevealedClues([]);
   };
 
   const styles = {
@@ -377,12 +377,31 @@ const MovieGuessingGame = () => {
                 onClick={() => selectGameMode(mode)}
                 style={{
                   ...styles.modeCard,
-                  backgroundColor: mode === 'EASY' ? '#22c55e' : 
-                                 mode === 'NORMAL' ? '#3b82f6' : 
-                                 '#ef4444',
-                  color: 'white'
+                  backgroundColor: 'white',
+                  color: mode === 'EASY' ? '#22c55e' : 
+                         mode === 'NORMAL' ? '#3b82f6' : 
+                         '#ef4444',
+                  border: `2px solid ${
+                    mode === 'EASY' ? '#22c55e' : 
+                    mode === 'NORMAL' ? '#3b82f6' : 
+                    '#ef4444'
+                  }`,
+                  transition: 'all 0.3s ease',
                 }}
-              >
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 
+                  mode === 'EASY' ? '#22c55e' :                                       
+                  mode === 'NORMAL' ? '#3b82f6' : '#ef4444';
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.color = 
+                  mode === 'EASY' ? '#22c55e' : 
+                  mode === 'NORMAL' ? '#3b82f6' : '#ef4444';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}>
                 <div style={{ fontSize: '20px', marginBottom: '8px' }}>
                   {GAME_MODES[mode].name}
                 </div>
@@ -542,6 +561,7 @@ const MovieGuessingGame = () => {
 
 export default MovieGuessingGame;
 
+// hovering effect for modes
 // maybe german/english
 // speedrun mode
 // reason for coming back each day
