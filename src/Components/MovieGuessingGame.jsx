@@ -35,6 +35,12 @@ const MovieGuessingGame = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [usedMovies, setUsedMovies] = useState(new Set());
 
+  const gameModeRef = useRef(gameMode);
+
+  useEffect(() => {
+    gameModeRef.current = gameMode;
+  }, [gameMode]);
+
   // Function to format currency
   const formatCurrency = (amount) => {
     if (!amount) return "Not Available";
@@ -143,12 +149,6 @@ const MovieGuessingGame = () => {
       { id: 9, type: "Rating", value: `${currentMovie.rating}/10` }
     ];
   };
-
-  const gameModeRef = useRef(gameMode);
-
-useEffect(() => {
-  gameModeRef.current = gameMode;
-}, [gameMode]);
 
   const startNewGame = useCallback(async () => {
     setGameState('loading');
