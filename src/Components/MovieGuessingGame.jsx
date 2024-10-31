@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
@@ -74,7 +74,7 @@ const MovieGuessingGame = () => {
   }, [timeRemaining, gameState, questionsAsked, gameMode]);
 
   // Function to get a random popular movie
-  const fetchRandomMovie = async () => {
+  const fetchRandomMovie = useCallback(async () => {
     try {
       let validMovie = null;
       let attempts = 0;
@@ -125,7 +125,7 @@ const MovieGuessingGame = () => {
       console.error("Error fetching movie:", error);
       return null;
     }
-  };
+  }, [gameMode, usedMovies]);
 
   // Get clues for current movie
   const getClues = () => {
@@ -143,34 +143,32 @@ const MovieGuessingGame = () => {
     ];
   };
 
-  const startNewGame = async () => {
-    setGameState('loading');
-    setRevealedClues([]); // Reset revealed clues
+  const startNewGame = useCallback(async () => {
+  setGameState('loading');
+  setRevealedClues([]);
+  
+  const movie = await fetchRandomMovie();
+  if (movie) {
+    setCurrentMovie(movie);
+    setQuestionsAsked(1);
+    setGameState('playing');
+    setGuess('');
+    setUsedMovies(prev => new Set([...prev, movie.id]));
+    setTimeRemaining(null);
     
-    const movie = await fetchRandomMovie();
-    if (movie) {
-      setCurrentMovie(movie);
-      setQuestionsAsked(1);
-      setGameState('playing');
-      setGuess('');
-      setUsedMovies(prev => new Set([...prev, movie.id]));
-      setTimeRemaining(null);
-      
-      // Reset guesses based on game mode
-      setGuessesRemaining(
-        gameMode === 'EASY' ? Infinity :
-        gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
-        GAME_MODES.HARD.guessLimit
-      );
-      
-      // Get initial random clue
-      const initialClue = { id: 1, type: "Year", value: movie.year };
-      setRevealedClues([initialClue]);
-    } else {
-      alert('Error loading movie. Please try again.');
-      setGameState('playing');
-    }
-  };
+    setGuessesRemaining(
+      gameMode === 'EASY' ? Infinity :
+      gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
+      GAME_MODES.HARD.guessLimit
+    );
+    
+    const initialClue = { id: 1, type: "Year", value: movie.year };
+    setRevealedClues([initialClue]);
+  } else {
+    alert('Error loading movie. Please try again.');
+    setGameState('playing');
+  }
+}, [fetchRandomMovie, gameMode]);
 
   // Initialize game when mode is selected
   useEffect(() => {
