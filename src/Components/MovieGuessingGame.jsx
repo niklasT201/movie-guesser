@@ -180,6 +180,11 @@ const MovieGuessingGame = () => {
       setScore(prev => prev + newPoints);
       setGameState('won');
     } else {
+      // Subtract 100 points for wrong answers in Normal and Hard mode
+      if (gameMode !== 'EASY') {
+        setScore(prev => prev - 100); // Now allows negative scores
+      }
+    
       setGuessesRemaining(prev => prev - 1);
       setGuess('');
       if (guessesRemaining <= 1) {
@@ -508,7 +513,7 @@ const MovieGuessingGame = () => {
               <p style={{ marginBottom: '20px' }}>
                 {gameState === 'won'
                   ? `You won! Points earned: ${Math.max(10 - questionsAsked, 1) * 100}`
-                  : `The movie was: ${currentMovie?.title}`}
+                  : `The movie was: ${currentMovie?.title}${gameMode !== 'EASY' ? ' (-100 points)' : ''}`}
               </p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                 <button
@@ -537,9 +542,7 @@ const MovieGuessingGame = () => {
 
 export default MovieGuessingGame;
 
-// question films of one special year
 // maybe german/english
-// wrong question removes 100 points
 // speedrun mode
 // reason for coming back each day
 // dark mode/ light mode

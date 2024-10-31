@@ -299,18 +299,14 @@ const [randomMode, setRandomMode] = useState(false);
       },
       selectorContainer: {
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'row', // Changed to row
+        flexWrap: 'wrap', // Allow wrapping on smaller screens
         gap: '12px',
         marginBottom: '24px',
-        alignItems: 'center', // Center all selector content
-      },
-      selectorGroup: {
-        display: 'flex',
-        gap: '12px',
-        justifyContent: 'center', // Center the button group
+        justifyContent: 'center',
       },
       selectorButton: {
-        width: '200px', // Fixed width for all selector buttons
+        width: '180px',
         padding: '12px',
         borderRadius: '8px',
         border: 'none',
@@ -320,7 +316,7 @@ const [randomMode, setRandomMode] = useState(false);
         transition: 'background-color 0.2s',
         fontSize: '14px',
         textAlign: 'center',
-        height: '50px', // Even shorter height
+        height: '50px',
       },
   };
 
@@ -335,33 +331,29 @@ const [randomMode, setRandomMode] = useState(false);
         </p>
 
         <div style={styles.selectorContainer}>
-          <div style={styles.selectorGroup}>
-            <button
-              onClick={() => setCriteriaChangeMode('single')}
-              style={{
-                ...styles.selectorButton,
-                backgroundColor: criteriaChangeMode === 'single' ? '#22c55e' : '#9ca3af',
-              }}
-            >
-              Keep same criteria
-            </button>
-            <button
-              onClick={() => setCriteriaChangeMode('multiple')}
-              style={{
-                ...styles.selectorButton,
-                backgroundColor: criteriaChangeMode === 'multiple' ? '#3b82f6' : '#9ca3af',
-              }}
-            >
-              Change criteria each round
-            </button>
-          </div>
+          <button
+            onClick={() => setCriteriaChangeMode('single')}
+            style={{
+              ...styles.selectorButton,
+              backgroundColor: criteriaChangeMode === 'single' ? '#f59e0b' : '#d1d5db',
+            }}
+          >
+            Keep same criteria
+          </button>
+          <button
+            onClick={() => setCriteriaChangeMode('multiple')}
+            style={{
+              ...styles.selectorButton,
+              backgroundColor: criteriaChangeMode === 'multiple' ? '#10b981' : '#d1d5db',
+            }}
+          >
+            Change criteria each round
+          </button>
           <button
             onClick={() => setRandomMode(!randomMode)}
             style={{
               ...styles.selectorButton,
-              backgroundColor: randomMode ? '#8b5cf6' : '#9ca3af',
-              width: '200px', // Fixed width for the random mode button
-              alignSelf: 'center', // Center the random mode button
+              backgroundColor: randomMode ? '#6366f1' : '#d1d5db',
             }}
           >
             Random Mode
