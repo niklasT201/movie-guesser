@@ -126,7 +126,7 @@ const MovieGuessingGame = () => {
       setGameState('playing'); // Ensure we're not stuck in loading state
       return null;
     }
-  }, [usedMovies]);
+  }, [gameMode, usedMovies]);
 
   // Get clues for current movie
   const getClues = () => {
@@ -174,11 +174,11 @@ const MovieGuessingGame = () => {
 }, [fetchRandomMovie, gameMode]);
 
   // Initialize game when mode is selected
-useEffect(() => {
-  if (gameMode) {
-    startNewGame().catch(console.error);
-  }
-}, [gameMode]); // Remove startNewGame from dependencies
+  useEffect(() => {
+    if (gameMode) {
+      startNewGame().catch(console.error);
+    }
+  }, [gameMode]);
 
   const getRandomClue = (excludeIds = []) => {
     const clues = getClues();
