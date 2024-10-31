@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
@@ -144,34 +144,40 @@ const MovieGuessingGame = () => {
     ];
   };
 
-  const startNewGame = useCallback(async () => {
-  if (!gameMode) return; // Add this check
+  const gameModeRef = useRef(gameMode);
 
-  setGameState('loading');
-  setRevealedClues([]);
-  
-  const movie = await fetchRandomMovie();
-  if (movie) {
-    setCurrentMovie(movie);
-    setQuestionsAsked(1);
-    setGameState('playing');
-    setGuess('');
-    setUsedMovies(prev => new Set([...prev, movie.id]));
-    setTimeRemaining(null);
+useEffect(() => {
+  gameModeRef.current = gameMode;
+}, [gameMode]);
+
+  const startNewGame = useCallback(async () => {
+    setGameState('loading');
+    setRevealedClues([]);
     
-    setGuessesRemaining(
-      gameMode === 'EASY' ? Infinity :
-      gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
-      GAME_MODES.HARD.guessLimit
-    );
-    
-    const initialClue = { id: 1, type: "Year", value: movie.year };
-    setRevealedClues([initialClue]);
-  } else {
-    alert('Error loading movie. Please try again.');
-    setGameState('playing');
-  }
-}, [fetchRandomMovie, gameMode]);
+    const movie = await fetchRandomMovie();
+    if (movie) {
+      setCurrentMovie(movie);
+      setQuestionsAsked(1);
+      setGameState('playing');
+      setGuess('');
+      setUsedMovies(prev => new Set([...prev, movie.id]));
+      setTimeRemaining(null);
+      
+      // Use a function to get the latest gameMode
+      setGuessesRemaining(() => {
+    const currentGameMode = gameModeRef.current;
+    return currentGameMode === 'EASY' ? Infinity :
+           currentGameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
+           GAME_MODES.HARD.guessLimit;
+  });
+      
+      const initialClue = { id: 1, type: "Year", value: movie.year };
+      setRevealedClues([initialClue]);
+    } else {
+      alert('Error loading movie. Please try again.');
+      setGameState('playing');
+    }
+  }, [fetchRandomMovie]);
 
   // Initialize game when mode is selected
   useEffect(() => {
