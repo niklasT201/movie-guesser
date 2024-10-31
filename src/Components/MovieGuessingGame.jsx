@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
@@ -73,6 +73,59 @@ const MovieGuessingGame = () => {
     return () => clearInterval(timer);
   }, [timeRemaining, gameState, questionsAsked, gameMode]);
 
+  // Function to get a random popular movie
+  const fetchRandomMovie = async () => {
+    try {
+      let validMovie = null;
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (!validMovie && attempts < maxAttempts) {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${Math.floor(Math.random() * 5) + 1}`
+        );
+        const data = await response.json();
+        
+        // Filter movies based on game mode and already used movies
+        const eligibleMovies = data.results.filter(movie => {
+          const titleLength = movie.title.length;
+          return (
+            !usedMovies.has(movie.id) &&
+            (gameMode === 'EASY' ? titleLength <= GAME_MODES.EASY.titleLengthLimit : true)
+          );
+        });
+
+        if (eligibleMovies.length > 0) {
+          const randomMovie = eligibleMovies[Math.floor(Math.random() * eligibleMovies.length)];
+          
+          const detailResponse = await fetch(
+            `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
+          );
+          const movieDetail = await detailResponse.json();
+          
+          validMovie = {
+            id: movieDetail.id,
+            title: movieDetail.title,
+            year: new Date(movieDetail.release_date).getFullYear().toString(),
+            director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
+            genre: movieDetail.genres.map(g => g.name).join(", "),
+            actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
+            plot: movieDetail.overview,
+            budget: movieDetail.budget,
+            revenue: movieDetail.revenue,
+            runtime: movieDetail.runtime,
+            rating: movieDetail.vote_average.toFixed(1)
+          };
+        }
+        attempts++;
+      }
+      
+      return validMovie;
+    } catch (error) {
+      console.error("Error fetching movie:", error);
+      return null;
+    }
+  };
 
   // Get clues for current movie
   const getClues = () => {
@@ -89,6 +142,13 @@ const MovieGuessingGame = () => {
       { id: 9, type: "Rating", value: `${currentMovie.rating}/10` }
     ];
   };
+
+  // Initialize game when mode is selected
+  useEffect(() => {
+    if (gameMode) {
+      startNewGame();
+    }
+  }, [gameMode]);
 
   const getRandomClue = (excludeIds = []) => {
     const clues = getClues();
@@ -133,67 +193,9 @@ const MovieGuessingGame = () => {
     }
   };
 
-  const startNewGame = useCallback(async () => {
-    // Move fetchRandomMovie inside startNewGame's useCallback
-    const fetchRandomMovie = async () => {
-      try {
-        let validMovie = null;
-        let attempts = 0;
-        const maxAttempts = 10;
-  
-        while (!validMovie && attempts < maxAttempts) {
-          const response = await fetch(
-            `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${Math.floor(Math.random() * 5) + 1}`
-          );
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-          console.log("API Response:", data); 
-          
-          const eligibleMovies = data.results.filter(movie => {
-            const titleLength = movie.title.length;
-            return (
-              !usedMovies.has(movie.id) &&
-              (gameMode === 'EASY' ? titleLength <= GAME_MODES.EASY.titleLengthLimit : true)
-            );
-          });
-  
-          if (eligibleMovies.length > 0) {
-            const randomMovie = eligibleMovies[Math.floor(Math.random() * eligibleMovies.length)];
-            
-            const detailResponse = await fetch(
-              `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
-            );
-            const movieDetail = await detailResponse.json();
-            
-            validMovie = {
-              id: movieDetail.id,
-              title: movieDetail.title,
-              year: new Date(movieDetail.release_date).getFullYear().toString(),
-              director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
-              genre: movieDetail.genres.map(g => g.name).join(", "),
-              actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
-              plot: movieDetail.overview,
-              budget: movieDetail.budget,
-              revenue: movieDetail.revenue,
-              runtime: movieDetail.runtime,
-              rating: movieDetail.vote_average.toFixed(1)
-            };
-          }
-          attempts++;
-        }
-        
-        return validMovie;
-      } catch (error) {
-        console.error("Error fetching movie:", error);
-        return null;
-      }
-    };
-  
+  const startNewGame = async () => {
     setGameState('loading');
-    setRevealedClues([]);
+    setRevealedClues([]); // Reset revealed clues
     
     const movie = await fetchRandomMovie();
     if (movie) {
@@ -204,26 +206,21 @@ const MovieGuessingGame = () => {
       setUsedMovies(prev => new Set([...prev, movie.id]));
       setTimeRemaining(null);
       
+      // Reset guesses based on game mode
       setGuessesRemaining(
         gameMode === 'EASY' ? Infinity :
         gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
         GAME_MODES.HARD.guessLimit
       );
       
+      // Get initial random clue
       const initialClue = { id: 1, type: "Year", value: movie.year };
       setRevealedClues([initialClue]);
     } else {
       alert('Error loading movie. Please try again.');
       setGameState('playing');
     }
-  }, [gameMode, usedMovies]); 
-  
-  // Move this useEffect after startNewGame definition
-  useEffect(() => {
-    if (gameMode) {
-      startNewGame();
-    }
-  }, [gameMode, startNewGame]);
+  };
 
   const selectGameMode = (mode) => {
     setGameMode(mode);
