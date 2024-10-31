@@ -123,9 +123,10 @@ const MovieGuessingGame = () => {
       return validMovie;
     } catch (error) {
       console.error("Error fetching movie:", error);
+      setGameState('playing'); // Ensure we're not stuck in loading state
       return null;
     }
-  }, [gameMode, usedMovies]);
+  }, [usedMovies]);
 
   // Get clues for current movie
   const getClues = () => {
@@ -144,55 +145,40 @@ const MovieGuessingGame = () => {
   };
 
   const startNewGame = useCallback(async () => {
-    setGameState('loading');
-    setRevealedClues([]);
+  if (!gameMode) return; // Add this check
+
+  setGameState('loading');
+  setRevealedClues([]);
+  
+  const movie = await fetchRandomMovie();
+  if (movie) {
+    setCurrentMovie(movie);
+    setQuestionsAsked(1);
+    setGameState('playing');
+    setGuess('');
+    setUsedMovies(prev => new Set([...prev, movie.id]));
+    setTimeRemaining(null);
     
-    let attempts = 0;
-    const maxAttempts = 3;
+    setGuessesRemaining(
+      gameMode === 'EASY' ? Infinity :
+      gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
+      GAME_MODES.HARD.guessLimit
+    );
     
-    while (attempts < maxAttempts) {
-      try {
-        const movie = await fetchRandomMovie();
-        if (movie) {
-          setCurrentMovie(movie);
-          setQuestionsAsked(1);
-          setGameState('playing');
-          setGuess('');
-          setUsedMovies(prev => new Set([...prev, movie.id]));
-          setTimeRemaining(null);
-          
-          setGuessesRemaining(
-            gameMode === 'EASY' ? Infinity :
-            gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
-            GAME_MODES.HARD.guessLimit
-          );
-          
-          const initialClue = { id: 1, type: "Year", value: movie.year };
-          setRevealedClues([initialClue]);
-          return; // Successfully loaded movie, exit the function
-        }
-      } catch (error) {
-        console.error("Attempt failed:", error);
-      }
-      attempts++;
-      
-      // If we're not on the last attempt, wait a bit before trying again
-      if (attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-    
-    // If we get here, all attempts failed
+    const initialClue = { id: 1, type: "Year", value: movie.year };
+    setRevealedClues([initialClue]);
+  } else {
     alert('Error loading movie. Please try again.');
-    setGameMode(null); // Return to mode selection instead of showing broken game state
-  }, [fetchRandomMovie, gameMode]);
+    setGameState('playing');
+  }
+}, [fetchRandomMovie, gameMode]);
 
   // Initialize game when mode is selected
-  useEffect(() => {
-    if (gameMode) {
-      startNewGame();
-    }
-  }, [gameMode, startNewGame]);
+useEffect(() => {
+  if (gameMode) {
+    startNewGame().catch(console.error);
+  }
+}, [gameMode]); // Remove startNewGame from dependencies
 
   const getRandomClue = (excludeIds = []) => {
     const clues = getClues();
