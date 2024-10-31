@@ -145,7 +145,12 @@ const MovieGuessingGame = () => {
           const response = await fetch(
             `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${Math.floor(Math.random() * 5) + 1}`
           );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
           const data = await response.json();
+          console.log("API Response:", data); 
           
           const eligibleMovies = data.results.filter(movie => {
             const titleLength = movie.title.length;
