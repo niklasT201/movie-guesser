@@ -148,7 +148,7 @@ const MovieGuessingGame = () => {
     if (gameMode) {
       startNewGame();
     }
-  }, [gameMode]);
+  }, [gameMode, startNewGame]);
 
   const getRandomClue = (excludeIds = []) => {
     const clues = getClues();

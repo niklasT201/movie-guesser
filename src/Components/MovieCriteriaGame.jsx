@@ -102,7 +102,7 @@ const [randomMode, setRandomMode] = useState(false);
     if (gameMode) {
       generateNewCriteria();
     }
-  }, [gameMode]);
+  }, [gameMode, generateNewCriteria]);
 
   // Function to verify guess
   const verifyGuess = async () => {
@@ -399,7 +399,7 @@ const [randomMode, setRandomMode] = useState(false);
       </div>
     );
   }
-  
+
   if (gameState === 'lost') {
     return (
       <div style={styles.container}>
