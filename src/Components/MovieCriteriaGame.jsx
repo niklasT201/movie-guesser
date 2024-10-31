@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
@@ -48,7 +48,7 @@ const [randomMode, setRandomMode] = useState(false);
   };
 
   // Function to get a random person (director or actor)
-  const getRandomPerson = async (type) => {
+  const getRandomPerson = useCallback(async (type) => {
     try {
       const page = Math.floor(Math.random() * 5) + 1;
       const response = await fetch(
@@ -75,10 +75,10 @@ const [randomMode, setRandomMode] = useState(false);
       console.error("Error fetching person:", error);
       return null;
     }
-  };
+  }, []);
 
   // Function to generate new criteria based on game mode
-  const generateNewCriteria = async () => {
+  const generateNewCriteria = useCallback(async () => {
     const type = gameMode === 'RANDOM' 
       ? ['year', 'director', 'actor'][Math.floor(Math.random() * 3)]
       : GAME_MODES[gameMode].type;
@@ -95,7 +95,7 @@ const [randomMode, setRandomMode] = useState(false);
     setCurrentCriteria(newCriteria);
     setGuessesRemaining(3);
     setGuess('');
-  };
+  }, [gameMode, getRandomPerson]);
 
   // Initialize game when mode is selected
   useEffect(() => {
@@ -147,6 +147,9 @@ const [randomMode, setRandomMode] = useState(false);
           isCorrect = actors.some(actor => 
             actor.toLowerCase() === currentCriteria?.toLowerCase()
           );
+          break;
+        default:
+          isCorrect = false;
           break;
       }
 
