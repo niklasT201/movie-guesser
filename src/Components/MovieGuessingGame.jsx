@@ -143,6 +143,35 @@ const MovieGuessingGame = () => {
     ];
   };
 
+  const startNewGame = async () => {
+    setGameState('loading');
+    setRevealedClues([]); // Reset revealed clues
+    
+    const movie = await fetchRandomMovie();
+    if (movie) {
+      setCurrentMovie(movie);
+      setQuestionsAsked(1);
+      setGameState('playing');
+      setGuess('');
+      setUsedMovies(prev => new Set([...prev, movie.id]));
+      setTimeRemaining(null);
+      
+      // Reset guesses based on game mode
+      setGuessesRemaining(
+        gameMode === 'EASY' ? Infinity :
+        gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
+        GAME_MODES.HARD.guessLimit
+      );
+      
+      // Get initial random clue
+      const initialClue = { id: 1, type: "Year", value: movie.year };
+      setRevealedClues([initialClue]);
+    } else {
+      alert('Error loading movie. Please try again.');
+      setGameState('playing');
+    }
+  };
+
   // Initialize game when mode is selected
   useEffect(() => {
     if (gameMode) {
@@ -193,34 +222,6 @@ const MovieGuessingGame = () => {
     }
   };
 
-  const startNewGame = async () => {
-    setGameState('loading');
-    setRevealedClues([]); // Reset revealed clues
-    
-    const movie = await fetchRandomMovie();
-    if (movie) {
-      setCurrentMovie(movie);
-      setQuestionsAsked(1);
-      setGameState('playing');
-      setGuess('');
-      setUsedMovies(prev => new Set([...prev, movie.id]));
-      setTimeRemaining(null);
-      
-      // Reset guesses based on game mode
-      setGuessesRemaining(
-        gameMode === 'EASY' ? Infinity :
-        gameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
-        GAME_MODES.HARD.guessLimit
-      );
-      
-      // Get initial random clue
-      const initialClue = { id: 1, type: "Year", value: movie.year };
-      setRevealedClues([initialClue]);
-    } else {
-      alert('Error loading movie. Please try again.');
-      setGameState('playing');
-    }
-  };
 
   const selectGameMode = (mode) => {
     setGameMode(mode);
