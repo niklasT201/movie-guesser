@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
-import MoviewCriteriaGame from './MovieCriteriaGame'
+import MoviewCriteriaGame from './MovieCriteriaGame';
 
 const GameHub = () => {
-  const [selectedGame, setSelectedGame] = React.useState(null);
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(true);
   
   const games = [
     {
@@ -20,13 +21,63 @@ const GameHub = () => {
       icon: '🎯',
       component: MoviewCriteriaGame
     }
-    // Future games can be added here
   ];
 
   const styles = {
+    mainContainer: {
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: '#f3f4f6',
+    },
+    navbar: {
+      width: isNavbarOpen ? '250px' : '60px',
+      backgroundColor: '#1f2937',
+      transition: 'width 0.3s ease',
+      padding: '20px',
+      color: 'white',
+      position: 'relative'
+    },
+    navbarHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: '24px'
+    },
+    navbarTitle: {
+      fontSize: '20px',
+      fontWeight: 'bold',
+      opacity: isNavbarOpen ? 1 : 0,
+      transition: 'opacity 0.2s',
+      whiteSpace: 'nowrap'
+    },
+    navbarToggle: {
+      backgroundColor: 'transparent',
+      border: 'none',
+      color: 'white',
+      cursor: 'pointer',
+      padding: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '20px',
+      width: '32px',
+      height: '32px'
+    },
+    navItem: {
+      padding: '12px',
+      marginBottom: '8px',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      transition: 'background-color 0.2s',
+      backgroundColor: 'transparent',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap'
+    },
     container: {
-      maxWidth: '900px',
-      margin: '0 auto',
+      flex: 1,
       padding: '20px',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
@@ -51,6 +102,7 @@ const GameHub = () => {
       padding: '20px'
     },
     gameCard: {
+      maxWidth: '700px',
       backgroundColor: 'white',
       borderRadius: '16px',
       padding: '24px',
@@ -94,45 +146,94 @@ const GameHub = () => {
   if (selectedGame) {
     const GameComponent = selectedGame.component;
     return (
-      <div>
-        <button 
-          onClick={() => setSelectedGame(null)} 
-          style={styles.backButton}
-        >
-          ← Back to Games
-        </button>
-        <GameComponent />
+      <div style={styles.mainContainer}>
+        <nav style={styles.navbar}>
+          <div style={styles.navbarHeader}>
+            {isNavbarOpen && <span style={styles.navbarTitle}>Movie Games</span>}
+            <button 
+              style={styles.navbarToggle}
+              onClick={() => setIsNavbarOpen(!isNavbarOpen)}
+            >
+              {isNavbarOpen ? '×' : '☰'}
+            </button>
+          </div>
+          {games.map(game => (
+            <div
+              key={game.id}
+              style={{
+                ...styles.navItem,
+                backgroundColor: selectedGame?.id === game.id ? '#374151' : 'transparent'
+              }}
+              onClick={() => setSelectedGame(game)}
+            >
+              <span>{game.icon}</span>
+              {isNavbarOpen && <span>{game.title}</span>}
+            </div>
+          ))}
+        </nav>
+        <div style={styles.container}>
+          <button 
+            onClick={() => setSelectedGame(null)} 
+            style={styles.backButton}
+          >
+            ← Back to Games
+          </button>
+          <GameComponent />
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>Game Hub</h1>
-        <p style={styles.subtitle}>Choose your game and start playing!</p>
-      </header>
-
-      <div style={styles.gamesGrid}>
+    <div style={styles.mainContainer}>
+      <nav style={styles.navbar}>
+        <div style={styles.navbarHeader}>
+          {isNavbarOpen && <span style={styles.navbarTitle}>Movie Games</span>}
+          <button 
+            style={styles.navbarToggle}
+            onClick={() => setIsNavbarOpen(!isNavbarOpen)}
+          >
+            {isNavbarOpen ? '×' : '☰'}
+          </button>
+        </div>
         {games.map(game => (
           <div
             key={game.id}
-            style={styles.gameCard}
+            style={styles.navItem}
             onClick={() => setSelectedGame(game)}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = styles.gameCardHover.transform;
-              e.currentTarget.style.boxShadow = styles.gameCardHover.boxShadow;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'none';
-              e.currentTarget.style.boxShadow = styles.gameCard.boxShadow;
-            }}
           >
-            <div style={styles.icon}>{game.icon}</div>
-            <h2 style={styles.gameTitle}>{game.title}</h2>
-            <p style={styles.gameDescription}>{game.description}</p>
+            <span>{game.icon}</span>
+            {isNavbarOpen && <span>{game.title}</span>}
           </div>
         ))}
+      </nav>
+      <div style={styles.container}>
+        <header style={styles.header}>
+          <h1 style={styles.title}>Game Hub</h1>
+          <p style={styles.subtitle}>Choose your game and start playing!</p>
+        </header>
+
+        <div style={styles.gamesGrid}>
+          {games.map(game => (
+            <div
+              key={game.id}
+              style={styles.gameCard}
+              onClick={() => setSelectedGame(game)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = styles.gameCardHover.transform;
+                e.currentTarget.style.boxShadow = styles.gameCardHover.boxShadow;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.boxShadow = styles.gameCard.boxShadow;
+              }}
+            >
+              <div style={styles.icon}>{game.icon}</div>
+              <h2 style={styles.gameTitle}>{game.title}</h2>
+              <p style={styles.gameDescription}>{game.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
