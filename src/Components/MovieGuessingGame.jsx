@@ -569,8 +569,7 @@ const MovieGuessingGame = () => {
 
 export default MovieGuessingGame;
 
-// hovering effect for modes
 // maybe german/english
 // speedrun mode
 // reason for coming back each day
-// dark mode/ light mode
+// dark mode/light mode

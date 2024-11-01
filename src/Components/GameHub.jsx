@@ -79,11 +79,15 @@ const GameHub = () => {
     container: {
       flex: 1,
       padding: '20px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
     },
     header: {
       textAlign: 'center',
-      marginBottom: '48px'
+      marginBottom: '48px',
+      width: '100%'
     },
     title: {
       fontSize: '36px',
@@ -99,10 +103,11 @@ const GameHub = () => {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
       gap: '24px',
-      padding: '20px'
+      padding: '20px',
+      maxWidth: '1100px',
+      width: '100%'
     },
     gameCard: {
-      maxWidth: '700px',
       backgroundColor: 'white',
       borderRadius: '16px',
       padding: '24px',
@@ -130,16 +135,20 @@ const GameHub = () => {
       lineHeight: '1.5'
     },
     backButton: {
-      position: 'absolute',
-      top: '20px',
-      left: '20px',
       padding: '8px 16px',
       borderRadius: '8px',
       border: 'none',
       backgroundColor: '#6b7280',
       color: 'white',
       cursor: 'pointer',
-      fontSize: '14px'
+      fontSize: '14px',
+      marginBottom: '20px',
+      alignSelf: 'flex-start'
+    },
+    contentContainer: {
+      maxWidth: '1200px',
+      width: '100%',
+      margin: '0 auto'
     }
   };
 
@@ -172,13 +181,15 @@ const GameHub = () => {
           ))}
         </nav>
         <div style={styles.container}>
-          <button 
-            onClick={() => setSelectedGame(null)} 
-            style={styles.backButton}
-          >
-            ← Back to Games
-          </button>
-          <GameComponent />
+          <div style={styles.contentContainer}>
+            <button 
+              onClick={() => setSelectedGame(null)} 
+              style={styles.backButton}
+            >
+              ← Back to Games
+            </button>
+            <GameComponent />
+          </div>
         </div>
       </div>
     );
@@ -208,31 +219,33 @@ const GameHub = () => {
         ))}
       </nav>
       <div style={styles.container}>
-        <header style={styles.header}>
-          <h1 style={styles.title}>Game Hub</h1>
-          <p style={styles.subtitle}>Choose your game and start playing!</p>
-        </header>
+        <div style={styles.contentContainer}>
+          <header style={styles.header}>
+            <h1 style={styles.title}>Game Hub</h1>
+            <p style={styles.subtitle}>Choose your game and start playing!</p>
+          </header>
 
-        <div style={styles.gamesGrid}>
-          {games.map(game => (
-            <div
-              key={game.id}
-              style={styles.gameCard}
-              onClick={() => setSelectedGame(game)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = styles.gameCardHover.transform;
-                e.currentTarget.style.boxShadow = styles.gameCardHover.boxShadow;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'none';
-                e.currentTarget.style.boxShadow = styles.gameCard.boxShadow;
-              }}
-            >
-              <div style={styles.icon}>{game.icon}</div>
-              <h2 style={styles.gameTitle}>{game.title}</h2>
-              <p style={styles.gameDescription}>{game.description}</p>
-            </div>
-          ))}
+          <div style={styles.gamesGrid}>
+            {games.map(game => (
+              <div
+                key={game.id}
+                style={styles.gameCard}
+                onClick={() => setSelectedGame(game)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = styles.gameCardHover.transform;
+                  e.currentTarget.style.boxShadow = styles.gameCardHover.boxShadow;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = styles.gameCard.boxShadow;
+                }}
+              >
+                <div style={styles.icon}>{game.icon}</div>
+                <h2 style={styles.gameTitle}>{game.title}</h2>
+                <p style={styles.gameDescription}>{game.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
