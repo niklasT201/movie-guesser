@@ -169,7 +169,7 @@ const MovieGuessingGame = () => {
     return currentGameMode === 'EASY' ? Infinity :
            currentGameMode === 'NORMAL' ? GAME_MODES.NORMAL.guessLimit :
            GAME_MODES.HARD.guessLimit;
-  });
+    });
       
       const initialClue = { id: 1, type: "Year", value: movie.year };
       setRevealedClues([initialClue]);
