@@ -55,6 +55,7 @@ const translations = {
     genre: 'Genre',
     director: 'Director',
     mainActors: 'Main Actors',
+    notAvailable: 'Not Available',
     plot: 'Plot',
     budget: 'Budget',
     boxOffice: 'Box Office',
@@ -93,6 +94,7 @@ const translations = {
     genre: 'Genre',
     director: 'Regisseur',
     mainActors: 'Hauptdarsteller',
+    notAvailable: 'Nicht verfügbar',
     plot: 'Handlung',
     budget: 'Budget',
     boxOffice: 'Einspielergebnis',
@@ -127,7 +129,7 @@ const MovieGuessingGame = ({ language }) => {
 
   // Function to format currency
   const formatCurrency = (amount) => {
-    if (!amount) return "Not Available";
+    if (!amount) return t.notAvailable;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -201,12 +203,15 @@ const MovieGuessingGame = ({ language }) => {
           validMovie = {
             id: movieDetail.id,
             title: movieDetail.title,
-            germanTitle: germanData.title,
+            germanTitle: germanData.title || movieDetail.title, // Fallback to English title if German is not available
             year: new Date(movieDetail.release_date).getFullYear().toString(),
             director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
             genre: movieDetail.genres.map(g => g.name).join(", "),
             actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
-            plot: language === 'de' ? germanData.overview : movieDetail.overview,
+            plot: {
+              en: movieDetail.overview,
+              de: germanData.overview || movieDetail.overview // Fallback to English plot if German is not available
+            },
             budget: movieDetail.budget,
             revenue: movieDetail.revenue,
             runtime: movieDetail.runtime,
@@ -232,7 +237,7 @@ const MovieGuessingGame = ({ language }) => {
       { id: 2, type: t.genre, value: currentMovie.genre },
       { id: 3, type: t.director, value: currentMovie.director },
       { id: 4, type: t.mainActors, value: currentMovie.actors },
-      { id: 5, type: t.plot, value: currentMovie.plot },
+      { id: 5, type: t.plot, value: currentMovie.plot[language] },
       { id: 6, type: t.budget, value: formatCurrency(currentMovie.budget) },
       { id: 7, type: t.boxOffice, value: formatCurrency(currentMovie.revenue) },
       { id: 8, type: t.runtime, value: `${currentMovie.runtime} ${t.minutes}` },
