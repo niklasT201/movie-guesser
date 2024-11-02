@@ -201,18 +201,27 @@ const GameHub = () => {
   };
 
   const renderNavbar = () => (
-    <nav className={`navbar ${isNavbarOpen ? 'open' : ''}`}>
-      <div style={styles.navbarHeader}>
-        {isNavbarOpen && <span style={styles.navbarTitle}>
-          {language === 'en' ? 'Movie Games' : 'Filmspiele'}
-        </span>}
-        <button 
-          style={styles.navbarToggle}
-          onClick={() => setIsNavbarOpen(!isNavbarOpen)}
-        >
-          {isNavbarOpen ? '×' : '☰'}
-        </button>
-      </div>
+    <>
+      <button 
+        className="mobile-menu-button"
+        onClick={() => setIsNavbarOpen(!isNavbarOpen)}
+      >
+        ☰
+      </button>
+      <nav className={`navbar ${isNavbarOpen ? 'open' : ''}`}>
+        <div style={styles.navbarHeader}>
+          {isNavbarOpen && (
+            <span style={styles.navbarTitle}>
+              {language === 'en' ? 'Movie Games' : 'Filmspiele'}
+            </span>
+          )}
+          <button 
+            style={styles.navbarToggle}
+            onClick={() => setIsNavbarOpen(!isNavbarOpen)}
+          >
+            {isNavbarOpen ? '×' : '☰'}
+          </button>
+        </div>
       <div style={styles.navbarContent}>
         <div>
           {games.map(game => (
@@ -265,6 +274,7 @@ const GameHub = () => {
         </div>
       </div>
     </nav>
+    </>
   );
 
   const renderContent = () => {

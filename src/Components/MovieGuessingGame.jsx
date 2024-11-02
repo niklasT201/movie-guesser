@@ -56,7 +56,7 @@ const translations = {
     loading: 'Lade deine Herausforderung...',
     selectChallenge: 'Wähle deinen Schwierigkeitsgrad',
     movieGuesser: 'Film Raten',
-    backToModes: '← Zurück zu Modi',
+    backToModes: '← Zurück zu den Modi',
     backToGames: '← Zurück zu Spielen',
     score: 'Punkte',
     clues: 'Hinweise',
