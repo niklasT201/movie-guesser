@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
+import './GameHub.css';  // Import the CSS file
 
 const GameHub = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -42,23 +43,6 @@ const GameHub = () => {
       backgroundColor: '#f3f4f6',
       position: 'relative',
     },
-    navbar: {
-      width: isNavbarOpen ? '250px' : '60px',
-      backgroundColor: '#1f2937',
-      transition: 'width 0.3s ease',
-      padding: '20px',
-      color: 'white',
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'fixed',
-      overflowX: 'hidden',
-      zIndex: 1000,
-      '@media (max-width: 1110px)': {
-        width: isNavbarOpen ? '100%' : '0',
-        padding: isNavbarOpen ? '20px' : '0'
-      }
-    },
     navbarHeader: {
       display: 'flex',
       alignItems: 'center',
@@ -91,7 +75,6 @@ const GameHub = () => {
       fontSize: '20px',
       width: '32px',
       height: '32px',
-    //  position: 'fixed',
       left: isNavbarOpen ? '20px' : '10px',
       top: '20px',
       zIndex: 1001,
@@ -203,6 +186,9 @@ const GameHub = () => {
       lineHeight: '1.5'
     },
     backButton: {
+      position: 'absolute',
+      top: '20px',
+      left: '280px',
       padding: '8px 16px',
       borderRadius: '8px',
       border: 'none',
@@ -211,12 +197,11 @@ const GameHub = () => {
       cursor: 'pointer',
       fontSize: '14px',
       marginBottom: '20px',
-      marginLeft: windowWidth > 768 ? '280px' : '20px' // Adjust based on screen size
     }
   };
 
   const renderNavbar = () => (
-    <nav style={styles.navbar}>
+    <nav className={`navbar ${isNavbarOpen ? 'open' : ''}`}>
       <div style={styles.navbarHeader}>
         {isNavbarOpen && <span style={styles.navbarTitle}>
           {language === 'en' ? 'Movie Games' : 'Filmspiele'}

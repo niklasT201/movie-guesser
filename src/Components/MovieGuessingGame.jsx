@@ -424,7 +424,7 @@ const MovieGuessingGame = ({ language }) => {
     backButton: {
       position: 'absolute',
       top: '20px',
-      left: '280px', // Adjusted to not overlap with navbar
+      left: '280px',
       padding: '8px 16px',
       borderRadius: '8px',
       border: 'none',
@@ -433,7 +433,7 @@ const MovieGuessingGame = ({ language }) => {
       cursor: 'pointer',
       fontSize: '14px',
       '@media (max-width: 768px)': {
-        left: '20px' // Adjust position for mobile
+        marginLeft: '20px' // Adjust position for mobile
       }
     },
     timer: {

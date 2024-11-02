@@ -1,0 +1,30 @@
+.navbar {
+    width: 60px;
+    background-color: #1f2937;
+    transition: all 0.3s ease;
+    padding: 20px;
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    overflow-x: hidden;
+    z-index: 1000;
+  }
+  
+  .navbar.open {
+    width: 250px;
+  }
+  
+  @media (max-width: 768px) {
+    .navbar.open {
+      width: 91vw;
+      height: 100vh;
+      padding: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
