@@ -245,6 +245,17 @@ const MovieGuessingGame = ({ language }) => {
     ];
   };
 
+  useEffect(() => {
+    if (currentMovie && revealedClues.length > 0) {
+      // Regenerate the revealed clues with new language
+      const allClues = getClues();
+      const updatedRevealedClues = revealedClues.map(revealedClue => {
+        return allClues.find(clue => clue.id === revealedClue.id);
+      });
+      setRevealedClues(updatedRevealedClues);
+    }
+  }, [language]);
+
   const startNewGame = useCallback(async () => {
     setGameState('loading');
     setRevealedClues([]);
