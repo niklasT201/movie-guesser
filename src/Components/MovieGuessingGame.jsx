@@ -4,26 +4,82 @@ const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
 const GAME_MODES = {
   EASY: {
-    name: 'Easy',
+    nameEN: 'Easy',
+    nameDE: 'Einfach',
     titleLengthLimit: 20,
     guessLimit: Infinity,
     timeLimit: Infinity
   },
   NORMAL: {
-    name: 'Normal',
+    nameEN: 'Normal',
+    nameDE: 'Normal',
     titleLengthLimit: Infinity,
     guessLimit: 5,
     timeLimit: Infinity
   },
   HARD: {
-    name: 'Hard',
+    nameEN: 'Hard',
+    nameDE: 'Schwer',
     titleLengthLimit: Infinity,
     guessLimit: 2,
     timeLimit: 60
   }
 };
 
-const MovieGuessingGame = () => {
+const translations = {
+  en: {
+    loading: 'Loading your challenge...',
+    selectChallenge: 'Select your challenge level',
+    movieGuesser: 'Movie Guesser',
+    backToModes: '← Back to Modes',
+    backToGames: '← Back to Games',
+    score: 'Score',
+    clues: 'Clues',
+    guesses: 'Guesses',
+    time: 'Time',
+    enterGuess: 'Enter your guess...',
+    guessButton: 'Guess',
+    getClue: 'Get Clue',
+    cluesLeft: 'left',
+    giveUp: 'Give Up',
+    congratulations: 'Congratulations!',
+    gameOver: 'Game Over',
+    pointsEarned: 'Points earned',
+    movieWas: 'The movie was',
+    playAgain: 'Play Again',
+    changeMode: 'Change Mode',
+    unlimitedGuesses: 'Unlimited guesses',
+    fiveGuesses: '5 guesses',
+    hardModeDesc: '2 guesses • 60s timer'
+  },
+  de: {
+    loading: 'Lade deine Herausforderung...',
+    selectChallenge: 'Wähle deinen Schwierigkeitsgrad',
+    movieGuesser: 'Film Raten',
+    backToModes: '← Zurück zu Modi',
+    backToGames: '← Zurück zu Spielen',
+    score: 'Punkte',
+    clues: 'Hinweise',
+    guesses: 'Versuche',
+    time: 'Zeit',
+    enterGuess: 'Gib deinen Tipp ein...',
+    guessButton: 'Raten',
+    getClue: 'Hinweis',
+    cluesLeft: 'übrig',
+    giveUp: 'Aufgeben',
+    congratulations: 'Glückwunsch!',
+    gameOver: 'Spiel vorbei',
+    pointsEarned: 'Punkte erhalten',
+    movieWas: 'Der Film war',
+    playAgain: 'Nochmal spielen',
+    changeMode: 'Modus ändern',
+    unlimitedGuesses: 'Unbegrenzte Versuche',
+    fiveGuesses: '5 Versuche',
+    hardModeDesc: '2 Versuche • 60s Timer'
+  }
+};
+
+const MovieGuessingGame = ({ language }) => {
   const [currentMovie, setCurrentMovie] = useState(null);
   const [questionsAsked, setQuestionsAsked] = useState(1);
   const [score, setScore] = useState(0);
@@ -34,6 +90,8 @@ const MovieGuessingGame = () => {
   const [guessesRemaining, setGuessesRemaining] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [usedMovies, setUsedMovies] = useState(new Set());
+  const [germanTitle, setGermanTitle] = useState(null);
+  const t = translations[language];
 
   const gameModeRef = useRef(gameMode);
 
@@ -108,10 +166,16 @@ const MovieGuessingGame = () => {
             `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&language=en-US&append_to_response=credits`
           );
           const movieDetail = await detailResponse.json();
+
+          const germanResponse = await fetch(
+            `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}&language=de-DE`
+          );
+          const germanData = await germanResponse.json();
           
           validMovie = {
             id: movieDetail.id,
             title: movieDetail.title,
+            germanTitle: germanData.title,
             year: new Date(movieDetail.release_date).getFullYear().toString(),
             director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
             genre: movieDetail.genres.map(g => g.name).join(", "),
@@ -157,6 +221,7 @@ const MovieGuessingGame = () => {
     const movie = await fetchRandomMovie();
     if (movie) {
       setCurrentMovie(movie);
+      setGermanTitle(movie.germanTitle);
       setQuestionsAsked(1);
       setGameState('playing');
       setGuess('');
@@ -178,6 +243,8 @@ const MovieGuessingGame = () => {
       setGameState('playing');
     }
   }, [fetchRandomMovie]);
+
+  const getText = (en, de) => language === 'en' ? en : de;
 
   // Initialize game when mode is selected
   useEffect(() => {
@@ -332,7 +399,13 @@ const MovieGuessingGame = () => {
       textAlign: 'center',
       cursor: 'pointer',
       transition: 'transform 0.2s',
-      border: 'none'
+      border: 'none',
+      wordBreak: 'break-word', // Allow text to wrap
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '120px'
     },
     gameOverCard: {
       padding: '24px',
@@ -351,14 +424,17 @@ const MovieGuessingGame = () => {
     backButton: {
       position: 'absolute',
       top: '20px',
-      left: '20px',
+      left: '280px', // Adjusted to not overlap with navbar
       padding: '8px 16px',
       borderRadius: '8px',
       border: 'none',
       backgroundColor: '#6b7280',
       color: 'white',
       cursor: 'pointer',
-      fontSize: '14px'
+      fontSize: '14px',
+      '@media (max-width: 768px)': {
+        left: '20px' // Adjust position for mobile
+      }
     },
     timer: {
       padding: '8px 16px',
@@ -374,9 +450,9 @@ const MovieGuessingGame = () => {
     return (
       <div style={styles.container}>
         <div style={styles.card}>
-          <h1 style={styles.title}>Movie Guessing Game</h1>
+          <h1 style={styles.title}>{t.movieGuesser}</h1>
           <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
-            Select your challenge level
+            {t.selectChallenge}
           </p>
           <div style={styles.modeSelection}>
             {Object.keys(GAME_MODES).map((mode) => (
@@ -411,12 +487,12 @@ const MovieGuessingGame = () => {
                   e.currentTarget.style.transform = 'scale(1)';
                 }}>
                 <div style={{ fontSize: '20px', marginBottom: '8px' }}>
-                  {GAME_MODES[mode].name}
+                  {language === 'en' ? GAME_MODES[mode].nameEN : GAME_MODES[mode].nameDE}
                 </div>
                 <div style={{ fontSize: '14px', opacity: '0.9' }}>
-                  {mode === 'EASY' && "Unlimited guesses"}
-                  {mode === 'NORMAL' && "5 guesses"}
-                  {mode === 'HARD' && "2 guesses • 60s timer"}
+                  {mode === 'EASY' && t.unlimitedGuesses}
+                  {mode === 'NORMAL' && t.fiveGuesses}
+                  {mode === 'HARD' && t.hardModeDesc}
                 </div>
               </button>
             ))}
@@ -430,7 +506,7 @@ const MovieGuessingGame = () => {
     return (
       <div style={{ ...styles.container, textAlign: 'center' }}>
         <div style={styles.card}>
-          Loading your challenge...
+          {t.loading}
         </div>
       </div>
     );
@@ -442,30 +518,32 @@ const MovieGuessingGame = () => {
         onClick={() => setGameMode(null)} 
         style={styles.backButton}
       >
-        ← Back to Modes
+        {t.backToModes}
       </button>
 
       <div style={styles.card}>
         <div style={styles.header}>
           <h1 style={styles.title}>
-            Movie Guesser
-            <span style={styles.badge}>{GAME_MODES[gameMode].name}</span>
+            {t.movieGuesser}
+            <span style={styles.badge}>
+              {language === 'en' ? GAME_MODES[gameMode].nameEN : GAME_MODES[gameMode].nameDE}
+            </span>
           </h1>
-          <div style={styles.stats}>
+           <div style={styles.stats}>
             <div style={styles.statItem}>
-              Score: {score}
+              {t.score}: {score}
             </div>
-            <div style={styles.statItem}>
-              Clues: {9 - questionsAsked}
+             <div style={styles.statItem}>
+              {t.clues}: {9 - questionsAsked}
             </div>
             {gameMode !== 'EASY' && (
               <div style={styles.statItem}>
-                Guesses: {guessesRemaining}
+                {t.guesses}: {guessesRemaining}
               </div>
             )}
             {timeRemaining > 0 && (
               <div style={styles.timer}>
-                Time: {timeRemaining}s
+                {t.time}: {timeRemaining}s
               </div>
             )}
           </div>

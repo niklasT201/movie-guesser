@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
 
 const GameHub = () => {
   const [selectedGame, setSelectedGame] = useState(null);
-  const [isNavbarOpen, setIsNavbarOpen] = useState(true);
-  const [language, setLanguage] = useState('en'); // 'en' or 'de'
+  const [isNavbarOpen, setIsNavbarOpen] = useState(false);
+  const [language, setLanguage] = useState('en');
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const games = [
     {
       id: 'movie-guesser',
@@ -45,13 +52,19 @@ const GameHub = () => {
       display: 'flex',
       flexDirection: 'column',
       position: 'fixed',
-      overflowX: 'hidden'
+      overflowX: 'hidden',
+      zIndex: 1000,
+      '@media (max-width: 1110px)': {
+        width: isNavbarOpen ? '100%' : '0',
+        padding: isNavbarOpen ? '20px' : '0'
+      }
     },
     navbarHeader: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: '24px'
+      marginBottom: '24px',
+      position: 'relative'
     },
     navbarContent: {
       flex: 1,
@@ -77,7 +90,15 @@ const GameHub = () => {
       justifyContent: 'center',
       fontSize: '20px',
       width: '32px',
-      height: '32px'
+      height: '32px',
+    //  position: 'fixed',
+      left: isNavbarOpen ? '20px' : '10px',
+      top: '20px',
+      zIndex: 1001,
+      '@media (max-width: 768px)': {
+        left: isNavbarOpen ? 'auto' : '10px',
+        right: isNavbarOpen ? '20px' : 'auto'
+      }
     },
     navItem: {
       padding: '12px',
@@ -89,7 +110,8 @@ const GameHub = () => {
       gap: '12px',
       transition: 'background-color 0.2s',
       backgroundColor: 'transparent',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'normal', // Allow text to wrap
+      wordBreak: 'break-word'
     },
     languageSelector: {
       marginBottom: 30,
@@ -119,9 +141,11 @@ const GameHub = () => {
       backgroundColor: '#374151'
     },
     mainContent: {
-      marginLeft: isNavbarOpen ? '250px' : '60px',
+      marginLeft: windowWidth > 768 ? (isNavbarOpen ? '250px' : '60px') : '0',
       flex: 1,
-      transition: 'margin-left 0.3s ease'
+      transition: 'margin-left 0.3s ease',
+      width: '100%',
+      position: 'relative'
     },
     container: {
       padding: '20px',
@@ -187,7 +211,7 @@ const GameHub = () => {
       cursor: 'pointer',
       fontSize: '14px',
       marginBottom: '20px',
-      marginLeft: '20px'
+      marginLeft: windowWidth > 768 ? '280px' : '20px' // Adjust based on screen size
     }
   };
 
