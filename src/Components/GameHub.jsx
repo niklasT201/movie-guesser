@@ -203,7 +203,7 @@ const GameHub = () => {
   const renderNavbar = () => (
     <>
       <button 
-        className="mobile-menu-button"
+        className={`mobile-menu-button ${isNavbarOpen ? 'hidden' : ''}`}
         onClick={() => setIsNavbarOpen(!isNavbarOpen)}
       >
         ☰
@@ -297,7 +297,7 @@ const GameHub = () => {
       <div style={styles.container}>
         <header style={styles.header}>
           <h1 style={styles.title}>
-            {language === 'en' ? 'Game Hub' : 'Spielezentrale'}
+            {language === 'en' ? 'Game Hub' : 'Game Hub'}
           </h1>
           <p style={styles.subtitle}>
             {language === 'en' 

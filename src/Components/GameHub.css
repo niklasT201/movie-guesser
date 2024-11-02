@@ -17,7 +17,7 @@
 }
 
 .mobile-menu-button {
-  display: none; /* Hidden by default on desktop */
+  display: none;
   position: fixed;
   top: 20px;
   left: 20px;
@@ -31,7 +31,7 @@
   
 @media (max-width: 768px) {
   .navbar {
-    display: none; /* Hide the navbar by default on mobile */
+    display: none;
   }
 
   .navbar.open {
@@ -47,6 +47,10 @@
   }
 
   .mobile-menu-button {
-    display: block; /* Show the menu button on mobile */
+    display: block;
+  }
+
+  .mobile-menu-button.hidden {
+    display: none;
   }
 }

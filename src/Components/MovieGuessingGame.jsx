@@ -50,7 +50,20 @@ const translations = {
     changeMode: 'Change Mode',
     unlimitedGuesses: 'Unlimited guesses',
     fiveGuesses: '5 guesses',
-    hardModeDesc: '2 guesses • 60s timer'
+    hardModeDesc: '2 guesses • 60s timer',
+    year: 'Year',
+    genre: 'Genre',
+    director: 'Director',
+    mainActors: 'Main Actors',
+    plot: 'Plot',
+    budget: 'Budget',
+    boxOffice: 'Box Office',
+    runtime: 'Runtime',
+    rating: 'Rating',
+    minutes: 'minutes',
+    enterGuessPlaceholder: 'Enter your guess...',
+    guessButtonText: 'Guess',
+    getClueButton: 'Get Clue',
   },
   de: {
     loading: 'Lade deine Herausforderung...',
@@ -75,7 +88,20 @@ const translations = {
     changeMode: 'Modus ändern',
     unlimitedGuesses: 'Unbegrenzte Versuche',
     fiveGuesses: '5 Versuche',
-    hardModeDesc: '2 Versuche • 60s Timer'
+    hardModeDesc: '2 Versuche • 60s Zeit',
+    year: 'Jahr',
+    genre: 'Genre',
+    director: 'Regisseur',
+    mainActors: 'Hauptdarsteller',
+    plot: 'Handlung',
+    budget: 'Budget',
+    boxOffice: 'Einspielergebnis',
+    runtime: 'Laufzeit',
+    rating: 'Bewertung',
+    minutes: 'Minuten',
+    enterGuessPlaceholder: 'Gib deinen Tipp ein...',
+    guessButtonText: 'Raten',
+    getClueButton: 'Hinweis holen',
   }
 };
 
@@ -180,7 +206,7 @@ const MovieGuessingGame = ({ language }) => {
             director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
             genre: movieDetail.genres.map(g => g.name).join(", "),
             actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
-            plot: movieDetail.overview,
+            plot: language === 'de' ? germanData.overview : movieDetail.overview,
             budget: movieDetail.budget,
             revenue: movieDetail.revenue,
             runtime: movieDetail.runtime,
@@ -202,15 +228,15 @@ const MovieGuessingGame = ({ language }) => {
   const getClues = () => {
     if (!currentMovie) return [];
     return [
-      { id: 1, type: "Year", value: currentMovie.year },
-      { id: 2, type: "Genre", value: currentMovie.genre },
-      { id: 3, type: "Director", value: currentMovie.director },
-      { id: 4, type: "Main Actors", value: currentMovie.actors },
-      { id: 5, type: "Plot", value: currentMovie.plot },
-      { id: 6, type: "Budget", value: formatCurrency(currentMovie.budget) },
-      { id: 7, type: "Box Office", value: formatCurrency(currentMovie.revenue) },
-      { id: 8, type: "Runtime", value: `${currentMovie.runtime} minutes` },
-      { id: 9, type: "Rating", value: `${currentMovie.rating}/10` }
+      { id: 1, type: t.year, value: currentMovie.year },
+      { id: 2, type: t.genre, value: currentMovie.genre },
+      { id: 3, type: t.director, value: currentMovie.director },
+      { id: 4, type: t.mainActors, value: currentMovie.actors },
+      { id: 5, type: t.plot, value: currentMovie.plot },
+      { id: 6, type: t.budget, value: formatCurrency(currentMovie.budget) },
+      { id: 7, type: t.boxOffice, value: formatCurrency(currentMovie.revenue) },
+      { id: 8, type: t.runtime, value: `${currentMovie.runtime} ${t.minutes}` },
+      { id: 9, type: t.rating, value: `${currentMovie.rating}/10` }
     ];
   };
 
@@ -236,7 +262,7 @@ const MovieGuessingGame = ({ language }) => {
            GAME_MODES.HARD.guessLimit;
     });
       
-      const initialClue = { id: 1, type: "Year", value: movie.year };
+    const initialClue = { id: 1, type: t.year, value: movie.year };
       setRevealedClues([initialClue]);
     } else {
       alert('Error loading movie. Please try again.');
@@ -562,7 +588,7 @@ const MovieGuessingGame = ({ language }) => {
               <div style={styles.inputGroup}>
                 <input
                   type="text"
-                  placeholder="Enter your guess..."
+                  placeholder={t.enterGuessPlaceholder}
                   value={guess}
                   onChange={(e) => setGuess(e.target.value)}
                   style={styles.input}
@@ -575,7 +601,7 @@ const MovieGuessingGame = ({ language }) => {
                     ...((!guess) && styles.disabledButton)
                   }}
                 >
-                  Guess
+                  {t.guessButtonText}
                 </button>
               </div>
               <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
@@ -589,7 +615,7 @@ const MovieGuessingGame = ({ language }) => {
                     ...(questionsAsked >= 9 && styles.disabledButton)
                   }}
                 >
-                  Get Clue ({9 - questionsAsked} left)
+                  {t.getClueButton} ({9 - questionsAsked} {t.cluesLeft})
                 </button>
                 {gameMode === 'EASY' && (
                   <button
@@ -600,7 +626,7 @@ const MovieGuessingGame = ({ language }) => {
                       flex: '0 0 auto'
                     }}
                   >
-                    Give Up
+                      {t.giveUp}
                   </button>
                 )}
               </div>
@@ -625,7 +651,7 @@ const MovieGuessingGame = ({ language }) => {
                   onClick={startNewGame}
                   style={styles.button}
                 >
-                  Play Again
+                    {t.playAgain}
                 </button>
                 <button
                   onClick={() => setGameMode(null)}
@@ -634,7 +660,7 @@ const MovieGuessingGame = ({ language }) => {
                     backgroundColor: '#6b7280'
                   }}
                 >
-                  Change Mode
+                    {t.changeMode}
                 </button>
               </div>
             </div>
