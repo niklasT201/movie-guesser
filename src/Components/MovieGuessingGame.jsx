@@ -573,3 +573,4 @@ export default MovieGuessingGame;
 // speedrun mode
 // reason for coming back each day
 // dark mode/light mode
+// back buttons position changing
