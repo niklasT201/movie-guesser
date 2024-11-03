@@ -733,7 +733,6 @@ const MovieGuessingGame = ({ language }) => {
 
 export default MovieGuessingGame;
 
-// maybe german/english
 // speedrun mode
 // reason for coming back each day
 // dark mode/light mode

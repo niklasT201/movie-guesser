@@ -2,37 +2,94 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
+const translations = {
+  en: {
+    movieCriteriaChallenge: 'Movie Criteria Challenge',
+    selectGameSettings: 'Select your game settings',
+    keepSameCriteria: 'Keep same criteria',
+    changeCriteriaEachRound: 'Change criteria each round',
+    randomMode: 'Random Mode',
+    selectGameMode: 'Select your game mode',
+    backToModes: '← Back to Modes',
+    score: 'Score',
+    guesses: 'Guesses',
+    movieWith: 'A movie with',
+    movieFrom: 'A movie from',
+    enterMovieTitle: 'Enter movie title...',
+    guess: 'Guess',
+    gameOver: 'Game Over!',
+    finalScore: 'Final Score',
+    playAgain: 'Play Again',
+    changeMode: 'Change Mode',
+    congratulations: 'Congratulations!',
+    correct: 'Correct! Great job!',
+    incorrect: 'Incorrect. Try again!'
+  },
+  de: {
+    movieCriteriaChallenge: 'Film-Kriterien Challenge',
+    selectGameSettings: 'Wähle deine Spieleinstellungen',
+    keepSameCriteria: 'Gleiche Kriterien behalten',
+    changeCriteriaEachRound: 'Kriterien pro Runde ändern',
+    randomMode: 'Zufallsmodus',
+    selectGameMode: 'Wähle deinen Spielmodus',
+    backToModes: '← Zurück zur Auswahl',
+    score: 'Punkte',
+    guesses: 'Versuche',
+    movieWith: 'Ein Film mit',
+    movieFrom: 'Ein Film aus dem Jahr',
+    enterMovieTitle: 'Filmtitel eingeben...',
+    guess: 'Raten',
+    gameOver: 'Spiel vorbei!',
+    finalScore: 'Endpunktzahl',
+    playAgain: 'Nochmal spielen',
+    changeMode: 'Modus ändern',
+
+    congratulations: 'Glückwunsch!',
+    correct: 'Richtig! Gut gemacht!',
+    incorrect: 'Falsch. Versuch es nochmal!'
+  }
+};
+
 const GAME_MODES = {
   ACTOR: {
-    name: 'Actor Mode',
+    nameEN: 'Actor Mode',
+    nameDE: 'Schauspieler-Modus',
     type: 'actor',
-    description: 'Guess movies by actor',
+    descriptionEN: 'Guess movies by actor',
+    descriptionDE: 'Rate Filme nach Schauspieler',
     color: '#22c55e'
   },
   DIRECTOR: {
-    name: 'Director Mode',
+    nameEN: 'Director Mode',
+    nameDE: 'Regisseur-Modus',
     type: 'director',
-    description: 'Guess movies by director',
+    descriptionEN: 'Guess movies by director',
+    descriptionDE: 'Rate Filme nach Regisseur',
     color: '#3b82f6'
   },
   YEAR: {
-    name: 'Year Mode',
+    nameEN: 'Year Mode',
+    nameDE: 'Jahres-Modus',
     type: 'year',
-    description: 'Guess movies by year',
+    descriptionEN: 'Guess movies by year',
+    descriptionDE: 'Rate Filme nach Jahr',
     color: '#ef4444'
   },
   RANDOM: {
-    name: 'Random Mode',
+    nameEN: 'Random Mode',
+    nameDE: 'Zufalls-Modus',
     type: 'random',
-    description: 'Random criteria each round',
+    descriptionEN: 'Random criteria each round',
+    descriptionDE: 'Zufällige Kriterien in jeder Runde',
     color: '#8b5cf6'
   }
 };
 
-const MovieCriteriaGame = () => {
+
+const MovieCriteriaGame = ({ language }) => {
   const [gameMode, setGameMode] = useState(null);
-const [criteriaChangeMode, setCriteriaChangeMode] = useState('multiple');
-const [randomMode, setRandomMode] = useState(false);
+  const [criteriaChangeMode, setCriteriaChangeMode] = useState('multiple');
+  const [randomMode, setRandomMode] = useState(false);
   const [score, setScore] = useState(0);
   const [currentCriteria, setCurrentCriteria] = useState(null);
   const [criteriaType, setCriteriaType] = useState(null);
@@ -40,6 +97,7 @@ const [randomMode, setRandomMode] = useState(false);
   const [gameState, setGameState] = useState('playing');
   const [guessesRemaining, setGuessesRemaining] = useState(3);
   const [notification, setNotification] = useState(null);
+  const t = translations[language];
 
   // Function to get a random year between 1970 and current year
   const getRandomYear = () => {
@@ -155,7 +213,7 @@ const [randomMode, setRandomMode] = useState(false);
 
       if (isCorrect) {
         setScore(prev => prev + 100);
-        setNotification({ type: 'success', message: 'Correct! Great job!' });
+        setNotification({ type: 'success', message: t.correct });
         
         // Generate new criteria if in multiple mode or random mode
         if (randomMode || criteriaChangeMode === 'multiple') {
@@ -168,7 +226,7 @@ const [randomMode, setRandomMode] = useState(false);
       } else {
         setGuessesRemaining(prev => prev - 1);
         setScore(prev => prev - 50);
-        setNotification({ type: 'error', message: 'Incorrect. Try again!' });
+        setNotification({ type: 'error', message: t.incorrect });
         if (guessesRemaining <= 1) {
           setGameState('lost');
         }
@@ -327,10 +385,10 @@ const [randomMode, setRandomMode] = useState(false);
     return (
       <div style={styles.container}>
         <div style={styles.card}>
-          <h1 style={styles.title}>Movie Criteria Challenge</h1>
+          <h1 style={styles.title}>{t.movieCriteriaChallenge}</h1>
           
           <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
-            Select your game settings
+            {t.selectGameSettings}
           </p>
 
           <div style={styles.selectorContainer}>
@@ -341,7 +399,7 @@ const [randomMode, setRandomMode] = useState(false);
               backgroundColor: criteriaChangeMode === 'single' ? '#f59e0b' : '#d1d5db',
             }}
           >
-            Keep same criteria
+            {t.keepSameCriteria}
           </button>
           <button
             onClick={() => setCriteriaChangeMode('multiple')}
@@ -350,7 +408,7 @@ const [randomMode, setRandomMode] = useState(false);
               backgroundColor: criteriaChangeMode === 'multiple' ? '#10b981' : '#d1d5db',
             }}
           >
-            Change criteria each round
+            {t.changeCriteriaEachRound}
           </button>
           <button
             onClick={() => setRandomMode(!randomMode)}
@@ -359,12 +417,12 @@ const [randomMode, setRandomMode] = useState(false);
               backgroundColor: randomMode ? '#6366f1' : '#d1d5db',
             }}
           >
-            Random Mode
+            {t.randomMode}
           </button>
         </div>
 
          <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
-            Select your game mode
+            {t.selectGameMode}
           </p>
           <div style={styles.modeSelection}>
             {Object.entries(GAME_MODES).map(([mode, details]) => (
@@ -390,10 +448,10 @@ const [randomMode, setRandomMode] = useState(false);
                 }}
               >
                 <div style={{ fontSize: '20px', marginBottom: '8px' }}>
-                  {details.name}
+                  {language === 'en' ? details.nameEN : details.nameDE}
                 </div>
                 <div style={{ fontSize: '14px', opacity: '0.9' }}>
-                  {details.description}
+                  {language === 'en' ? details.descriptionEN : details.descriptionDE}
                 </div>
               </button>
             ))}
@@ -408,8 +466,8 @@ const [randomMode, setRandomMode] = useState(false);
       <div style={styles.container}>
         <div style={styles.card}>
           <div style={styles.gameOver}>
-            <h2>Game Over!</h2>
-            <p>Final Score: {score}</p>
+            <h2>{t.gameOver}</h2>
+            <p>{t.finalScore} {score}</p>
             <button 
               onClick={() => {
                 setGameState('playing');
@@ -418,7 +476,7 @@ const [randomMode, setRandomMode] = useState(false);
               }}
               style={styles.button}
             >
-              Play Again
+              {t.playAgain}
             </button>
             <button
               onClick={() => setGameMode(null)}
@@ -428,7 +486,7 @@ const [randomMode, setRandomMode] = useState(false);
                 marginLeft: '12px'
               }}
             >
-              Change Mode
+              {t.changeMode}
             </button>
           </div>
         </div>
@@ -442,20 +500,20 @@ const [randomMode, setRandomMode] = useState(false);
         onClick={() => setGameMode(null)} 
         style={styles.backButton}
       >
-        ← Back to Modes
+        {t.backToModes}
       </button>
 
       <div style={styles.card}>
         <div style={styles.header}>
-          <h1 style={styles.title}>Movie Criteria Challenge</h1>
+          <h1 style={styles.title}>{t.movieCriteriaChallenge}</h1>
           <div style={styles.stats}>
-            <div style={styles.statItem}>Score: {score}</div>
-            <div style={styles.statItem}>Guesses: {guessesRemaining}</div>
+            <div style={styles.statItem}>{t.score} {score}</div>
+            <div style={styles.statItem}>{t.guesses} {guessesRemaining}</div>
           </div>
         </div>
 
         <div style={styles.criteria}>
-          A movie {criteriaType === 'year' ? 'from' : 'with'} {criteriaType}:{' '}
+          {criteriaType === 'year' ? t.movieFrom : t.movieWith} {t[criteriaType]}:{' '}
           {currentCriteria}
         </div>
 
@@ -464,7 +522,7 @@ const [randomMode, setRandomMode] = useState(false);
             type="text"
             value={guess}
             onChange={(e) => setGuess(e.target.value)}
-            placeholder="Enter movie title..."
+            placeholder={t.enterMovieTitle}
             style={styles.input}
           />
           <button 
@@ -476,7 +534,7 @@ const [randomMode, setRandomMode] = useState(false);
               cursor: !guess.trim() ? 'not-allowed' : 'pointer'
             }}
           >
-            Guess
+            {t.guess}
           </button>
         </div>
         
