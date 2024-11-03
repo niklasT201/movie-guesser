@@ -351,11 +351,15 @@ const MovieGuessingGame = ({ language }) => {
       maxWidth: '800px',
       width: '100%',
       margin: '50px auto 0',
-      padding: '20px',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       position: 'relative',
+      '@media (max-width: 840px)': {
+        width: 'calc(100% - 40px)',
+        margin: '70px auto 0', // Slightly less margin on mobile
+      }
     },
     card: {
+      marginTop: 90,
       backgroundColor: 'white',
       borderRadius: '12px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
@@ -394,7 +398,12 @@ const MovieGuessingGame = ({ language }) => {
       padding: '8px 16px',
       backgroundColor: '#f3f4f6',
       borderRadius: '8px',
-      fontSize: '14px'
+      fontSize: '14px',
+      '@media (max-width: 768px)': {
+        flex: '1 1 auto', // Allow items to grow and shrink
+        minWidth: 'calc(33.333% - 10px)', // Ensure 3 items per row on mobile
+        justifyContent: 'center',
+      }
     },
     clueCard: {
       backgroundColor: '#f8f9fa',
@@ -486,6 +495,7 @@ const MovieGuessingGame = ({ language }) => {
       cursor: 'pointer',
       fontSize: '14px',
       '@media (max-width: 768px)': {
+        top: '-50px',
         marginLeft: '20px'
       }
     },
