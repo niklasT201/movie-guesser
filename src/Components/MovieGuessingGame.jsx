@@ -349,10 +349,11 @@ const MovieGuessingGame = ({ language }) => {
   const styles = {
     container: {
       maxWidth: '800px',
-      margin: '0 auto',
+      width: '100%',
+      margin: '50px auto 0',
       padding: '20px',
-      marginTop: 50,
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      position: 'relative',
     },
     card: {
       backgroundColor: 'white',
@@ -363,9 +364,14 @@ const MovieGuessingGame = ({ language }) => {
     },
     header: {
       display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '20px'
+      flexDirection: 'column', // Stack elements vertically by default
+      gap: '20px',
+      marginBottom: '20px',
+      '@media (min-width: 1024px)': { // Only use horizontal layout on larger screens
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }
     },
     title: {
       fontSize: '24px',
@@ -374,7 +380,12 @@ const MovieGuessingGame = ({ language }) => {
     },
     stats: {
       display: 'flex',
-      gap: '20px'
+      flexWrap: 'wrap', // Allow stats to wrap on smaller screens
+      gap: '20px',
+      justifyContent: 'flex-start', // Align to the left
+      '@media (max-width: 768px)': {
+        width: '100%', // Take full width on mobile
+      }
     },
     statItem: {
       display: 'flex',
@@ -465,8 +476,8 @@ const MovieGuessingGame = ({ language }) => {
     },
     backButton: {
       position: 'absolute',
-      top: '20px',
-      left: '280px',
+      top: '-40px', 
+      left: '10',
       padding: '8px 16px',
       borderRadius: '8px',
       border: 'none',
@@ -475,7 +486,7 @@ const MovieGuessingGame = ({ language }) => {
       cursor: 'pointer',
       fontSize: '14px',
       '@media (max-width: 768px)': {
-        marginLeft: '20px' // Adjust position for mobile
+        marginLeft: '20px'
       }
     },
     timer: {

@@ -187,7 +187,7 @@ const GameHub = () => {
     },
     backButton: {
       position: 'absolute',
-      top: '20px',
+      top: '30px',
       left: '280px',
       padding: '8px 16px',
       borderRadius: '8px',
