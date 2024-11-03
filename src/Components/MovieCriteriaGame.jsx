@@ -282,7 +282,7 @@ const MovieCriteriaGame = ({ language }) => {
     title: {
       fontSize: '24px',
       fontWeight: 'bold',
-      margin: '0'
+      margin: '0',
     },
     modeSelection: {
       display: 'grid',
@@ -552,7 +552,7 @@ const MovieCriteriaGame = ({ language }) => {
           {currentCriteria}
         </div>
 
-        <div style={styles.inputGroup}>
+        <div className="input-group">
           <input
             type="text"
             value={guess}
