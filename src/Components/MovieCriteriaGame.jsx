@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import './MovieCriteriaGame.css';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
@@ -260,16 +261,23 @@ const MovieCriteriaGame = ({ language }) => {
       }
     },
     card: {
+      marginTop: 90,
       backgroundColor: 'white',
       borderRadius: '12px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      padding: '24px'
+      padding: '24px',
+      marginBottom: '20px',
     },
     header: {
       display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '24px'
+      flexDirection: 'column',
+      gap: '20px',
+      marginBottom: '20px',
+      '@media (min-width: 1024px)': {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }
     },
     title: {
       fontSize: '24px',
@@ -300,7 +308,12 @@ const MovieCriteriaGame = ({ language }) => {
     },
     stats: {
       display: 'flex',
-      gap: '20px'
+      flexWrap: 'wrap',
+      gap: '20px',
+      justifyContent: 'flex-start',
+      '@media (max-width: 768px)': {
+        width: '100%',
+      }
     },
     statItem: {
       display: 'flex',
@@ -309,19 +322,28 @@ const MovieCriteriaGame = ({ language }) => {
       padding: '8px 16px',
       backgroundColor: '#f3f4f6',
       borderRadius: '8px',
-      fontSize: '14px'
+      fontSize: '14px',
+      '@media (max-width: 768px)': {
+        flex: '1 1 auto',
+        minWidth: 'calc(33.333% - 10px)',
+        justifyContent: 'center',
+      }
     },
     inputGroup: {
       display: 'flex',
       gap: '12px',
-      marginBottom: '16px'
+      marginBottom: '16px',
+      '@media (max-width: 480px)': {
+        flexDirection: 'column',
+      }
     },
     input: {
       flex: '1',
       padding: '12px',
       borderRadius: '8px',
       border: '1px solid #e5e7eb',
-      fontSize: '16px'
+      fontSize: '16px',
+      minWidth: 10,
     },
     button: {
       padding: '12px 24px',
@@ -330,7 +352,12 @@ const MovieCriteriaGame = ({ language }) => {
       backgroundColor: '#3b82f6',
       color: 'white',
       fontWeight: '500',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      transition: 'background-color 0.2s',
+      whiteSpace: 'nowrap',
+      '@media (max-width: 480px)': {
+        width: '100%',
+      }
     },
     gameOver: {
       textAlign: 'center',
@@ -338,15 +365,19 @@ const MovieCriteriaGame = ({ language }) => {
     },
     backButton: {
       position: 'absolute',
-      top: '20px',
-      left: '20px',
+      top: '-40px',
+      left: '10px',
       padding: '8px 16px',
       borderRadius: '8px',
       border: 'none',
       backgroundColor: '#6b7280',
       color: 'white',
       cursor: 'pointer',
-      fontSize: '14px'
+      fontSize: '14px',
+      '@media (max-width: 768px)': {
+        top: '-50px',
+        marginLeft: '20px'
+      }
     },
     notification: {
         padding: '12px 24px',
@@ -387,7 +418,7 @@ const MovieCriteriaGame = ({ language }) => {
 
   if (!gameMode) {
     return (
-      <div style={styles.container}>
+      <div className="movie-game-container">
         <div style={styles.card}>
           <h1 style={styles.title}>{t.movieCriteriaChallenge}</h1>
           
@@ -467,7 +498,7 @@ const MovieCriteriaGame = ({ language }) => {
 
   if (gameState === 'lost') {
     return (
-      <div style={styles.container}>
+      <div className="movie-game-card">
         <div style={styles.card}>
           <div style={styles.gameOver}>
             <h2>{t.gameOver}</h2>
@@ -499,7 +530,7 @@ const MovieCriteriaGame = ({ language }) => {
   }
 
   return (
-    <div style={styles.container}>
+    <div className="movie-game-container">
       <button 
         onClick={() => setGameMode(null)} 
         style={styles.backButton}
@@ -507,7 +538,7 @@ const MovieCriteriaGame = ({ language }) => {
         {t.backToModes}
       </button>
 
-      <div style={styles.card}>
+      <div className="movie-game-card">
         <div style={styles.header}>
           <h1 style={styles.title}>{t.movieCriteriaChallenge}</h1>
           <div style={styles.stats}>

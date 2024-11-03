@@ -66,6 +66,14 @@ const translations = {
     enterGuessPlaceholder: 'Enter your guess...',
     guessButtonText: 'Guess',
     getClueButton: 'Get Clue',
+    unknown: 'Unknown',
+    errorLoadingMovie: 'Error loading movie. Please try again.',
+    youWon: 'You won!',
+    pointsEarnedMessage: 'Points earned:', // For "Points earned: ${points}"
+    theMovieWas: 'The movie was:', // For "The movie was: ${title}"
+    pointsDeducted: '(-100 points)', // For the points deduction message
+    wonMessage: 'You won! Points earned:', // Combined message
+    lostMessage: 'The movie was:', 
   },
   de: {
     loading: 'Lade deine Herausforderung...',
@@ -105,6 +113,14 @@ const translations = {
     enterGuessPlaceholder: 'Gib deinen Tipp ein...',
     guessButtonText: 'Raten',
     getClueButton: 'Hinweis holen',
+    unknown: 'Unbekannt',
+    errorLoadingMovie: 'Fehler beim Laden des Films. Bitte versuchen Sie es erneut.',
+    youWon: 'Du hast gewonnen!',
+    pointsEarnedMessage: 'Erhaltene Punkte:', // For "Points earned: ${points}"
+    theMovieWas: 'Der Film war:', // For "The movie was: ${title}"
+    pointsDeducted: '(-100 Punkte)', // For the points deduction message
+    wonMessage: 'Du hast gewonnen! Erhaltene Punkte:', // Combined message
+    lostMessage: 'Der Film war:', // Combined message
   }
 };
 
@@ -206,7 +222,7 @@ const MovieGuessingGame = ({ language }) => {
             title: movieDetail.title,
             germanTitle: germanData.title || movieDetail.title, // Fallback to English title if German is not available
             year: new Date(movieDetail.release_date).getFullYear().toString(),
-            director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || "Unknown",
+            director: movieDetail.credits.crew.find(person => person.job === "Director")?.name || t.unknown,
             genre: movieDetail.genres.map(g => g.name).join(", "),
             actors: movieDetail.credits.cast.slice(0, 3).map(actor => actor.name).join(", "),
             plot: {
@@ -282,12 +298,10 @@ const MovieGuessingGame = ({ language }) => {
     const initialClue = { id: 1, type: t.year, value: movie.year };
       setRevealedClues([initialClue]);
     } else {
-      alert('Error loading movie. Please try again.');
+      alert(t.errorLoadingMovie);
       setGameState('playing');
     }
   }, [fetchRandomMovie]);
-
-  const getText = (en, de) => language === 'en' ? en : de;
 
   // Initialize game when mode is selected
   useEffect(() => {
@@ -358,14 +372,6 @@ const MovieGuessingGame = ({ language }) => {
         width: 'calc(100% - 40px)',
         margin: '70px auto 0', // Slightly less margin on mobile
       }
-    },
-    card: {
-      marginTop: 90,
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      padding: '24px',
-      marginBottom: '20px',
     },
     header: {
       display: 'flex',
@@ -699,12 +705,12 @@ const MovieGuessingGame = ({ language }) => {
               backgroundColor: gameState === 'won' ? '#dcfce7' : '#fee2e2'
             }}>
               <h3 style={{ fontSize: '20px', marginBottom: '12px' }}>
-                {gameState === 'won' ? 'Congratulations!' : 'Game Over'}
+                {gameState === 'won' ? t.congratulations : t.gameOver}
               </h3>
               <p style={{ marginBottom: '20px' }}>
                 {gameState === 'won'
-                  ? `You won! Points earned: ${Math.max(10 - questionsAsked, 1) * 100}`
-                  : `The movie was: ${currentMovie?.title}${gameMode !== 'EASY' ? ' (-100 points)' : ''}`}
+                  ? `${t.wonMessage} ${Math.max(10 - questionsAsked, 1) * 100}`
+                  : `${t.lostMessage} ${currentMovie?.title}${gameMode !== 'EASY' ? t.pointsDeducted : ''}`}
               </p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                 <button
