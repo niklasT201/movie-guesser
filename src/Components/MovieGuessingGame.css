@@ -1,69 +1,80 @@
 /* Container styles */
 .movie-game-container {
-    max-width: 800px;
-    width: 100%;
-    margin: 50px auto 0;
-    padding: 0 20px;
-    position: relative;
-    box-sizing: border-box;
-  }
-  
-  /* Ensure proper spacing when navbar is open */
-  @media (min-width: 769px) {
-    .movie-game-container {
-      margin-left: calc(250px + auto);
-      margin-right: 100;
-    }
-  }
-  
-  /* Card styling */
-  .movie-game-card {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 24px;
-    margin-bottom: 20px;
-    margin-top: 90px;
-  }
-  
-  /* Mode selection container */
-  .mode-selection-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    padding: 32px;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 1300px) {
-    .movie-game-container {
-      margin: 50px 20px 20 80px; /* Add left margin to account for collapsed navbar */
-    }
+  max-width: 800px;
+  width: 100%;
+  margin: 50px auto;
+  padding: 0 20px;
+  position: relative;
+  box-sizing: border-box;
+}
 
-    .movie-game-card {
-      margin-left: 40px;
-    }
+/* Desktop styles with navbar */
+@media (min-width: 769px) {
+  .movie-game-container {
+      margin-left: 290px;  /* Remove calc() and auto as they're not needed */
+      margin-right: auto;  /* Center the remaining space */
+  }
+}
+
+/* Card styling */
+.movie-game-card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-bottom: 20px;
+  margin-top: 90px;
+}
+
+/* Mode selection container */
+.mode-selection-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 32px;
+}
+
+/* Tablet styles */
+@media (max-width: 1300px) {
+  .movie-game-container {
+      margin: 50px auto;  /* Center the container */
+      padding: 0 20px;    /* Consistent padding */
+  }
+
+  .movie-game-card {
+      margin-left: 0;     /* Remove extra margin */
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .movie-game-container {
+      margin: 80px auto 0;  /* Center the container */
+      padding: 0 20px;      /* Consistent padding on both sides */
   }
   
-  @media (max-width: 768px) {
-    .movie-game-container {
-      margin: 70px 0 0 0;
-      padding-left: 0;
-    }
-    
-    .movie-game-card {
-      margin-top: 70px;
-     
-    }
-    
-    .mode-selection-container {
+  .movie-game-card {
+      margin-top: 80px;
+      margin-left: 0;       /* Remove any left margin */
+      margin-right: 0;      /* Remove any right margin */
+  }
+  
+  .mode-selection-container {
       padding: 16px;
+  }
+}
+
+/* Game content spacing */
+.game-content {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 769px) and (max-width: 1000px) {
+    .movie-game-container {
+        margin-left: 40px;
+        margin-right: 20px;
+        width: calc(100% - 50px);
     }
-  }
-  
-  /* Game content spacing */
-  .game-content {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
+}

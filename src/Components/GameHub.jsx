@@ -133,6 +133,7 @@ const GameHub = () => {
     },
     container: {
       padding: '20px',
+      //marginLeft: -100, adding for more left main hub
       fontFamily: 'system-ui, -apple-system, sans-serif'
     },
     header: {

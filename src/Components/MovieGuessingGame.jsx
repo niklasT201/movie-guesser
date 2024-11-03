@@ -739,5 +739,5 @@ export default MovieGuessingGame;
 // dark mode/light mode
 // back buttons position changing
 
-// responsive design mode choose and game for navbar
+// loading screen more left
 // translate critiriar screen and responsive design
