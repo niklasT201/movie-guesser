@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import './MovieGuessingGame.css';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
@@ -462,7 +463,6 @@ const MovieGuessingGame = ({ language }) => {
       marginTop: '24px',
       display: 'flex',
       flexDirection: 'column',
-     // gap: '12px',
       width: '100%',
     },
     secondaryButton: {
@@ -534,8 +534,8 @@ const MovieGuessingGame = ({ language }) => {
 
   if (!gameMode) {
     return (
-      <div style={styles.container}>
-        <div style={styles.card}>
+      <div className="movie-game-container">
+        <div className="movie-game-card">
           <h1 style={styles.title}>{t.movieGuesser}</h1>
           <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
             {t.selectChallenge}
@@ -591,7 +591,7 @@ const MovieGuessingGame = ({ language }) => {
   if (gameState === 'loading') {
     return (
       <div style={{ ...styles.container, textAlign: 'center' }}>
-        <div style={styles.card}>
+        <div className="movie-game-card">
           {t.loading}
         </div>
       </div>
@@ -599,7 +599,7 @@ const MovieGuessingGame = ({ language }) => {
   }
 
   return (
-    <div style={styles.container}>
+    <div className="movie-game-container">
       <button 
         onClick={() => setGameMode(null)} 
         style={styles.backButton}
@@ -607,7 +607,7 @@ const MovieGuessingGame = ({ language }) => {
         {t.backToModes}
       </button>
 
-      <div style={styles.card}>
+      <div className="movie-game-card">
         <div style={styles.header}>
           <h1 style={styles.title}>
             {t.movieGuesser}
@@ -738,3 +738,6 @@ export default MovieGuessingGame;
 // reason for coming back each day
 // dark mode/light mode
 // back buttons position changing
+
+// responsive design mode choose and game for navbar
+// translate critiriar screen and responsive design
