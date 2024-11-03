@@ -250,10 +250,14 @@ const MovieCriteriaGame = ({ language }) => {
   const styles = {
     container: {
       maxWidth: '800px',
-      margin: '0 auto',
-      padding: '20px',
-      marginTop: '50px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      width: '100%',
+      margin: '50px auto 0',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      position: 'relative',
+      '@media (max-width: 840px)': {
+        width: 'calc(100% - 40px)',
+        margin: '70px auto 0',
+      }
     },
     card: {
       backgroundColor: 'white',
