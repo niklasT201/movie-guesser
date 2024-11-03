@@ -364,7 +364,7 @@ const MovieGuessingGame = ({ language }) => {
       borderRadius: '12px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       padding: '24px',
-      marginBottom: '20px'
+      marginBottom: '20px',
     },
     header: {
       display: 'flex',
@@ -423,15 +423,19 @@ const MovieGuessingGame = ({ language }) => {
     inputGroup: {
       display: 'flex',
       gap: '12px',
-      marginBottom: '16px'
+      marginBottom: '16px',
+      '@media (max-width: 480px)': {
+        flexDirection: 'column',
+      }
     },
     input: {
       flex: '1',
       padding: '12px',
       borderRadius: '8px',
       border: '1px solid #e5e7eb',
-      fontSize: '16px'
-    },
+      fontSize: '16px',
+      minWidth: 10, // This prevents the input from overflowing
+    },   
     button: {
       padding: '12px 24px',
       borderRadius: '8px',
@@ -440,7 +444,26 @@ const MovieGuessingGame = ({ language }) => {
       color: 'white',
       fontWeight: '500',
       cursor: 'pointer',
-      transition: 'background-color 0.2s'
+      transition: 'background-color 0.2s',
+      whiteSpace: 'nowrap', // Prevents button text from wrapping
+      '@media (max-width: 480px)': {
+        width: '100%',
+      }
+    },
+    buttonGroup: {
+      display: 'flex',
+      gap: '12px',
+      marginTop: '12px',
+      '@media (max-width: 480px)': {
+        flexDirection: 'column',
+      }
+    },
+    buttonsContainer: {
+      marginTop: '24px',
+      display: 'flex',
+      flexDirection: 'column',
+     // gap: '12px',
+      width: '100%',
     },
     secondaryButton: {
       backgroundColor: '#6b7280'
@@ -621,7 +644,7 @@ const MovieGuessingGame = ({ language }) => {
           ))}
 
           {gameState === 'playing' && (
-            <div style={{ marginTop: '24px' }}>
+           <div style={styles.buttonsContainer}>
               <div style={styles.inputGroup}>
                 <input
                   type="text"
@@ -641,7 +664,7 @@ const MovieGuessingGame = ({ language }) => {
                   {t.guessButtonText}
                 </button>
               </div>
-              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+              <div style={styles.buttonGroup}>
                 <button
                   onClick={getClue}
                   disabled={questionsAsked >= 9}
