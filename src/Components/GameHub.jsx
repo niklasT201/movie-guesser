@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
-import './GameHub.css';  // Import the CSS file
+import './GameHub.css'; 
+import './GameGrid.css';
 
 const GameHub = () => {
   const [selectedGame, setSelectedGame] = useState(null);
@@ -149,14 +150,6 @@ const GameHub = () => {
     subtitle: {
       fontSize: '18px',
       color: '#6b7280'
-    },
-    gamesGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-      gap: '24px',
-      maxWidth: '1100px',
-      margin: '0 auto',
-      padding: '20px'
     },
     gameCard: {
       backgroundColor: 'white',
@@ -306,7 +299,7 @@ const GameHub = () => {
           </p>
         </header>
 
-        <div style={styles.gamesGrid}>
+        <div className="games-grid">
           {games.map(game => (
             <div
               key={game.id}
