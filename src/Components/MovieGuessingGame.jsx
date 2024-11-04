@@ -444,8 +444,12 @@ const MovieGuessingGame = ({ language }) => {
       display: 'flex',
       gap: '12px',
       marginBottom: '16px',
+      flexWrap: 'wrap', // Add this
       '@media (max-width: 480px)': {
         flexDirection: 'column',
+        '& > *': {
+          width: '100%'
+        }
       }
     },
     input: {
@@ -454,7 +458,7 @@ const MovieGuessingGame = ({ language }) => {
       borderRadius: '8px',
       border: '1px solid #e5e7eb',
       fontSize: '16px',
-      minWidth: 10, // This prevents the input from overflowing
+      minWidth: 60,
     },   
     button: {
       padding: '12px 24px',
@@ -465,26 +469,24 @@ const MovieGuessingGame = ({ language }) => {
       fontWeight: '500',
       cursor: 'pointer',
       transition: 'background-color 0.2s',
-      whiteSpace: 'nowrap', // Prevents button text from wrapping
+      whiteSpace: 'nowrap',
       '@media (max-width: 480px)': {
         width: '100%',
+        minWidth: '100%' // Add this
       }
     },
     buttonGroup: {
       display: 'flex',
       gap: '12px',
+      flexWrap: 'wrap', // Add this
       '@media (max-width: 480px)': {
-        flexDirection: 'column'
+        flexDirection: 'column',
+        '& > *': {
+          width: '100%'
+        }
       }
     },
-    loadingContainer: {
-      maxWidth: '800px',
-      width: '100%',
-      margin: '50px auto 0',
-      padding: '0 20px',
-      boxSizing: 'border-box'
-    },
-       buttonsContainer: {
+    buttonsContainer: {
       display: 'flex',
       flexDirection: 'column',
       gap: '12px',
@@ -498,11 +500,57 @@ const MovieGuessingGame = ({ language }) => {
       opacity: '0.5',
       cursor: 'not-allowed'
     },
+    gameOverButtonGroup: {
+      display: 'flex',
+      gap: '12px',
+      justifyContent: 'center',
+      marginTop: '20px',
+      '@media (max-width: 480px)': {
+        flexDirection: 'column',
+        gap: '8px',
+        '& > button': {
+          width: '100%'
+        }
+      }
+    },
     gameOverCard: {
       padding: '24px',
       borderRadius: '12px',
       textAlign: 'center',
-      marginTop: '24px'
+      marginTop: '24px',
+      '@media (max-width: 480px)': {
+        padding: '16px'
+      }
+    },
+    gameOverButton: {
+      padding: '12px 24px',
+      borderRadius: '8px',
+      border: 'none',
+      backgroundColor: '#3b82f6',
+      color: 'white',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'background-color 0.2s',
+      minWidth: '120px',
+      '@media (max-width: 480px)': {
+        minWidth: '100%',
+        padding: '14px 24px'
+      }
+    },
+    gameOverTitle: {
+      fontSize: '24px',
+      marginBottom: '16px',
+      '@media (max-width: 480px)': {
+        fontSize: '20px'
+      }
+    },
+    gameOverMessage: {
+      marginBottom: '24px',
+      fontSize: '16px',
+      '@media (max-width: 480px)': {
+        fontSize: '14px',
+        marginBottom: '20px'
+      }
     },
     badge: {
       padding: '4px 12px',
@@ -597,7 +645,7 @@ const MovieGuessingGame = ({ language }) => {
 
   if (gameState === 'loading') {
     return (
-      <div style={styles.loadingContainer}>
+      <div className="movie-game-container">
         <div className="movie-game-card">
           {t.loading}
         </div>
@@ -705,25 +753,25 @@ const MovieGuessingGame = ({ language }) => {
               ...styles.gameOverCard,
               backgroundColor: gameState === 'won' ? '#dcfce7' : '#fee2e2'
             }}>
-              <h3 style={{ fontSize: '20px', marginBottom: '12px' }}>
+              <h3 style={styles.gameOverTitle}>
                 {gameState === 'won' ? t.congratulations : t.gameOver}
               </h3>
-              <p style={{ marginBottom: '20px' }}>
+              <p style={styles.gameOverMessage}>
                 {gameState === 'won'
                   ? `${t.wonMessage} ${Math.max(10 - questionsAsked, 1) * 100}`
                   : `${t.lostMessage} ${currentMovie?.title}${gameMode !== 'EASY' ? t.pointsDeducted : ''}`}
               </p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <div style={styles.gameOverButtonGroup}>
                 <button
                   onClick={startNewGame}
-                  style={styles.button}
+                  style={styles.gameOverButton}
                 >
                     {t.playAgain}
                 </button>
                 <button
                   onClick={() => setGameMode(null)}
                   style={{
-                    ...styles.button,
+                    ...styles.gameOverButton,
                     backgroundColor: '#6b7280'
                   }}
                 >
@@ -743,6 +791,3 @@ export default MovieGuessingGame;
 // speedrun mode
 // reason for coming back each day
 // dark mode/light mode
-// back buttons position changing
-
-// loading screen more left

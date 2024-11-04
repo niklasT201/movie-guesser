@@ -110,7 +110,7 @@
   opacity: 0.9;
 }
 
-@media (max-width: 320px) {
+@media (max-width: 400px) {
   .mode-selection {
     padding: 16px;
     gap: 12px;
