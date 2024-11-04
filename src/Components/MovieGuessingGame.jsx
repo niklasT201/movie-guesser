@@ -478,26 +478,6 @@ const MovieGuessingGame = ({ language }) => {
       opacity: '0.5',
       cursor: 'not-allowed'
     },
-    modeSelection: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '16px',
-      padding: '32px'
-    },
-    modeCard: {
-      padding: '24px',
-      borderRadius: '12px',
-      textAlign: 'center',
-      cursor: 'pointer',
-      transition: 'transform 0.2s',
-      border: 'none',
-      wordBreak: 'break-word', // Allow text to wrap
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '120px'
-    },
     gameOverCard: {
       padding: '24px',
       borderRadius: '12px',
@@ -546,13 +526,14 @@ const MovieGuessingGame = ({ language }) => {
           <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
             {t.selectChallenge}
           </p>
-          <div style={styles.modeSelection}>
+          <div className="mode-selection">
             {Object.keys(GAME_MODES).map((mode) => (
               <button
                 key={mode}
                 onClick={() => selectGameMode(mode)}
+                className="mode-card"
                 style={{
-                  ...styles.modeCard,
+                
                   backgroundColor: 'white',
                   color: mode === 'EASY' ? '#22c55e' : 
                          mode === 'NORMAL' ? '#3b82f6' : 
@@ -578,10 +559,10 @@ const MovieGuessingGame = ({ language }) => {
                   mode === 'NORMAL' ? '#3b82f6' : '#ef4444';
                   e.currentTarget.style.transform = 'scale(1)';
                 }}>
-                <div style={{ fontSize: '20px', marginBottom: '8px' }}>
+                <div className="mode-card-title">
                   {language === 'en' ? GAME_MODES[mode].nameEN : GAME_MODES[mode].nameDE}
                 </div>
-                <div style={{ fontSize: '14px', opacity: '0.9' }}>
+                <div className="mode-card-description">
                   {mode === 'EASY' && t.unlimitedGuesses}
                   {mode === 'NORMAL' && t.fiveGuesses}
                   {mode === 'HARD' && t.hardModeDesc}

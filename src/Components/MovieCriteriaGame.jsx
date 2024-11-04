@@ -284,21 +284,6 @@ const MovieCriteriaGame = ({ language }) => {
       fontWeight: 'bold',
       margin: '0',
     },
-    modeSelection: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '16px',
-      padding: '32px'
-    },
-    modeCard: {
-      padding: '24px',
-      borderRadius: '12px',
-      textAlign: 'center',
-      cursor: 'pointer',
-      transition: 'transform 0.2s',
-      border: 'none',
-      color: 'white'
-    },
     criteria: {
       fontSize: '28px',
       fontWeight: 'bold',
