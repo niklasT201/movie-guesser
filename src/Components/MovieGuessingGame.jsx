@@ -745,4 +745,3 @@ export default MovieGuessingGame;
 // back buttons position changing
 
 // loading screen more left
-// translate critiriar screen and responsive design

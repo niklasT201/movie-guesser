@@ -419,10 +419,10 @@ const MovieCriteriaGame = ({ language }) => {
   if (!gameMode) {
     return (
       <div className="movie-game-container">
-        <div style={styles.card}>
-          <h1 style={styles.title}>{t.movieCriteriaChallenge}</h1>
+         <div className="movie-game-card">
+          <h1 className="game-title">{t.movieCriteriaChallenge}</h1>
           
-          <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
+          <p className="game-subtitle">
             {t.selectGameSettings}
           </p>
 
@@ -456,20 +456,19 @@ const MovieCriteriaGame = ({ language }) => {
           </button>
         </div>
 
-         <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
+          <p className="game-subtitle">
             {t.selectGameMode}
           </p>
-          <div style={styles.modeSelection}>
+          <div className="mode-selection">
             {Object.entries(GAME_MODES).map(([mode, details]) => (
               <button
                 key={mode}
                 onClick={() => setGameMode(mode)}
+                className="mode-card"
                 style={{
-                  ...styles.modeCard,
                   backgroundColor: 'white',
                   color: details.color,
                   border: `2px solid ${details.color}`,
-                  transition: 'all 0.3s ease',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = details.color;
@@ -482,10 +481,10 @@ const MovieCriteriaGame = ({ language }) => {
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                <div style={{ fontSize: '20px', marginBottom: '8px' }}>
+                <div className="mode-card-title">
                   {language === 'en' ? details.nameEN : details.nameDE}
                 </div>
-                <div style={{ fontSize: '14px', opacity: '0.9' }}>
+                <div className="mode-card-description">
                   {language === 'en' ? details.descriptionEN : details.descriptionDE}
                 </div>
               </button>
@@ -563,8 +562,8 @@ const MovieCriteriaGame = ({ language }) => {
           <button 
             onClick={verifyGuess}
             disabled={!guess.trim()}
+            className="guess-button"
             style={{
-              ...styles.button,
               opacity: !guess.trim() ? 0.5 : 1,
               cursor: !guess.trim() ? 'not-allowed' : 'pointer'
             }}

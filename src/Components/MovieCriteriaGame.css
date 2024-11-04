@@ -95,3 +95,61 @@
       width: 100%;
     }
   }
+
+  .mode-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    padding: 32px;
+  }
+  
+  .mode-card {
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .mode-card-title {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  
+  .mode-card-description {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+  
+  @media (max-width: 480px) {
+    .mode-selection {
+      padding: 16px;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+  
+    .mode-card {
+      padding: 16px;
+    }
+  
+    .mode-card-title {
+      font-size: 16px;
+    }
+  
+    .mode-card-description {
+      font-size: 12px;
+    }
+  }
+
+  .game-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 0 20px 0;
+    text-align: center;
+  }
+  
+  .game-subtitle {
+    text-align: center;
+    color: #6b7280;
+    margin: 20px 0;
+  }
