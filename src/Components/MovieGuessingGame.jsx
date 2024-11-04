@@ -368,26 +368,39 @@ const MovieGuessingGame = ({ language }) => {
       margin: '50px auto 0',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       position: 'relative',
+      padding: '0 20px',
+      boxSizing: 'border-box',
       '@media (max-width: 840px)': {
-        width: 'calc(100% - 40px)',
-        margin: '70px auto 0', // Slightly less margin on mobile
+        margin: '70px auto 0',
       }
     },
     header: {
       display: 'flex',
-      flexDirection: 'column', // Stack elements vertically by default
+      flexDirection: 'column',
       gap: '20px',
       marginBottom: '20px',
-      '@media (min-width: 1024px)': { // Only use horizontal layout on larger screens
+      '@media (min-width: 1024px)': {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+      },
+      '@media (max-width: 320px)': {
+        flexDirection: 'column',
+        alignItems: 'flex-start'
       }
     },
-    title: {
+     title: {
       fontSize: '24px',
       fontWeight: 'bold',
-      margin: '0'
+      margin: '0',
+      display: 'flex',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: '10px',
+      '@media (max-width: 320px)': {
+        flexDirection: 'column',
+        alignItems: 'flex-start'
+      }
     },
     stats: {
       display: 'flex',
@@ -460,16 +473,23 @@ const MovieGuessingGame = ({ language }) => {
     buttonGroup: {
       display: 'flex',
       gap: '12px',
-      marginTop: '12px',
       '@media (max-width: 480px)': {
-        flexDirection: 'column',
+        flexDirection: 'column'
       }
     },
-    buttonsContainer: {
-      marginTop: '24px',
+    loadingContainer: {
+      maxWidth: '800px',
+      width: '100%',
+      margin: '50px auto 0',
+      padding: '0 20px',
+      boxSizing: 'border-box'
+    },
+       buttonsContainer: {
       display: 'flex',
       flexDirection: 'column',
+      gap: '12px',
       width: '100%',
+      marginTop: '24px'
     },
     secondaryButton: {
       backgroundColor: '#6b7280'
@@ -577,7 +597,7 @@ const MovieGuessingGame = ({ language }) => {
 
   if (gameState === 'loading') {
     return (
-      <div style={{ ...styles.container, textAlign: 'center' }}>
+      <div style={styles.loadingContainer}>
         <div className="movie-game-card">
           {t.loading}
         </div>
