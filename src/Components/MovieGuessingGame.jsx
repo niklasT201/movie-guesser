@@ -547,6 +547,7 @@ const MovieGuessingGame = ({ language }) => {
     gameOverMessage: {
       marginBottom: '24px',
       fontSize: '16px',
+      
       '@media (max-width: 480px)': {
         fontSize: '14px',
         marginBottom: '20px'
@@ -761,21 +762,18 @@ const MovieGuessingGame = ({ language }) => {
                   ? `${t.wonMessage} ${Math.max(10 - questionsAsked, 1) * 100}`
                   : `${t.lostMessage} ${currentMovie?.title}${gameMode !== 'EASY' ? t.pointsDeducted : ''}`}
               </p>
-              <div style={styles.gameOverButtonGroup}>
+              <div className="game-over-buttons">
                 <button
                   onClick={startNewGame}
-                  style={styles.gameOverButton}
+                  className="game-over-button primary"
                 >
-                    {t.playAgain}
+                  {t.playAgain}
                 </button>
                 <button
                   onClick={() => setGameMode(null)}
-                  style={{
-                    ...styles.gameOverButton,
-                    backgroundColor: '#6b7280'
-                  }}
+                  className="game-over-button secondary"
                 >
-                    {t.changeMode}
+                  {t.changeMode}
                 </button>
               </div>
             </div>

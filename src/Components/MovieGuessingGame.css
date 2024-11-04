@@ -130,3 +130,42 @@
     font-size: 14px;
   }
 }
+
+.game-over-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.game-over-button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 120px;
+}
+
+.game-over-button.primary {
+  background-color: #3b82f6;
+}
+
+.game-over-button.secondary {
+  background-color: #6b7280;
+}
+
+@media (max-width: 480px) {
+  .game-over-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .game-over-button {
+    width: 100%;
+    min-width: 100%;
+    padding: 14px 24px;
+  }
+}
