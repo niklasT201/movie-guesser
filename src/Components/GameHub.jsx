@@ -181,7 +181,7 @@ const GameHub = () => {
     },
     backButton: {
       position: 'fixed',
-      top: windowWidth <= 768 ? '20px' : '30px',
+      top: windowWidth <= 768 ? '20px' : '40px',
       right: windowWidth <= 768 ? '20px' : '100px',
       width: windowWidth <= 768 ? '40px' : '50px',
       height: windowWidth <= 768 ? '40px' : '50px',
@@ -194,13 +194,9 @@ const GameHub = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      transition: 'all 0.2s ease',
+      transition: 'all 0.3s ease',
       zIndex: 999,
-      boxShadow: '0 5px 4px rgba(0, 0, 0, 0.1)',
-      '&:hover': {
-        backgroundColor: '#374151',
-        transform: 'scale(1.05)'
-      }
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
     },
     backButtonIcon: {
       transform: 'scaleX(0.7)',
@@ -294,6 +290,16 @@ const GameHub = () => {
           <button 
             onClick={() => setSelectedGame(null)} 
             style={styles.backButton}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 8px 12px rgba(0, 0, 0, 0.15)';
+              e.currentTarget.style.backgroundColor = '#374151';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.backgroundColor = '#8a93a6';
+            }}
             aria-label={language === 'en' ? 'Back to Games' : 'Zurück zu den Spielen'}
           >
             <span style={styles.backButtonIcon}>&#10094;</span>
