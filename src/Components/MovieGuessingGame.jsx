@@ -251,7 +251,7 @@ const MovieGuessingGame = ({ language }) => {
       setGameState('playing'); // Ensure we're not stuck in loading state
       return null;
     }
-  }, [gameMode, usedMovies]);
+  }, [gameMode, usedMovies, t.unknown]);
 
   // Get clues for current movie
   const getClues = () => {

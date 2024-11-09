@@ -11,8 +11,8 @@
 /* Desktop styles with navbar */
 @media (min-width: 769px) {
   .movie-game-container {
-      margin-left: 290px;  /* Remove calc() and auto as they're not needed */
-      margin-right: auto;  /* Center the remaining space */
+      margin-left: 290px; 
+      margin-right: auto; 
   }
 }
 
@@ -42,7 +42,7 @@
   }
 
   .movie-game-card {
-      margin-left: 0;     /* Remove extra margin */
+      margin-left: 0;     
   }
 }
 
@@ -55,8 +55,8 @@
   
   .movie-game-card {
       margin-top: 80px;
-      margin-left: 0;       /* Remove any left margin */
-      margin-right: 0;      /* Remove any right margin */
+      margin-left: 0;     
+      margin-right: 0;      
   }
   
   .mode-selection-container {
