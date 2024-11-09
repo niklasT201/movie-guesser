@@ -137,6 +137,13 @@ const MovieGuessingGame = ({ language }) => {
   const [usedMovies, setUsedMovies] = useState(new Set());
   const [germanTitle, setGermanTitle] = useState(null);
   const t = translations[language];
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const gameModeRef = useRef(gameMode);
 
@@ -562,20 +569,28 @@ const MovieGuessingGame = ({ language }) => {
       marginLeft: '8px'
     },
     backButton: {
-      position: 'absolute',
-      top: '-40px', 
-      left: '10',
-      padding: '8px 16px',
-      borderRadius: '8px',
+      position: 'fixed',
+      top: windowWidth <= 768 ? '20px' : '40px',
+      right: windowWidth <= 768 ? '20px' : '100px',
+      width: windowWidth <= 768 ? '40px' : '50px',
+      height: windowWidth <= 768 ? '40px' : '50px',
+      borderRadius: '50%',
       border: 'none',
-      backgroundColor: '#6b7280',
+      backgroundColor: '#8a93a6',
       color: 'white',
       cursor: 'pointer',
-      fontSize: '14px',
-      '@media (max-width: 768px)': {
-        top: '-50px',
-        marginLeft: '20px'
-      }
+      fontSize: '18px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'all 0.3s ease',
+      zIndex: 999,
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+    },
+    backButtonIcon: {
+      transform: 'scaleX(0.7)',
+      display: 'inline-block',
+      marginTop: '-2px'
     },
     timer: {
       padding: '8px 16px',
@@ -659,8 +674,19 @@ const MovieGuessingGame = ({ language }) => {
       <button 
         onClick={() => setGameMode(null)} 
         style={styles.backButton}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          e.currentTarget.style.boxShadow = '0 8px 12px rgba(0, 0, 0, 0.15)';
+          e.currentTarget.style.backgroundColor = '#374151';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'none';
+          e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.backgroundColor = '#8a93a6';
+        }}
+        aria-label={language === 'en' ? 'Back to Games' : 'Zurück zu den Spielen'}
       >
-        {t.backToModes}
+        <span style={styles.backButtonIcon}>&#10094;</span>
       </button>
 
       <div className="movie-game-card">
