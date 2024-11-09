@@ -754,10 +754,10 @@ const MovieGuessingGame = ({ language }) => {
               ...styles.gameOverCard,
               backgroundColor: gameState === 'won' ? '#dcfce7' : '#fee2e2'
             }}>
-              <h3 style={styles.gameOverTitle}>
+              <h3 className="game-over-title">
                 {gameState === 'won' ? t.congratulations : t.gameOver}
               </h3>
-              <p style={styles.gameOverMessage}>
+              <p className="game-over-message">
                 {gameState === 'won'
                   ? `${t.wonMessage} ${Math.max(10 - questionsAsked, 1) * 100}`
                   : `${t.lostMessage} ${currentMovie?.title}${gameMode !== 'EASY' ? t.pointsDeducted : ''}`}
@@ -789,3 +789,4 @@ export default MovieGuessingGame;
 // speedrun mode
 // reason for coming back each day
 // dark mode/light mode
+// containers more left

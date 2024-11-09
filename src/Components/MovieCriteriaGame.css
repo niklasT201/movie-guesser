@@ -114,11 +114,15 @@
   .mode-card-title {
     font-size: 18px;
     margin-bottom: 8px;
+    word-break: keep-all;
+    hyphens: manual;
   }
   
   .mode-card-description {
     font-size: 14px;
     opacity: 0.9;
+    word-break: keep-all;
+    hyphens: manual;
   }
   
   @media (max-width: 480px) {
