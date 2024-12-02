@@ -150,7 +150,9 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
       cardBorder: '#e5e7eb',
       inputBackground: '#ffffff',
       buttonPrimary: '#3b82f6',
-      buttonSecondary: '#6b7280'
+      buttonSecondary: '#6b7280',
+      gameoverBackground: '#fee2e2',
+      gamewonBackground: '#dcfce7',
     },
   
     dark: {
@@ -162,7 +164,9 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
       cardBorder: '#374151',
       inputBackground: '#374151',
       buttonPrimary: '#2563eb',
-      buttonSecondary: '#4b5563'
+      buttonSecondary: '#4b5563',
+      gameoverBackground: '#9e3c3c',
+      gamewonBackground: '#0d5827',
     }
   };
   
@@ -852,7 +856,7 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
           {(gameState === 'won' || gameState === 'lost') && (
             <div style={{
               ...styles.gameOverCard,
-              backgroundColor: gameState === 'won' ? '#dcfce7' : '#fee2e2'
+              backgroundColor: gameState === 'won' ? currentColors.gamewonBackground : currentColors.gameoverBackground
             }}>
               <h3 className="game-over-title">
                 {gameState === 'won' ? t.congratulations : t.gameOver}
