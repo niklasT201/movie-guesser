@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
+import UserProfile from './UserProfile';
 import './GameHub.css'; 
 import './GameGrid.css';
 
@@ -16,6 +17,25 @@ const GameHub = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const [userProfile, setUserProfile] = useState(() => {
+    // Try to load profile from localStorage on initial load
+    const savedProfile = localStorage.getItem('movieGameProfile');
+    return savedProfile ? JSON.parse(savedProfile) : null;
+  });
+
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(!userProfile);
+
+  const handleProfileUpdate = (newProfile) => {
+    setUserProfile(newProfile);
+    setIsProfileModalOpen(false);
+  };
+
+  // Function to open profile modal
+  const openProfileModal = () => {
+    setIsProfileModalOpen(true);
+
+  };
 
   const games = [
     {
@@ -242,12 +262,26 @@ const GameHub = () => {
       position: 'absolute',
       top: isNavbarOpen ? 'auto' : 'auto', // Adjust vertical positioning
       bottom: isNavbarOpen ? '65px' : '110px', // Position above language switch when closed
-      right: isNavbarOpen ? '30px' : '30px', // Right side in both states
+      right: isNavbarOpen ? '30px' : '35px', // Right side in both states
       backgroundColor: 'transparent',
       border: 'none',
       cursor: 'pointer',
       fontSize: '24px'
-    }
+    },
+    profileBadge: {
+      position: 'absolute',
+      top: isNavbarOpen ? '20px' : '20px',
+      right: isNavbarOpen ? '20px' : '70px',
+      zIndex: 1002,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      cursor: 'pointer',
+      backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
+      padding: '8px 12px',
+      borderRadius: '20px',
+      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+    },
   };
 
   const renderNavbar = () => (
@@ -332,10 +366,49 @@ const GameHub = () => {
         </div>
       </div>
     </nav>
-    </>
-  );
+
+    <div 
+      style={styles.profileBadge}
+      onClick={openProfileModal}
+      >
+      {userProfile ? (
+        <>
+          <span style={{
+            fontSize: '24px',
+            marginRight: '8px'
+          }}>
+            {userProfile.avatar}
+          </span>
+          <span style={{
+            color: isDarkMode ? '#e5e7eb' : '#1f2937',
+            fontWeight: 'bold'
+          }}>
+            {userProfile.username}
+          </span>
+        </>
+      ) : (
+        <span style={{
+          color: isDarkMode ? '#e5e7eb' : '#1f2937',
+          fontWeight: 'bold'
+        }}>
+          {language === 'en' ? 'Create Profile' : 'Profil erstellen'}
+        </span>
+      )}
+      </div>
+      </>
+    );
 
   const renderContent = () => {
+    if (isProfileModalOpen) {
+      return (
+        <UserProfile 
+          language={language}
+          isDarkMode={isDarkMode}
+          onClose={() => setIsProfileModalOpen(false)}
+          onProfileUpdate={handleProfileUpdate}
+        />
+      );
+    }
     if (selectedGame) {
       const GameComponent = selectedGame.component;
       return (
@@ -357,7 +430,7 @@ const GameHub = () => {
           >
             <span style={styles.backButtonIcon}>&#10094;</span>
           </button>
-          <GameComponent language={language} isDarkMode={isDarkMode}/>
+          <GameComponent language={language} isDarkMode={isDarkMode} userProfile={userProfile}/>
         </div>
       );
     }
