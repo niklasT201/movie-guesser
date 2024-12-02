@@ -124,7 +124,7 @@ const translations = {
   }
 };
 
-const MovieGuessingGame = ({ language }) => {
+const MovieGuessingGame = ({ language, isDarkMode }) => {
   const [currentMovie, setCurrentMovie] = useState(null);
   const [questionsAsked, setQuestionsAsked] = useState(1);
   const [score, setScore] = useState(0);
@@ -138,6 +138,35 @@ const MovieGuessingGame = ({ language }) => {
   const [germanTitle, setGermanTitle] = useState(null);
   const t = translations[language];
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const getCurrentColors = () => colors[isDarkMode ? 'dark' : 'light'];
+
+  const colors = {
+    light: {
+      background: '#f3f4f6',
+      statBackground: '#f3f4f6',
+      text: '#1f2937',
+      secondaryText: '#6b7280',
+      cardBackground: 'white',
+      cardBorder: '#e5e7eb',
+      inputBackground: '#ffffff',
+      buttonPrimary: '#3b82f6',
+      buttonSecondary: '#6b7280'
+    },
+  
+    dark: {
+      background: '#121826',
+      statBackground: "#181f30",
+      text: '#e5e7eb',
+      secondaryText: '#9ca3af',
+      cardBackground: '#1f2937',
+      cardBorder: '#374151',
+      inputBackground: '#374151',
+      buttonPrimary: '#2563eb',
+      buttonSecondary: '#4b5563'
+    }
+  };
+  
+  const currentColors = getCurrentColors();
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -423,7 +452,7 @@ const MovieGuessingGame = ({ language }) => {
       alignItems: 'center',
       gap: '8px',
       padding: '8px 16px',
-      backgroundColor: '#f3f4f6',
+      backgroundColor: currentColors.statBackground,
       borderRadius: '8px',
       fontSize: '14px',
       '@media (max-width: 768px)': {
@@ -433,11 +462,13 @@ const MovieGuessingGame = ({ language }) => {
       }
     },
     clueCard: {
-      backgroundColor: '#f8f9fa',
+      backgroundColor: currentColors.cardBackground,
+      color: currentColors.text,
       borderRadius: '8px',
       padding: '16px',
       marginBottom: '12px',
-      border: '1px solid #e5e7eb'
+      border: '1px solid #e5e7eb',
+      borderColor: currentColors.cardBorder,
     },
     clueType: {
       fontWeight: '500',
@@ -460,6 +491,9 @@ const MovieGuessingGame = ({ language }) => {
       }
     },
     input: {
+      backgroundColor: currentColors.inputBackground,
+      borderColor: currentColors.cardBorder,
+      color: currentColors.text,
       flex: '1',
       padding: '12px',
       borderRadius: '8px',
@@ -471,7 +505,7 @@ const MovieGuessingGame = ({ language }) => {
       padding: '12px 24px',
       borderRadius: '8px',
       border: 'none',
-      backgroundColor: '#3b82f6',
+      backgroundColor: currentColors.buttonPrimary,
       color: 'white',
       fontWeight: '500',
       cursor: 'pointer',
@@ -501,7 +535,7 @@ const MovieGuessingGame = ({ language }) => {
       marginTop: '24px'
     },
     secondaryButton: {
-      backgroundColor: '#6b7280'
+      backgroundColor: currentColors.buttonSecondary,
     },
     disabledButton: {
       opacity: '0.5',
@@ -565,7 +599,7 @@ const MovieGuessingGame = ({ language }) => {
       borderRadius: '16px',
       fontSize: '14px',
       fontWeight: '500',
-      backgroundColor: '#e5e7eb',
+      backgroundColor: isDarkMode ? currentColors.background : '#e5e7eb',
       marginLeft: '8px'
     },
     backButton: {
@@ -604,8 +638,22 @@ const MovieGuessingGame = ({ language }) => {
 
   if (!gameMode) {
     return (
-      <div className="movie-game-container">
-        <div className="movie-game-card">
+      <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+        backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        color: isDarkMode ? currentColors.text : '#1f2937'
+      }}
+      >
+       
+    <div className={`movie-game-card ${isDarkMode ? 'dark-mode' : ''}`}
+      style={{
+        backgroundColor: isDarkMode ? currentColors.cardBackground : 'white',
+        color: isDarkMode ? currentColors.text : '#1f2937',
+        boxShadow: isDarkMode 
+          ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+          : '0 4px 6px rgba(0, 0, 0, 0.1)'
+      }}
+      >
           <h1 style={styles.title}>{t.movieGuesser}</h1>
           <p style={{ textAlign: 'center', color: '#6b7280', margin: '20px 0' }}>
             {t.selectChallenge}
@@ -618,7 +666,7 @@ const MovieGuessingGame = ({ language }) => {
                 className="mode-card"
                 style={{
                 
-                  backgroundColor: 'white',
+                  backgroundColor: currentColors.cardBackground,
                   color: mode === 'EASY' ? '#22c55e' : 
                          mode === 'NORMAL' ? '#3b82f6' : 
                          '#ef4444',
@@ -637,7 +685,7 @@ const MovieGuessingGame = ({ language }) => {
                   e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.backgroundColor = currentColors.cardBackground;
                   e.currentTarget.style.color = 
                   mode === 'EASY' ? '#22c55e' : 
                   mode === 'NORMAL' ? '#3b82f6' : '#ef4444';
@@ -661,8 +709,21 @@ const MovieGuessingGame = ({ language }) => {
 
   if (gameState === 'loading') {
     return (
-      <div className="movie-game-container">
-        <div className="movie-game-card">
+      <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+        backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        color: isDarkMode ? currentColors.text : '#1f2937'
+      }}
+      >
+        <div className={`movie-game-card ${isDarkMode ? 'dark-mode' : ''}`}
+          style={{
+            backgroundColor: isDarkMode ? currentColors.cardBackground : 'white',
+            color: isDarkMode ? currentColors.text : '#1f2937',
+            boxShadow: isDarkMode 
+              ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+              : '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}
+          >
           {t.loading}
         </div>
       </div>
@@ -670,7 +731,12 @@ const MovieGuessingGame = ({ language }) => {
   }
 
   return (
-    <div className="movie-game-container">
+    <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+        backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        color: isDarkMode ? currentColors.text : '#1f2937'
+      }}
+      >
       <button 
         onClick={() => setGameMode(null)} 
         style={styles.backButton}
@@ -689,7 +755,15 @@ const MovieGuessingGame = ({ language }) => {
         <span style={styles.backButtonIcon}>&#10094;</span>
       </button>
 
-      <div className="movie-game-card">
+      <div className={`movie-game-card ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+          backgroundColor: isDarkMode ? currentColors.cardBackground : 'white',
+          color: isDarkMode ? currentColors.text : '#1f2937',
+          boxShadow: isDarkMode 
+            ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+            : '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}
+        >
         <div style={styles.header}>
           <h1 style={styles.title}>
             {t.movieGuesser}
@@ -811,8 +885,3 @@ const MovieGuessingGame = ({ language }) => {
 };
 
 export default MovieGuessingGame;
-
-// speedrun mode
-// reason for coming back each day
-// dark mode/light mode
-// containers more left

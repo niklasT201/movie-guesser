@@ -191,3 +191,31 @@
     padding: 14px 24px;
   }
 }
+
+.movie-game-container.dark-mode {
+  background-color: #121826;
+  color: #e5e7eb;
+}
+
+.movie-game-container.dark-mode .movie-game-card {
+  background-color: #1f2937;
+  color: #e5e7eb;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.movie-game-container.dark-mode .mode-selection {
+  background-color: #1f2937;
+}
+
+.movie-game-container.dark-mode .mode-card {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+.movie-game-container.dark-mode .game-over-button.primary {
+  background-color: #2563eb;
+}
+
+.movie-game-container.dark-mode .game-over-button.secondary {
+  background-color: #4b5563;
+}

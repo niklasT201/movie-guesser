@@ -9,6 +9,7 @@ const GameHub = () => {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const [language, setLanguage] = useState('en');
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -37,12 +38,40 @@ const GameHub = () => {
     }
   ];
 
-  const styles = {
+  const colors = {
+    light: {
+      background: '#f3f4f6',
+      navbarText: "#e5e7eb",
+      text: '#1f2937',
+      secondaryText: '#6b7280',
+      navBackground: '#1f2937',
+      cardBackground: 'white',
+      cardBorder: '#e5e7eb',
+      navItem: '#374151',
+      highlight: '#374151'
+    },
+    dark: {
+      background: '#121826',
+      navbarText: "#e5e7eb",
+      text: '#e5e7eb',
+      secondaryText: '#9ca3af',
+      navBackground: '#1f2937',
+      cardBackground: '#1f2937',
+      cardBorder: '#374151',
+      navItem: '#374151',
+      highlight: '#4b5563'
+    }
+  };
+
+  const getCurrentColors = () => colors[isDarkMode ? 'dark' : 'light'];
+
+   const styles = {
     mainContainer: {
       display: 'flex',
       minHeight: '100vh',
-      backgroundColor: '#f3f4f6',
+      backgroundColor: getCurrentColors().background,
       position: 'relative',
+      color: getCurrentColors().text
     },
     navbarHeader: {
       display: 'flex',
@@ -55,7 +84,8 @@ const GameHub = () => {
       flex: 1,
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      color: getCurrentColors().text
     },
     navbarTitle: {
       fontSize: '20px',
@@ -84,7 +114,7 @@ const GameHub = () => {
         right: isNavbarOpen ? '20px' : 'auto'
       }
     },
-    navItem: {
+     navItem: {
       padding: '12px',
       marginBottom: '8px',
       borderRadius: '8px',
@@ -94,8 +124,9 @@ const GameHub = () => {
       gap: '12px',
       transition: 'background-color 0.2s',
       backgroundColor: 'transparent',
-      whiteSpace: 'normal', // Allow text to wrap
-      wordBreak: 'break-word'
+      whiteSpace: 'normal',
+      wordBreak: 'break-word',
+      color: getCurrentColors().navbarText
     },
     languageSelector: {
       marginBottom: 30,
@@ -146,20 +177,21 @@ const GameHub = () => {
       fontSize: '36px',
       fontWeight: 'bold',
       marginBottom: '16px',
-      color: '#1f2937'
+      color: getCurrentColors().text
     },
     subtitle: {
       fontSize: '18px',
-      color: '#6b7280'
+      color: getCurrentColors().secondaryText
     },
     gameCard: {
-      backgroundColor: 'white',
+      backgroundColor: getCurrentColors().cardBackground,
       borderRadius: '16px',
       padding: '24px',
       boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       cursor: 'pointer',
       transition: 'transform 0.2s, box-shadow 0.2s',
-      border: '1px solid #e5e7eb'
+      border: `1px solid ${getCurrentColors().cardBorder}`,
+      color: getCurrentColors().text
     },
     gameCardHover: {
       transform: 'translateY(-4px)',
@@ -173,7 +205,7 @@ const GameHub = () => {
       fontSize: '24px',
       fontWeight: 'bold',
       marginBottom: '8px',
-      color: '#1f2937'
+      color: getCurrentColors().text
     },
     gameDescription: {
       color: '#6b7280',
@@ -202,6 +234,15 @@ const GameHub = () => {
       transform: 'scaleX(0.7)',
       display: 'inline-block',
       marginTop: '-2px'
+    },
+    darkModeToggle: {
+      position: 'absolute',
+      top: '20px',
+      right: '20px',
+      backgroundColor: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '24px'
     }
   };
 
@@ -243,6 +284,14 @@ const GameHub = () => {
             </div>
           ))}
         </div>
+
+        <button 
+          style={styles.darkModeToggle}
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
         
         <div style={styles.languageSelector}>
           {isNavbarOpen ? (
@@ -304,7 +353,7 @@ const GameHub = () => {
           >
             <span style={styles.backButtonIcon}>&#10094;</span>
           </button>
-          <GameComponent language={language} />
+          <GameComponent language={language} isDarkMode={isDarkMode}/>
         </div>
       );
     }
@@ -358,3 +407,24 @@ const GameHub = () => {
 };
 
 export default GameHub;
+
+// streak tracking mechanism
+// achievements system ("Guessed 10 Movies in a Row", "Master of Year Mode")
+// daily quests
+// profile
+// Leaderboard for daily points made
+// Combo Bonus (every 5/10 bonuses)
+// Movie Poster
+// Persistent Score Tracking
+
+// Genre Guessing Mode
+// Quote Guessing Mode
+// Oscar Winners Mode
+// Soundtrack/Music Mode
+// dark mode/light mode
+// speedrun mode
+// 10 films in 3 minutes mode
+
+// Animated Transitions
+// Theme Customization
+// Sound Effects
