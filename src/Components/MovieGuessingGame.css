@@ -11,7 +11,7 @@
 /* Desktop styles with navbar */
 @media (min-width: 769px) {
   .movie-game-container {
-      margin-left: 290px; 
+      margin-left: auto; 
       margin-right: auto; 
   }
 }

@@ -9,7 +9,7 @@
   flex-direction: column;
   position: fixed;
   overflow-x: hidden;
-  z-index: 1000;
+  z-index: 1100;
 }
   
 .navbar.open {
