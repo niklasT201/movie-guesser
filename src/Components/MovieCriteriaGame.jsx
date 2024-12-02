@@ -87,7 +87,7 @@ const GAME_MODES = {
 };
 
 
-const MovieCriteriaGame = ({ language }) => {
+const MovieCriteriaGame = ({ language, isDarkMode }) => {
   const [gameMode, setGameMode] = useState(null);
   const [criteriaChangeMode, setCriteriaChangeMode] = useState('multiple');
   const [randomMode, setRandomMode] = useState(false);
@@ -100,6 +100,7 @@ const MovieCriteriaGame = ({ language }) => {
   const [notification, setNotification] = useState(null);
   const t = translations[language];
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const getCurrentColors = () => colors[isDarkMode ? 'dark' : 'light'];
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -255,6 +256,38 @@ const MovieCriteriaGame = ({ language }) => {
     }
   }, [notification]);
 
+  const colors = {
+    light: {
+      background: '#f3f4f6',
+      text: '#1f2937',
+      secondaryText: '#6b7280',
+      cardBackground: 'white',
+      cardBorder: '#e5e7eb',
+      inputBackground: '#f9fafb',
+      inputBorder: '#e5e7eb',
+      statBackground: '#f3f4f6',
+      buttonBackground: '#3b82f6',
+      buttonHover: '#2563eb',
+      selectorBackground: '#d1d5db',
+    },
+
+    dark: {
+      background: '#121826',
+      text: '#e5e7eb',
+      secondaryText: '#9ca3af',
+      cardBackground: '#1f2937',
+      cardBorder: '#374151',
+      inputBackground: '#374151',
+      inputBorder: '#4b5563',
+      statBackground: '#374151',
+      buttonBackground: '#2563eb',
+      buttonHover: '#3b82f6',
+      selectorBackground: '#293550',
+    }
+  };
+
+  const currentColors = getCurrentColors();
+
   const styles = {
     container: {
       maxWidth: '800px',
@@ -312,7 +345,7 @@ const MovieCriteriaGame = ({ language }) => {
       alignItems: 'center',
       gap: '8px',
       padding: '8px 16px',
-      backgroundColor: '#f3f4f6',
+      backgroundColor: currentColors.statBackground,
       borderRadius: '8px',
       fontSize: '14px',
       '@media (max-width: 768px)': {
@@ -334,6 +367,9 @@ const MovieCriteriaGame = ({ language }) => {
       padding: '12px',
       borderRadius: '8px',
       border: '1px solid #e5e7eb',
+      backgroundColor: currentColors.inputBackground,
+      borderColor: currentColors.cardBorder,
+      color: currentColors.text,
       fontSize: '16px',
       minWidth: 10,
     },
@@ -418,8 +454,21 @@ const MovieCriteriaGame = ({ language }) => {
 
   if (!gameMode) {
     return (
-      <div className="movie-game-container">
-         <div className="movie-game-card">
+      <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+        backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        color: isDarkMode ? currentColors.text : '#1f2937'
+      }}
+      >
+         <div className={`movie-game-card ${isDarkMode ? 'dark-mode' : ''}`}
+          style={{
+            backgroundColor: isDarkMode ? currentColors.cardBackground : 'white',
+            color: isDarkMode ? currentColors.text : '#1f2937',
+            boxShadow: isDarkMode 
+              ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+              : '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}
+          >
           <h1 className="game-title">{t.movieCriteriaChallenge}</h1>
           
           <p className="game-subtitle">
@@ -431,7 +480,7 @@ const MovieCriteriaGame = ({ language }) => {
             onClick={() => setCriteriaChangeMode('single')}
             style={{
               ...styles.selectorButton,
-              backgroundColor: criteriaChangeMode === 'single' ? '#f59e0b' : '#d1d5db',
+              backgroundColor: criteriaChangeMode === 'single' ? '#f59e0b' : currentColors.selectorBackground,
             }}
           >
             {t.keepSameCriteria}
@@ -440,7 +489,7 @@ const MovieCriteriaGame = ({ language }) => {
             onClick={() => setCriteriaChangeMode('multiple')}
             style={{
               ...styles.selectorButton,
-              backgroundColor: criteriaChangeMode === 'multiple' ? '#10b981' : '#d1d5db',
+              backgroundColor: criteriaChangeMode === 'multiple' ? '#10b981' : currentColors.selectorBackground,
             }}
           >
             {t.changeCriteriaEachRound}
@@ -449,7 +498,7 @@ const MovieCriteriaGame = ({ language }) => {
             onClick={() => setRandomMode(!randomMode)}
             style={{
               ...styles.selectorButton,
-              backgroundColor: randomMode ? '#6366f1' : '#d1d5db',
+              backgroundColor: randomMode ? '#6366f1' : currentColors.selectorBackground,
             }}
           >
             {t.randomMode}
@@ -466,7 +515,7 @@ const MovieCriteriaGame = ({ language }) => {
                 onClick={() => setGameMode(mode)}
                 className="mode-card"
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: currentColors.cardBackground,
                   color: details.color,
                   border: `2px solid ${details.color}`,
                 }}
@@ -476,7 +525,7 @@ const MovieCriteriaGame = ({ language }) => {
                   e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.backgroundColor = currentColors.cardBackground;
                   e.currentTarget.style.color = details.color;
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
@@ -529,7 +578,12 @@ const MovieCriteriaGame = ({ language }) => {
   }
 
   return (
-    <div className="movie-game-container">
+    <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+        backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        color: isDarkMode ? currentColors.text : '#1f2937'
+      }}
+      >
       <button 
         onClick={() => setGameMode(null)} 
         style={styles.backButton}
@@ -548,7 +602,15 @@ const MovieCriteriaGame = ({ language }) => {
             <span style={styles.backButtonIcon}>&#10094;</span>
           </button>
 
-      <div className="movie-game-card">
+      <div className={`movie-game-card ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+          backgroundColor: isDarkMode ? currentColors.cardBackground : 'white',
+          color: isDarkMode ? currentColors.text : '#1f2937',
+          boxShadow: isDarkMode 
+            ? '0 4px 6px rgba(0, 0, 0, 0.3)' 
+            : '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}
+        >
         <div style={styles.header}>
           <h1 style={styles.title}>{t.movieCriteriaChallenge}</h1>
           <div style={styles.stats}>
