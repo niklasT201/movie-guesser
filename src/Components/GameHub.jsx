@@ -156,11 +156,14 @@ const GameHub = () => {
       backgroundColor: '#374151'
     },
     mainContent: {
-      marginLeft: windowWidth > 768 ? (isNavbarOpen ? '250px' : '60px') : '0',
+      marginLeft: windowWidth > 768 
+        ? (isNavbarOpen ? '250px' : '60px') 
+        : '0',
       flex: 1,
       transition: 'margin-left 0.3s ease',
       width: '100%',
-      position: 'relative'
+      position: 'relative',
+      overflow: 'hidden' // Prevent horizontal scrolling
     },
     container: {
       padding: '20px',
@@ -237,8 +240,9 @@ const GameHub = () => {
     },
     darkModeToggle: {
       position: 'absolute',
-      top: '20px',
-      right: '20px',
+      top: isNavbarOpen ? 'auto' : 'auto', // Adjust vertical positioning
+      bottom: isNavbarOpen ? '65px' : '110px', // Position above language switch when closed
+      right: isNavbarOpen ? '30px' : '30px', // Right side in both states
       backgroundColor: 'transparent',
       border: 'none',
       cursor: 'pointer',
