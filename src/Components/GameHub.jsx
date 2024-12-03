@@ -308,6 +308,18 @@ const GameHub = () => {
         </div>
       <div style={styles.navbarContent}>
         <div>
+          <div
+            key="game-hub"
+            style={{
+              ...styles.navItem,
+              backgroundColor: !selectedGame ? '#374151' : 'transparent'
+            }}
+            onClick={() => setSelectedGame(null)}
+          >
+            <span>🏠</span>
+            {isNavbarOpen && <span>{language === 'en' ? 'Game Hub' : 'Spieleübersicht'}</span>}
+          </div>
+
           {games.map(game => (
             <div
               key={game.id}
