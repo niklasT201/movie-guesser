@@ -10,13 +10,21 @@ const GameHub = () => {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const [language, setLanguage] = useState('en');
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem('movieGameDarkMode');
+    return savedDarkMode !== null ? JSON.parse(savedDarkMode) : false;
+  });
   
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('movieGameDarkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
 
   const [userProfile, setUserProfile] = useState(() => {
     // Try to load profile from localStorage on initial load
@@ -284,6 +292,10 @@ const GameHub = () => {
     },
   };
 
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   const renderNavbar = () => (
     <>
       <button 
@@ -337,7 +349,7 @@ const GameHub = () => {
 
         <button 
           style={styles.darkModeToggle}
-          onClick={() => setIsDarkMode(!isDarkMode)}
+          onClick={toggleDarkMode}
           aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {isDarkMode ? '☀️' : '🌙'}
@@ -511,7 +523,6 @@ export default GameHub;
 // streak tracking mechanism
 // achievements system ("Guessed 10 Movies in a Row", "Master of Year Mode")
 // daily quests
-// profile
 // Leaderboard for daily points made
 // Combo Bonus (every 5/10 bonuses)
 // Movie Poster
@@ -522,7 +533,6 @@ export default GameHub;
 // Quote Guessing Mode
 // Oscar Winners Mode
 // Soundtrack/Music Mode
-// dark mode/light mode
 // speedrun mode
 // 10 films in 3 minutes mode
 
