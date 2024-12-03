@@ -140,6 +140,9 @@ const UserProfile = ({
       avatar,
       createdAt: new Date().toISOString(),
       gameStats: {
+        totalScore: 0,  // Total Score
+        dailyScore: 0,  // Daily Score to Reset
+        lastScoreUpdate: new Date().toISOString(),  // Tracking daily reset
         movieGuesser: { gamesPlayed: 0, highScore: 0 },
         movieCriteria: { gamesPlayed: 0, highScore: 0 }
       }

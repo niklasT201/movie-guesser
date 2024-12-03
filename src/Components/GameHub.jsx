@@ -26,7 +26,7 @@ const GameHub = () => {
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(!userProfile);
 
-  const handleProfileUpdate = (newProfile) => {
+  const handleProfileUpdate = (newProfile) => { 
     setUserProfile(newProfile);
     setIsProfileModalOpen(false);
   };
@@ -405,7 +405,7 @@ const GameHub = () => {
               fontSize: '12px',
               color: isDarkMode ? '#9ca3af' : '#6b7280'
             }}>
-              Score: 0
+              Score: {userProfile?.gameStats?.totalScore || 0}
             </span>
           </div>
         </>
@@ -516,6 +516,7 @@ export default GameHub;
 // Combo Bonus (every 5/10 bonuses)
 // Movie Poster
 // Persistent Score Tracking
+// Updating Score directly
 
 // Genre Guessing Mode
 // Quote Guessing Mode

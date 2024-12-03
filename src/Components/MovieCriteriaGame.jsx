@@ -87,7 +87,7 @@ const GAME_MODES = {
 };
 
 
-const MovieCriteriaGame = ({ language, isDarkMode }) => {
+const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
   const [gameMode, setGameMode] = useState(null);
   const [criteriaChangeMode, setCriteriaChangeMode] = useState('multiple');
   const [randomMode, setRandomMode] = useState(false);
@@ -220,7 +220,39 @@ const MovieCriteriaGame = ({ language, isDarkMode }) => {
           break;
       }
 
-      if (isCorrect) {
+    if (isCorrect) {
+      // Update local storage profile with new scores
+      const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
+      if (storedProfile) {
+        // Update total score
+        storedProfile.gameStats.totalScore = 
+          (storedProfile.gameStats.totalScore || 0) + 100;
+
+        // Update daily score
+        const today = new Date().toISOString().split('T')[0];
+        const lastUpdateDate = new Date(storedProfile.gameStats.lastScoreUpdate || 0)
+          .toISOString().split('T')[0];
+
+        if (today !== lastUpdateDate) {
+          // Reset daily score if it's a new day
+          storedProfile.gameStats.dailyScore = 0;
+        } else {
+          storedProfile.gameStats.dailyScore = 
+            (storedProfile.gameStats.dailyScore || 0) + 100;
+        }
+
+        // Update last score update timestamp
+        storedProfile.gameStats.lastScoreUpdate = new Date().toISOString();
+
+        // Save updated profile
+        localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+
+        // Call onProfileUpdate if it exists
+        if (onProfileUpdate) {
+          onProfileUpdate(storedProfile);
+        }
+      }
+
         setScore(prev => prev + 100);
         setNotification({ type: 'success', message: t.correct });
         
