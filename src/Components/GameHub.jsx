@@ -391,12 +391,23 @@ const GameHub = () => {
           }}>
             {userProfile.avatar}
           </span>
-          <span style={{
-            color: isDarkMode ? '#e5e7eb' : '#1f2937',
-            fontWeight: 'bold'
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column'
           }}>
-            {userProfile.username}
-          </span>
+            <span style={{
+              color: isDarkMode ? '#e5e7eb' : '#1f2937',
+              fontWeight: 'bold'
+            }}>
+              {userProfile.username}
+            </span>
+            <span style={{
+              fontSize: '12px',
+              color: isDarkMode ? '#9ca3af' : '#6b7280'
+            }}>
+              Score: 0
+            </span>
+          </div>
         </>
       ) : (
         <span style={{
