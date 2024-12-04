@@ -528,7 +528,6 @@ export default GameHub;
 // Movie Poster
 // Persistent Score Tracking
 // Updating Score directly
-// Fixing Profile Badge Position
 
 // Genre Guessing Mode
 // Quote Guessing Mode

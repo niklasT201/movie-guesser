@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import './GameHub.css'; 
 
 const UserProfile = ({ 
   language, 
@@ -9,6 +10,13 @@ const UserProfile = ({
   const [username, setUsername] = useState('');
   const [avatar, setAvatar] = useState('🎬');
   const [showDataWarning, setShowDataWarning] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Custom function to generate a unique ID
   const generateUniqueId = () => {
@@ -54,7 +62,7 @@ const UserProfile = ({
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '20px',
+      padding: windowWidth <= 768 ? '0px' : '20px',
       overflow: 'auto'
     },
     modal: {
@@ -79,12 +87,13 @@ const UserProfile = ({
     },
     input: {
       width: '100%',
-      padding: '10px',
+      padding: '10px 15px',
       marginBottom: '20px',
       borderRadius: '8px',
       border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
       backgroundColor: isDarkMode ? '#374151' : '#f9fafb',
-      color: isDarkMode ? '#e5e7eb' : '#1f2937'
+      color: isDarkMode ? '#e5e7eb' : '#1f2937',
+      boxSizing: 'border-box',
     },
     avatarContainer: {
       display: 'flex',
@@ -94,7 +103,7 @@ const UserProfile = ({
       flexWrap: 'wrap'
     },
     avatarButton: {
-      fontSize: '40px',
+      fontSize: windowWidth <= 768 ? '30px' : '40px',
       background: 'none',
       border: 'none',
       cursor: 'pointer',
