@@ -279,7 +279,7 @@ const GameHub = () => {
     profileBadge: {
       position: 'absolute',
       top: isNavbarOpen ? '20px' : '20px',
-      right: isNavbarOpen ? '20px' : '70px',
+      right: isNavbarOpen ? '70px' : '70px',
       zIndex: 1002,
       display: 'flex',
       alignItems: 'center',
@@ -392,7 +392,7 @@ const GameHub = () => {
     </nav>
 
     <div 
-      style={styles.profileBadge}
+      className={`profileBadge ${isDarkMode ? 'dark-mode' : 'light-mode'}`}
       onClick={openProfileModal}
       >
       {userProfile ? (
@@ -528,6 +528,7 @@ export default GameHub;
 // Movie Poster
 // Persistent Score Tracking
 // Updating Score directly
+// Fixing Profile Badge Position
 
 // Genre Guessing Mode
 // Quote Guessing Mode

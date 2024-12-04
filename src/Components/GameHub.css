@@ -54,3 +54,36 @@
     display: none;
   }
 }
+
+.profileBadge {
+  position: absolute;
+  top: 20px;
+  right: 70px;
+  z-index: 1002;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.profileBadge.dark-mode {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+.profileBadge.light-mode {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+@media (max-width: 768px) {
+  .profileBadge {
+    top: 20px;
+    right: 20px;
+    width: calc(100% - 40px);
+    justify-content: flex-start;
+  }
+}
