@@ -99,7 +99,8 @@ const GameHub = () => {
       minHeight: '100vh',
       backgroundColor: getCurrentColors().background,
       position: 'relative',
-      color: getCurrentColors().text
+      color: getCurrentColors().text,
+      transition: 'background-color 0.3s ease, color 0.3s ease'
     },
     navbarHeader: {
       display: 'flex',

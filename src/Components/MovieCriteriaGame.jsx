@@ -321,17 +321,6 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
   const currentColors = getCurrentColors();
 
   const styles = {
-    container: {
-      maxWidth: '800px',
-      width: '100%',
-      margin: '50px auto 0',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      position: 'relative',
-      '@media (max-width: 840px)': {
-        width: 'calc(100% - 40px)',
-        margin: '70px auto 0',
-      }
-    },
     card: {
       marginTop: 90,
       backgroundColor: 'white',
@@ -384,14 +373,6 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
         flex: '1 1 auto',
         minWidth: 'calc(33.333% - 10px)',
         justifyContent: 'center',
-      }
-    },
-    inputGroup: {
-      display: 'flex',
-      gap: '12px',
-      marginBottom: '16px',
-      '@media (max-width: 480px)': {
-        flexDirection: 'column',
       }
     },
     input: {
@@ -489,6 +470,7 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
       <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
         style={{
         backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
         color: isDarkMode ? currentColors.text : '#1f2937'
       }}
       >
@@ -548,6 +530,7 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
                 className="mode-card"
                 style={{
                   backgroundColor: currentColors.cardBackground,
+                  transition: 'background-color 0.3s ease, color 0.3s ease',
                   color: details.color,
                   border: `2px solid ${details.color}`,
                 }}
@@ -613,6 +596,7 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
     <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
         style={{
         backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
         color: isDarkMode ? currentColors.text : '#1f2937'
       }}
       >

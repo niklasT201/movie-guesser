@@ -402,18 +402,6 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
   };
 
   const styles = {
-    container: {
-      maxWidth: '800px',
-      width: '100%',
-      margin: '50px auto 0',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      position: 'relative',
-      padding: '0 20px',
-      boxSizing: 'border-box',
-      '@media (max-width: 840px)': {
-        margin: '70px auto 0',
-      }
-    },
     header: {
       display: 'flex',
       flexDirection: 'column',
@@ -645,6 +633,7 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
       <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
         style={{
         backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
         color: isDarkMode ? currentColors.text : '#1f2937'
       }}
       >
@@ -669,8 +658,8 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
                 onClick={() => selectGameMode(mode)}
                 className="mode-card"
                 style={{
-                
                   backgroundColor: currentColors.cardBackground,
+                  transition: 'background-color 0.3s ease, color 0.3s ease',
                   color: mode === 'EASY' ? '#22c55e' : 
                          mode === 'NORMAL' ? '#3b82f6' : 
                          '#ef4444',
@@ -716,6 +705,7 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
       <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
         style={{
         backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
         color: isDarkMode ? currentColors.text : '#1f2937'
       }}
       >
@@ -738,6 +728,7 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
     <div className={`movie-game-container ${isDarkMode ? 'dark-mode' : ''}`}
         style={{
         backgroundColor: isDarkMode ? currentColors.background : '#f3f4f6',
+        transition: 'background-color 0.3s ease, color 0.3s ease',
         color: isDarkMode ? currentColors.text : '#1f2937'
       }}
       >
