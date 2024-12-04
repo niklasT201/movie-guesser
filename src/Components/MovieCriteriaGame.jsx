@@ -220,38 +220,44 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
           break;
       }
 
-    if (isCorrect) {
-      // Update local storage profile with new scores
-      const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
-      if (storedProfile) {
-        // Update total score
-        storedProfile.gameStats.totalScore = 
-          (storedProfile.gameStats.totalScore || 0) + 100;
-
-        // Update daily score
-        const today = new Date().toISOString().split('T')[0];
-        const lastUpdateDate = new Date(storedProfile.gameStats.lastScoreUpdate || 0)
-          .toISOString().split('T')[0];
-
-        if (today !== lastUpdateDate) {
-          // Reset daily score if it's a new day
-          storedProfile.gameStats.dailyScore = 0;
-        } else {
-          storedProfile.gameStats.dailyScore = 
-            (storedProfile.gameStats.dailyScore || 0) + 100;
+      if (isCorrect) {
+        // Update local storage profile with new scores
+        const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
+        if (storedProfile) {
+          // Get current date
+          const today = new Date();
+          const currentDate = today.toISOString().split('T')[0];
+  
+          // Parse the last score update date
+          const lastUpdateDate = storedProfile.gameStats.lastScoreUpdate 
+            ? new Date(storedProfile.gameStats.lastScoreUpdate).toISOString().split('T')[0] 
+            : null;
+  
+          // Update total score
+          storedProfile.gameStats.totalScore = 
+            (storedProfile.gameStats.totalScore || 0) + 100;
+  
+          // Check if it's a new day or first score
+          if (currentDate !== lastUpdateDate) {
+            // Reset daily score if it's a new day
+            storedProfile.gameStats.dailyScore = 100;
+          } else {
+            // Add to existing daily score
+            storedProfile.gameStats.dailyScore = 
+              (storedProfile.gameStats.dailyScore || 0) + 100;
+          }
+  
+          // Update last score update timestamp
+          storedProfile.gameStats.lastScoreUpdate = today.toISOString();
+  
+          // Save updated profile
+          localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+  
+          // Call onProfileUpdate if it exists
+          if (onProfileUpdate) {
+            onProfileUpdate(storedProfile);
+          }
         }
-
-        // Update last score update timestamp
-        storedProfile.gameStats.lastScoreUpdate = new Date().toISOString();
-
-        // Save updated profile
-        localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
-
-        // Call onProfileUpdate if it exists
-        if (onProfileUpdate) {
-          onProfileUpdate(storedProfile);
-        }
-      }
 
         setScore(prev => prev + 100);
         setNotification({ type: 'success', message: t.correct });
