@@ -124,7 +124,7 @@ const translations = {
   }
 };
 
-const MovieGuessingGame = ({ language, isDarkMode }) => {
+const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
   const [currentMovie, setCurrentMovie] = useState(null);
   const [questionsAsked, setQuestionsAsked] = useState(1);
   const [score, setScore] = useState(0);
@@ -378,7 +378,47 @@ const MovieGuessingGame = ({ language, isDarkMode }) => {
     if (guess.toLowerCase() === currentMovie.title.toLowerCase()) {
       const newPoints = Math.max(10 - questionsAsked, 1) * 100;
       setScore(prev => prev + newPoints);
+      
+      // Update local storage profile with new scores
+      const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
+      if (storedProfile) {
+        // Get current date
+        const today = new Date();
+        const currentDate = today.toISOString().split('T')[0];
+    
+        // Parse the last score update date
+        const lastUpdateDate = storedProfile.gameStats.lastScoreUpdate 
+          ? new Date(storedProfile.gameStats.lastScoreUpdate).toISOString().split('T')[0] 
+          : null;
+    
+        // Update total score
+        storedProfile.gameStats.totalScore = 
+          (storedProfile.gameStats.totalScore || 0) + newPoints;
+    
+        // Check if it's a new day or first score
+        if (currentDate !== lastUpdateDate) {
+          // Reset daily score if it's a new day
+          storedProfile.gameStats.dailyScore = newPoints;
+        } else {
+          // Add to existing daily score
+          storedProfile.gameStats.dailyScore = 
+            (storedProfile.gameStats.dailyScore || 0) + newPoints;
+        }
+    
+        // Update last score update timestamp
+        storedProfile.gameStats.lastScoreUpdate = today.toISOString();
+    
+        // Save updated profile
+        localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+    
+        // Call onProfileUpdate if it exists
+        if (onProfileUpdate) {
+          onProfileUpdate(storedProfile);
+        }
+      }
+      
       setGameState('won');
+
     } else {
       // Subtract 100 points for wrong answers in Normal and Hard mode
       if (gameMode !== 'EASY') {
