@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
 import MoviePosterGame from './MoviePosterGame';
+import MovieTimedChallengeGame from './MovieTimedChallengeGame';
 import UserProfile from './UserProfile';
 import './responsive/GameHub.css';
 import './responsive/GameGrid.css';
@@ -73,7 +74,16 @@ const GameHub = () => {
         : 'Errate den Film nur anhand seines Posters!',
       icon: '🖼️',
       component: MoviePosterGame
-    }
+    },
+    {
+      id: 'movie-timed-challenge',
+      title: language === 'en' ? 'Movie Timed Challenge' : 'Film-Zeit-Challenge',
+      description: language === 'en'
+        ? 'Guess 10 movies before time runs out!'
+        : 'Erraten Sie 10 Filme, bevor die Zeit abläuft!',
+      icon: '⏱️',
+      component: MovieTimedChallengeGame
+    },
   ];
 
   const colors = {
