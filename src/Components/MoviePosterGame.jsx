@@ -39,6 +39,7 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       alignItems: 'center',
       padding: '20px',
       backgroundColor: currentColors.background,
+      transition: 'background-color 0.3s ease, color 0.3s ease',
       color: currentColors.text,
       minHeight: 'calc(100vh - 100px)'
     },
@@ -71,12 +72,14 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
       gridTemplateRows: 'repeat(2, 1fr)',
-      gap: '2px'
+      gap: 0
     },
     posterPiece: {
       backgroundColor: 'black',
       opacity: 1,
-      transition: 'opacity 0.3s ease'
+      boxSizing: 'border-box',
+      border: 'none',
+      padding: 0
     },
     revealedPiece: {
       opacity: 0
@@ -191,12 +194,6 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
     }
   };
 
-  const handlePieceClick = (pieceIndex) => {
-    if (!revealedPieces.includes(pieceIndex)) {
-      setRevealedPieces(prev => [...prev, pieceIndex]);
-    }
-  };
-
   return (
     <div style={styles.container}>
       <h1>{language === 'en' ? 'Movie Poster Guesser' : 'Film-Poster-Raten'}</h1>
@@ -217,7 +214,6 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
                     ...styles.posterPiece,
                     ...(revealedPieces >= pieceIndex + 1 ? styles.revealedPiece : {})
                   }}
-                  //onClick={() => handlePieceClick(pieceIndex)}
                 />
               ))}
             </div>
