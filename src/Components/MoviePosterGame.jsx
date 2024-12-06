@@ -156,12 +156,12 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
 
   const handleGuess = () => {
     if (!currentMovie) return;
-
+  
     const normalizedGuess = guessInput.trim().toLowerCase();
     const normalizedTitle = currentMovie.title.toLowerCase();
-
+  
     setAttempts(prev => prev + 1);
-
+  
     if (normalizedGuess === normalizedTitle) {
       // Correct guess
       const points = Math.max(3 - attempts, 1) * 10;
@@ -169,6 +169,51 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       setFeedback(language === 'en' 
         ? `Correct! The movie is ${currentMovie.title}. You earned ${points} points!` 
         : `Richtig! Der Film ist ${currentMovie.title}. Sie haben ${points} Punkte verdient!`);
+      
+      // Update user profile in local storage
+      const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
+      if (storedProfile) {
+        // Get current date
+        const today = new Date();
+        const currentDate = today.toISOString().split('T')[0];
+  
+        // Parse the last score update date
+        const lastUpdateDate = storedProfile.gameStats.lastScoreUpdate
+          ? new Date(storedProfile.gameStats.lastScoreUpdate).toISOString().split('T')[0]
+          : null;
+  
+        // Update total score for Movie Poster Guesser
+        storedProfile.gameStats.totalScore =
+          (storedProfile.gameStats.totalScore || 0) + points;
+        
+        // Update Movie Poster Guesser high score
+        storedProfile.gameStats.movieGuesser.gamesPlayed += 1;
+        storedProfile.gameStats.movieGuesser.highScore = Math.max(
+          storedProfile.gameStats.movieGuesser.highScore || 0, 
+          points
+        );
+  
+        // Check if it's a new day or first score
+        if (currentDate !== lastUpdateDate) {
+          // Reset daily score if it's a new day
+          storedProfile.gameStats.dailyScore = points;
+        } else {
+          // Add to existing daily score
+          storedProfile.gameStats.dailyScore =
+            (storedProfile.gameStats.dailyScore || 0) + points;
+        }
+  
+        // Update last score update timestamp
+        storedProfile.gameStats.lastScoreUpdate = today.toISOString();
+  
+        // Save updated profile
+        localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+  
+        // Call onProfileUpdate if passed as prop
+        if (userProfile && userProfile.onProfileUpdate) {
+          userProfile.onProfileUpdate(storedProfile);
+        }
+      }
       
       // Fetch new movie after a short delay
       setTimeout(fetchRandomMovie, 2000);
@@ -244,7 +289,7 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
                 ? `Reveal Piece (${6 - revealedPieces} left)` 
                 : `Stück aufdecken (${6 - revealedPieces} übrig)`}
             </button>
-            
+
             <button 
               onClick={handleGuess}
               style={styles.button}
