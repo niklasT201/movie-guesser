@@ -3,8 +3,8 @@ import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
 import MoviePosterGame from './MoviePosterGame';
 import UserProfile from './UserProfile';
-import './GameHub.css'; 
-import './GameGrid.css';
+import './responsive/GameHub.css';
+import './responsive/GameGrid.css';
 
 const GameHub = () => {
   const [selectedGame, setSelectedGame] = useState(null);

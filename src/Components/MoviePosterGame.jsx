@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './MoviePosterGame.css';
+import './responsive/MoviePosterGame.css';
 
 const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
   const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';

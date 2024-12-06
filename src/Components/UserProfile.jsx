@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './GameHub.css'; 
+import './responsive/GameHub.css'; 
 
 const UserProfile = ({ 
   language, 

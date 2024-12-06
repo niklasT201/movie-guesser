@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import './MovieGuessingGame.css';
+import './responsive/MovieGuessingGame.css';
 
 const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
 
