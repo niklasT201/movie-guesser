@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
+import MoviePosterGame from './MoviePosterGame';
 import UserProfile from './UserProfile';
 import './GameHub.css'; 
 import './GameGrid.css';
@@ -63,6 +64,15 @@ const GameHub = () => {
         : 'Finde Filme, die bestimmten Jahren, Regisseuren oder Schauspielern entsprechen!',
       icon: '🎯',
       component: MoviewCriteriaGame
+    },
+    {
+      id: 'movie-poster',
+      title: language === 'en' ? 'Movie Poster Guesser' : 'Film-Poster-Raten',
+      description: language === 'en'
+        ? 'Guess the movie based only on its poster!'
+        : 'Errate den Film nur anhand seines Posters!',
+      icon: '🖼️',
+      component: MoviePosterGame
     }
   ];
 
