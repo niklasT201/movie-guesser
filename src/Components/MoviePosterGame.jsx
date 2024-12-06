@@ -8,7 +8,9 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
   const [score, setScore] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts, setMaxAttempts] = useState(3);
+  const [revealedPieces, setRevealedPieces] = useState(0);
 
+  // Color scheme (reusing from previous implementation)
   const colors = {
     light: {
       background: '#f3f4f6',
@@ -41,6 +43,7 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       minHeight: 'calc(100vh - 100px)'
     },
     posterContainer: {
+      position: 'relative',
       width: '300px',
       height: '450px',
       display: 'flex',
@@ -52,9 +55,40 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       overflow: 'hidden'
     },
     poster: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
       maxWidth: '100%',
       maxHeight: '100%',
       objectFit: 'cover'
+    },
+    posterOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gridTemplateRows: 'repeat(2, 1fr)',
+      gap: '2px'
+    },
+    posterPiece: {
+      backgroundColor: 'black',
+      opacity: 1,
+      transition: 'opacity 0.3s ease'
+    },
+    revealedPiece: {
+      opacity: 0
+    },
+    revealButton: {
+      marginTop: '10px',
+      backgroundColor: currentColors.buttonBg,
+      color: currentColors.buttonText,
+      border: 'none',
+      padding: '10px 20px',
+      borderRadius: '8px',
+      cursor: 'pointer'
     },
     input: {
       width: '300px',
@@ -103,6 +137,7 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       setGuessInput('');
       setFeedback('');
       setAttempts(0);
+      setRevealedPieces(1); // Start with one piece revealed
     } catch (error) {
       console.error('Error fetching movie:', error);
       setFeedback(language === 'en' 
@@ -149,9 +184,22 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
     }
   };
 
+  const revealRandomPiece = () => {
+    // Ensure we don't reveal more than 6 pieces
+    if (revealedPieces < 6) {
+      setRevealedPieces(prev => prev + 1);
+    }
+  };
+
+  const handlePieceClick = (pieceIndex) => {
+    if (!revealedPieces.includes(pieceIndex)) {
+      setRevealedPieces(prev => [...prev, pieceIndex]);
+    }
+  };
+
   return (
     <div style={styles.container}>
-      <h1>{language === 'en' ? 'Movie Poster Guesser (Just started creating it)' : 'Film-Poster-Raten'}</h1>
+      <h1>{language === 'en' ? 'Movie Poster Guesser' : 'Film-Poster-Raten'}</h1>
       
       {currentMovie && (
         <>
@@ -161,7 +209,29 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
               alt="Movie Poster" 
               style={styles.poster}
             />
+            <div style={styles.posterOverlay}>
+              {[0, 1, 2, 3, 4, 5].map((pieceIndex) => (
+                <div
+                  key={pieceIndex}
+                  style={{
+                    ...styles.posterPiece,
+                    ...(revealedPieces >= pieceIndex + 1 ? styles.revealedPiece : {})
+                  }}
+                  //onClick={() => handlePieceClick(pieceIndex)}
+                />
+              ))}
+            </div>
           </div>
+          
+          <button 
+            onClick={revealRandomPiece}
+            style={styles.revealButton}
+            disabled={revealedPieces >= 6}
+          >
+            {language === 'en' 
+              ? `Reveal Piece (${6 - revealedPieces} left)` 
+              : `Stück aufdecken (${6 - revealedPieces} übrig)`}
+          </button>
           
           <input
             type="text"
