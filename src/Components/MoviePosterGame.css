@@ -1,0 +1,54 @@
+/* MoviePosterGame.css */
+@media screen and (max-width: 768px) {
+    .movie-poster-container {
+      width: 250px !important;
+      height: 375px !important;
+    }
+  
+    .movie-poster-input {
+      width: 250px !important;
+      font-size: 14px !important;
+    }
+  
+    .movie-poster-button {
+      font-size: 14px !important;
+      padding: 8px 16px !important;
+    }
+  
+    .movie-poster-reveal-button {
+      font-size: 14px !important;
+      padding: 8px 16px !important;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .movie-poster-container {
+      width: 200px !important;
+      height: 300px !important;
+    }
+  
+    .movie-poster-input {
+      width: 200px !important;
+      font-size: 12px !important;
+    }
+  
+    .movie-poster-button {
+      font-size: 12px !important;
+      padding: 6px 12px !important;
+    }
+  
+    .movie-poster-reveal-button {
+      font-size: 12px !important;
+      padding: 6px 12px !important;
+    }
+  }
+  
+  /* Flexbox layout for controls */
+  .movie-poster-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+  }

@@ -536,7 +536,6 @@ export default GameHub;
 // daily quests
 // Leaderboard for daily points made
 // Combo Bonus (every 5/10 bonuses)
-// Movie Poster
 // Persistent Score Tracking
 // Updating Score directly
 

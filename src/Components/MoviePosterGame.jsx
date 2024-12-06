@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './MoviePosterGame.css';
 
 const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
   const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
@@ -200,7 +201,10 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       
       {currentMovie && (
         <>
-          <div style={styles.posterContainer}>
+          <div 
+            style={styles.posterContainer} 
+            className="movie-poster-container"
+          >
             <img 
               src={currentMovie.posterUrl} 
               alt="Movie Poster" 
@@ -219,40 +223,45 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
             </div>
           </div>
           
-          <button 
-            onClick={revealRandomPiece}
-            style={styles.revealButton}
-            disabled={revealedPieces >= 6}
-          >
-            {language === 'en' 
-              ? `Reveal Piece (${6 - revealedPieces} left)` 
-              : `Stück aufdecken (${6 - revealedPieces} übrig)`}
-          </button>
-          
-          <input
-            type="text"
-            value={guessInput}
-            onChange={(e) => setGuessInput(e.target.value)}
-            placeholder={language === 'en' ? "Guess the movie title" : "Raten Sie den Filmtitel"}
-            style={styles.input}
-            onKeyPress={(e) => e.key === 'Enter' && handleGuess()}
-          />
+          <div className="movie-poster-controls">
+            <input
+              type="text"
+              value={guessInput}
+              onChange={(e) => setGuessInput(e.target.value)}
+              placeholder={language === 'en' ? "Guess the movie title" : "Raten Sie den Filmtitel"}
+              style={styles.input}
+              className="movie-poster-input"
+              onKeyPress={(e) => e.key === 'Enter' && handleGuess()}
+            />
           
           <button 
-            onClick={handleGuess}
-            style={styles.button}
-          >
-            {language === 'en' ? 'Submit Guess' : 'Eingeben'}
-          </button>
+              onClick={revealRandomPiece}
+              style={styles.revealButton}
+              className="movie-poster-reveal-button"
+              disabled={revealedPieces >= 6}
+            >
+              {language === 'en' 
+                ? `Reveal Piece (${6 - revealedPieces} left)` 
+                : `Stück aufdecken (${6 - revealedPieces} übrig)`}
+            </button>
+            
+            <button 
+              onClick={handleGuess}
+              style={styles.button}
+              className="movie-poster-button"
+            >
+              {language === 'en' ? 'Submit Guess' : 'Eingeben'}
+            </button>
           
-          {feedback && (
-            <div style={styles.feedback}>
-              {feedback}
+            {feedback && (
+              <div style={styles.feedback}>
+                {feedback}
+              </div>
+            )}
+          
+            <div>
+              {language === 'en' ? 'Score:' : 'Punktzahl:'} {score}
             </div>
-          )}
-          
-          <div>
-            {language === 'en' ? 'Score:' : 'Punktzahl:'} {score}
           </div>
         </>
       )}
