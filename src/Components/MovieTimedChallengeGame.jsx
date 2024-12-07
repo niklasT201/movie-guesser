@@ -159,53 +159,79 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
     }, [language]);
   
     // Fetch movies based on game mode and options
+    const fetchMovieDetails = async (movieTitle) => {
+      try {
+        const searchParams = new URLSearchParams({
+          api_key: API_KEY,
+          language: language === 'en' ? 'en-US' : 'de-DE',
+          query: movieTitle
+        });
+  
+        const response = await fetch(`${BASE_URL}/search/movie?${searchParams.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch movie details');
+        }
+        
+        const data = await response.json();
+        return data.results[0];
+      } catch (error) {
+        console.error('Error fetching movie details:', error);
+        return null;
+      }
+    };
+  
+    // Modify fetchMovies to set up the game differently for Easy mode
     const fetchMovies = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        let movies = [];
-        let url = '';
         
         if (gameMode === GAME_MODES.EASY) {
-          // Build URL for discovering movies
-          const params = new URLSearchParams({
-            api_key: API_KEY,
-            language: language === 'en' ? 'en-US' : 'de-DE',
-            sort_by: 'popularity.desc',
-            page: 1
-          });
+          // In Easy mode, just create 10 placeholder movies
+          const placeholderMovies = Array.from({ length: 10 }, (_, index) => ({
+            title: '?????',
+            original: false,
+            hidden: true,
+            matchCriteria: null
+          }));
           
-          // Add optional filters
-          if (gameOptions.genre) params.append('with_genres', gameOptions.genre);
-          if (gameOptions.year) params.append('primary_release_year', gameOptions.year);
-          if (gameOptions.decade) {
-            params.append('primary_release_date.gte', `${gameOptions.decade}-01-01`);
-            params.append('primary_release_date.lte', `${gameOptions.decade + 9}-12-31`);
+          // Apply filtering criteria if set
+          if (gameOptions.genre || gameOptions.year || gameOptions.decade) {
+            placeholderMovies.forEach((movie, index) => {
+              movie.matchCriteria = {
+                genre: gameOptions.genre,
+                year: gameOptions.year,
+                decade: gameOptions.decade
+              };
+            });
           }
           
-          url = `${BASE_URL}/discover/movie?${params.toString()}`;
+          setCurrentMovies(placeholderMovies);
+          setIsLoading(false);
+          return placeholderMovies;
         } else {
-          // Popular movies for hard mode
-          url = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=${language === 'en' ? 'en-US' : 'de-DE'}&page=1`;
+          // Hard mode remains the same as before
+          const response = await fetch(
+            `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=${language === 'en' ? 'en-US' : 'de-DE'}&page=1`
+          );
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch movies');
+          }
+          
+          const data = await response.json();
+          
+          const movies = data.results.slice(0, 10).map(movie => ({
+            title: movie.title,
+            original: true,
+            hidden: true
+          }));
+          
+          setCurrentMovies(movies);
+          setIsLoading(false);
+          return movies;
         }
-        
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch movies');
-        }
-        
-        const data = await response.json();
-        
-        // Map and slice movies
-        movies = data.results.slice(0, 10).map(movie => ({
-          title: movie.title,
-          original: true,
-          hidden: gameMode === GAME_MODES.HARD
-        }));
-        
-        setIsLoading(false);
-        return movies;
       } catch (error) {
         console.error('Error fetching movies:', error);
         setError('Could not load movies. Please try again.');
@@ -224,32 +250,87 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
     };
   
     // Handle Input Submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
       e.preventDefault();
       const trimmedInput = inputValue.trim();
       
-      const matchedMovie = currentMovies.find(movie => 
-        movie.title.toLowerCase() === trimmedInput.toLowerCase() && 
-        !guessedMovies.includes(movie.title)
-      );
-      
-      if (matchedMovie) {
-        const newGuessedMovies = [...guessedMovies, matchedMovie.title];
-        setGuessedMovies(newGuessedMovies);
-        setLastGuessResult({
-          isCorrect: true,
-          message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
-        });
+      if (gameMode === GAME_MODES.EASY) {
+        // In Easy mode, validate the movie against the selected criteria
+        const movieDetails = await fetchMovieDetails(trimmedInput);
         
-        // Check if all movies are guessed
-        if (newGuessedMovies.length === currentMovies.length) {
-          setGameStatus('won');
+        if (!movieDetails) {
+          setLastGuessResult({
+            isCorrect: false,
+            message: language === 'en' ? 'Movie not found' : 'Film nicht gefunden'
+          });
+          setInputValue('');
+          return;
+        }
+        
+        // Check if the movie meets the selected criteria
+        const meetsGenreCriteria = !gameOptions.genre || 
+          movieDetails.genre_ids.includes(gameOptions.genre);
+        
+        const meetYearCriteria = !gameOptions.year || 
+          new Date(movieDetails.release_date).getFullYear() === gameOptions.year;
+        
+        const meetDecadeCriteria = !gameOptions.decade || 
+          (Math.floor(new Date(movieDetails.release_date).getFullYear() / 10) * 10 === gameOptions.decade);
+        
+        if (meetsGenreCriteria && meetYearCriteria && meetDecadeCriteria) {
+          // Find the first unguessed placeholder and replace it
+          const updatedMovies = currentMovies.map(movie => 
+            movie.title === '?????' && !guessedMovies.includes(movieDetails.title)
+              ? { ...movie, title: movieDetails.title, hidden: false }
+              : movie
+          );
+          
+          const newGuessedMovies = [...guessedMovies, movieDetails.title];
+          setCurrentMovies(updatedMovies);
+          setGuessedMovies(newGuessedMovies);
+          
+          setLastGuessResult({
+            isCorrect: true,
+            message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
+          });
+          
+          // Check if all placeholders are filled
+          if (updatedMovies.filter(movie => movie.title !== '?????').length === 10) {
+            setGameStatus('won');
+          }
+        } else {
+          setLastGuessResult({
+            isCorrect: false,
+            message: language === 'en' 
+              ? 'Movie does not match the selected criteria' 
+              : 'Film entspricht nicht den ausgewählten Kriterien'
+          });
         }
       } else {
-        setLastGuessResult({
-          isCorrect: false,
-          message: language === 'en' ? 'Incorrect Guess' : 'Falsch geraten'
-        });
+        // Hard mode remains the same as before
+        const matchedMovie = currentMovies.find(movie => 
+          movie.title.toLowerCase() === trimmedInput.toLowerCase() && 
+          !guessedMovies.includes(movie.title)
+        );
+        
+        if (matchedMovie) {
+          const newGuessedMovies = [...guessedMovies, matchedMovie.title];
+          setGuessedMovies(newGuessedMovies);
+          setLastGuessResult({
+            isCorrect: true,
+            message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
+          });
+          
+          // Check if all movies are guessed
+          if (newGuessedMovies.length === currentMovies.length) {
+            setGameStatus('won');
+          }
+        } else {
+          setLastGuessResult({
+            isCorrect: false,
+            message: language === 'en' ? 'Incorrect Guess' : 'Falsch geraten'
+          });
+        }
       }
       
       setInputValue('');
