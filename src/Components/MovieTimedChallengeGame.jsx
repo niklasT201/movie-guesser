@@ -188,9 +188,9 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         setError(null);
         
         if (gameMode === GAME_MODES.EASY) {
-          // In Easy mode, just create 10 placeholder movies
+          // In Easy mode, create placeholders with unique identifiers
           const placeholderMovies = Array.from({ length: 10 }, (_, index) => ({
-            title: '?????',
+            title: `????${index + 1}`, // Unique placeholder
             original: false,
             hidden: true,
             matchCriteria: null
@@ -198,7 +198,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
           
           // Apply filtering criteria if set
           if (gameOptions.genre || gameOptions.year || gameOptions.decade) {
-            placeholderMovies.forEach((movie, index) => {
+            placeholderMovies.forEach((movie) => {
               movie.matchCriteria = {
                 genre: gameOptions.genre,
                 year: gameOptions.year,
@@ -278,12 +278,24 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
           (Math.floor(new Date(movieDetails.release_date).getFullYear() / 10) * 10 === gameOptions.decade);
         
         if (meetsGenreCriteria && meetYearCriteria && meetDecadeCriteria) {
+          // Check if this movie has already been guessed
+          if (guessedMovies.includes(movieDetails.title)) {
+            setLastGuessResult({
+              isCorrect: false,
+              message: language === 'en' ? 'You already guessed this movie' : 'Diesen Film hast du bereits erraten'
+            });
+            setInputValue('');
+            return;
+          }
+          
           // Find the first unguessed placeholder and replace it
-          const updatedMovies = currentMovies.map(movie => 
-            movie.title === '?????' && !guessedMovies.includes(movieDetails.title)
-              ? { ...movie, title: movieDetails.title, hidden: false }
-              : movie
-          );
+          const updatedMovies = currentMovies.map(movie => {
+            // Check if the movie title starts with '????' and is not guessed yet
+            if (movie.title.startsWith('????') && !guessedMovies.includes(movieDetails.title)) {
+              return { ...movie, title: movieDetails.title, hidden: false };
+            }
+            return movie;
+          });
           
           const newGuessedMovies = [...guessedMovies, movieDetails.title];
           setCurrentMovies(updatedMovies);
@@ -294,8 +306,8 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
           });
           
-          // Check if all placeholders are filled
-          if (updatedMovies.filter(movie => movie.title !== '?????').length === 10) {
+          // Check if all movies are guessed
+          if (newGuessedMovies.length === currentMovies.length) {
             setGameStatus('won');
           }
         } else {
