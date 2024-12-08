@@ -9,9 +9,16 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
   const [gameOver, setGameOver] = useState(false);
   const [roundsPlayed, setRoundsPlayed] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
   const MAX_ROUNDS = 10;
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const getCurrentColors = () => ({
     light: {
@@ -107,30 +114,34 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
       textAlign: 'center',
       backgroundColor: getCurrentColors().background,
       color: getCurrentColors().text,
-      minHeight: '100vh',
     },
     moviePoster: {
+      width: '100%',
       maxWidth: '300px',
-      maxHeight: '450px',
+      height: 'auto',
+      maxHeight: windowWidth < 400 ? '250px' : 
+                windowWidth < 600 ? '350px' : 
+                '450px',
       borderRadius: '12px',
       boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
       margin: '20px auto',
       display: 'block',
+      objectFit: 'cover',
     },
     title: {
-      fontSize: '24px',
+      fontSize: windowWidth < 400 ? '20px' : '24px',
       marginBottom: '20px',
       color: getCurrentColors().text,
     },
     optionsContainer: {
       display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
+      gridTemplateColumns: windowWidth < 400 ? '1fr' : '1fr 1fr',
       gap: '15px',
       marginTop: '20px',
     },
     optionButton: {
-      padding: '15px',
-      fontSize: '18px',
+      padding: windowWidth < 400 ? '10px' : '15px',
+      fontSize: windowWidth < 400 ? '16px' : '18px',
       borderRadius: '8px',
       border: `1px solid ${getCurrentColors().cardBorder}`,
       backgroundColor: getCurrentColors().cardBackground,
@@ -148,7 +159,7 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
     },
     scoreContainer: {
       marginTop: '20px',
-      fontSize: '18px',
+      fontSize: windowWidth < 400 ? '16px' : '18px',
     },
     gameOverContainer: {
       marginTop: '40px',
