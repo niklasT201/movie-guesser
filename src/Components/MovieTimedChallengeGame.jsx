@@ -75,7 +75,8 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
       backgroundColor: colors.inputBackground,
       color: colors.text,
       border: 'none',
-      borderRadius: '8px'
+      borderRadius: '8px',
+      boxSizing: 'border-box' 
     },
     movieList: {
       display: 'grid',
