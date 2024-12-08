@@ -3,7 +3,7 @@ import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
 import MoviePosterGame from './MoviePosterGame';
 import MovieTimedChallengeGame from './MovieTimedChallengeGame';
-import OscarWinsGame from './OscarWinsGame';
+import MovieRatingGame from './MovieRatingGame';
 import UserProfile from './UserProfile';
 import './responsive/GameHub.css';
 import './responsive/GameGrid.css';
@@ -84,6 +84,15 @@ const GameHub = () => {
         : 'Erraten Sie 10 Filme, bevor die Zeit abläuft!',
       icon: '⏱️',
       component: MovieTimedChallengeGame
+    },
+    {
+      id: 'movie-rating',
+      title: language === 'en' ? 'Movie Rating Guesser' : 'Film-Bewertungs-Raten',
+      description: language === 'en' 
+        ? 'Guess the rating of popular movies!' 
+        : 'Erraten Sie die Bewertung von Filmen!',
+      icon: '⭐',
+      component: MovieRatingGame
     },
   ];
 
