@@ -3,6 +3,7 @@ import MovieGuessingGame from './MovieGuessingGame';
 import MoviewCriteriaGame from './MovieCriteriaGame';
 import MoviePosterGame from './MoviePosterGame';
 import MovieTimedChallengeGame from './MovieTimedChallengeGame';
+import OscarWinsGame from './OscarWinsGame';
 import UserProfile from './UserProfile';
 import './responsive/GameHub.css';
 import './responsive/GameGrid.css';
@@ -83,6 +84,15 @@ const GameHub = () => {
         : 'Erraten Sie 10 Filme, bevor die Zeit abläuft!',
       icon: '⏱️',
       component: MovieTimedChallengeGame
+    },
+    {
+      id: 'oscar-wins',
+      title: language === 'en' ? 'Award Wins Trivia' : 'Award-Gewinner Quiz',
+      description: language === 'en' 
+        ? 'Test your knowledge of Award wins through the years!'
+        : 'Teste dein Wissen über Award-Gewinne im Laufe der Jahre!',
+      icon: '🏆',
+      component: OscarWinsGame
     },
   ];
 
@@ -554,7 +564,6 @@ export default GameHub;
 // Oscar Winners Mode
 // Soundtrack/Music Mode
 // speedrun mode
-// 10 films in 3 minutes mode
 
 // Animated Transitions
 // Theme Customization
