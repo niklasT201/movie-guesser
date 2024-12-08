@@ -85,15 +85,6 @@ const GameHub = () => {
       icon: '⏱️',
       component: MovieTimedChallengeGame
     },
-    {
-      id: 'oscar-wins',
-      title: language === 'en' ? 'Award Wins Trivia' : 'Award-Gewinner Quiz',
-      description: language === 'en' 
-        ? 'Test your knowledge of Award wins through the years!'
-        : 'Teste dein Wissen über Award-Gewinne im Laufe der Jahre!',
-      icon: '🏆',
-      component: OscarWinsGame
-    },
   ];
 
   const colors = {
