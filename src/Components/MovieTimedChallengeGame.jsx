@@ -188,12 +188,12 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         setError(null);
         
         if (gameMode === GAME_MODES.EASY) {
-          // In Easy mode, create placeholders with unique identifiers
+          // Create placeholders with explicit IDs
           const placeholderMovies = Array.from({ length: 10 }, (_, index) => ({
-            title: `????${index + 1}`, // Unique placeholder
-            original: false,
-            hidden: true,
-            matchCriteria: null
+            id: `placeholder-${index + 1}`, // Unique ID for each placeholder
+            title: '?????', // Simplified title
+            originalId: index + 1, // Keep track of original index if needed
+            isGuessed: false
           }));
           
           // Apply filtering criteria if set
@@ -267,7 +267,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
           return;
         }
         
-        // Check if the movie meets the selected criteria
+        // Check criteria (keep existing logic)
         const meetsGenreCriteria = !gameOptions.genre || 
           movieDetails.genre_ids.includes(gameOptions.genre);
         
@@ -288,27 +288,44 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             return;
           }
           
-          // Find the first unguessed placeholder and replace it
-          const updatedMovies = currentMovies.map(movie => {
-            // Check if the movie title starts with '????' and is not guessed yet
-            if (movie.title.startsWith('????') && !guessedMovies.includes(movieDetails.title)) {
-              return { ...movie, title: movieDetails.title, hidden: false };
+          // Find the first available placeholder
+          const firstAvailablePlaceholder = currentMovies.find(
+            movie => movie.title === '?????' && !movie.isGuessed
+          );
+          
+          if (firstAvailablePlaceholder) {
+            // Update the movies array
+            const updatedMovies = currentMovies.map(movie => 
+              movie.id === firstAvailablePlaceholder.id 
+                ? { 
+                    ...movie, 
+                    title: movieDetails.title, 
+                    isGuessed: true 
+                  } 
+                : movie
+            );
+            
+            const newGuessedMovies = [...guessedMovies, movieDetails.title];
+            
+            setCurrentMovies(updatedMovies);
+            setGuessedMovies(newGuessedMovies);
+            
+            setLastGuessResult({
+              isCorrect: true,
+              message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
+            });
+            
+            // Check if all movies are guessed
+            if (newGuessedMovies.length === currentMovies.length) {
+              setGameStatus('won');
             }
-            return movie;
-          });
-          
-          const newGuessedMovies = [...guessedMovies, movieDetails.title];
-          setCurrentMovies(updatedMovies);
-          setGuessedMovies(newGuessedMovies);
-          
-          setLastGuessResult({
-            isCorrect: true,
-            message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
-          });
-          
-          // Check if all movies are guessed
-          if (newGuessedMovies.length === currentMovies.length) {
-            setGameStatus('won');
+          } else {
+            setLastGuessResult({
+              isCorrect: false,
+              message: language === 'en' 
+                ? 'No available placeholders' 
+                : 'Keine verfügbaren Platzhalter'
+            });
           }
         } else {
           setLastGuessResult({
@@ -318,8 +335,11 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
               : 'Film entspricht nicht den ausgewählten Kriterien'
           });
         }
-      } else {
-        // Hard mode remains the same as before
+        
+        setInputValue('');
+      }
+      else {
+        // Hard mode logic
         const matchedMovie = currentMovies.find(movie => 
           movie.title.toLowerCase() === trimmedInput.toLowerCase() && 
           !guessedMovies.includes(movie.title)
@@ -328,6 +348,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         if (matchedMovie) {
           const newGuessedMovies = [...guessedMovies, matchedMovie.title];
           setGuessedMovies(newGuessedMovies);
+          
           setLastGuessResult({
             isCorrect: true,
             message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
@@ -343,9 +364,9 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             message: language === 'en' ? 'Incorrect Guess' : 'Falsch geraten'
           });
         }
+        
+        setInputValue('');
       }
-      
-      setInputValue('');
     };
   
     // Render Game Modes Selector
@@ -478,24 +499,24 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
               
               <div style={styles.movieList}>
               {currentMovies.map((movie) => {
-                const isGuessed = guessedMovies.includes(movie.title);
+                const isGuessed = movie.isGuessed;
                 const showTitle = 
                   (gameMode === GAME_MODES.EASY && isGuessed) || 
                   (gameMode === GAME_MODES.HARD && isGuessed);
                 
-                return (
-                  <div 
-                    key={movie.title} 
-                    style={{
-                      ...styles.movieItem,
-                      opacity: isGuessed ? 0.5 : 1
-                    }}
-                  >
-                    {isGuessed ? '✓ ' : ''}
-                    {showTitle ? movie.title : '?????'}
-                  </div>
-                );
-              })}
+                  return (
+                    <div 
+                      key={movie.id} 
+                      style={{
+                        ...styles.movieItem,
+                        opacity: isGuessed ? 0.5 : 1
+                      }}
+                    >
+                      {isGuessed ? '✓ ' : ''}
+                      {isGuessed ? movie.title : '?????'}
+                    </div>
+                  );
+                })}
             </div>
               
               <form onSubmit={handleSubmit}>
