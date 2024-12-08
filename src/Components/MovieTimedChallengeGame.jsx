@@ -242,11 +242,30 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
   
     // Start Game Function
     const startGame = async () => {
+      // Clear any previous guess results
+      setLastGuessResult(null);
+      
       const gameModeMovies = await fetchMovies();
       setCurrentMovies(gameModeMovies);
       setGuessedMovies([]);
       setTimeLeft(180);
       setGameStatus('playing');
+    };
+
+    const resetGameState = () => {
+      setCurrentMovies([]);
+      setGuessedMovies([]);
+      setTimeLeft(180);
+      setGameStatus('not-started');
+      setInputValue('');
+      setLastGuessResult(null); // Add this line to clear the last guess result
+      
+      // Reset game options if needed
+      setGameOptions({
+        genre: null,
+        year: null,
+        decade: null
+      });
     };
   
     // Handle Input Submission
@@ -535,7 +554,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             </>
           );
         
-        // Won and Lost states remain the same as in previous implementation
+        
         case 'won':
           return (
             <div style={{textAlign: 'center'}}>
@@ -547,37 +566,36 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
               </p>
               <button 
                 style={styles.startButton} 
-                onClick={() => setGameStatus('not-started')}
+                onClick={resetGameState} // Use resetGameState instead
               >
                 {language === 'en' ? 'Play Again' : 'Nochmal spielen'}
               </button>
             </div>
           );
         
-        case 'lost':
-          return (
-            <div style={{textAlign: 'center'}}>
-              <h2>{language === 'en' ? '⏰ Time\'s Up!' : '⏰ Zeit abgelaufen!'}</h2>
-              <p>
-                {language === 'en' 
-                  ? `You guessed ${guessedMovies.length} out of ${currentMovies.length} movies.`
-                  : `Du hast ${guessedMovies.length} von ${currentMovies.length} Filmen erraten.`}
-              </p>
-              <button 
-                style={styles.startButton} 
-                onClick={() => setGameStatus('not-started')}
-              >
-                {language === 'en' ? 'Try Again' : 'Nochmal versuchen'}
-              </button>
-            </div>
-          );
-        
-        default:
-          return null;
-      }
-    };
+          case 'lost':
+            return (
+              <div style={{textAlign: 'center'}}>
+                <h2>{language === 'en' ? '⏰ Time\'s Up!' : '⏰ Zeit abgelaufen!'}</h2>
+                <p>
+                  {language === 'en' 
+                    ? `You guessed ${guessedMovies.length} out of ${currentMovies.length} movies.`
+                    : `Du hast ${guessedMovies.length} von ${currentMovies.length} Filmen erraten.`}
+                </p>
+                <button 
+                  style={styles.startButton} 
+                  onClick={resetGameState} // Use resetGameState instead
+                >
+                  {language === 'en' ? 'Try Again' : 'Nochmal versuchen'}
+                </button>
+              </div>
+            );
+          
+          default:
+            return null;
+        }
+      };
   
-    // Timer Logic (remains the same as previous implementation)
     useEffect(() => {
       let timer;
       if (gameStatus === 'playing' && timeLeft > 0) {
