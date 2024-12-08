@@ -418,22 +418,45 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         );
         
         if (matchedMovie) {
-          const newGuessedMovies = [...guessedMovies, matchedMovie.title];
-          setGuessedMovies(newGuessedMovies);
+          // Find the first movie with 'hidden' property true
+          const firstAvailableMovie = currentMovies.find(movie => movie.hidden);
           
-          // Award points for each correct guess in Hard mode
-          const newScore = 100; // 100 points per correct movie
-          setScore(prev => prev + newScore);
-          updateLocalStorageProfile(newScore);
-          
-          setLastGuessResult({
-            isCorrect: true,
-            message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
-          });
-          
-          // Check if all movies are guessed
-          if (newGuessedMovies.length === currentMovies.length) {
-            setGameStatus('won');
+          if (firstAvailableMovie) {
+            const updatedMovies = currentMovies.map(movie => 
+              movie.id === firstAvailableMovie.id 
+                ? { 
+                    ...movie, 
+                    hidden: false 
+                  } 
+                : movie
+            );
+            
+            const newGuessedMovies = [...guessedMovies, matchedMovie.title];
+            
+            setCurrentMovies(updatedMovies);
+            setGuessedMovies(newGuessedMovies);
+            
+            // Award points for each correct guess in Hard mode
+            const newScore = 100; // 100 points per correct movie
+            setScore(prev => prev + newScore);
+            updateLocalStorageProfile(newScore);
+            
+            setLastGuessResult({
+              isCorrect: true,
+              message: language === 'en' ? 'Correct Guess!' : 'Richtig geraten!'
+            });
+            
+            // Check if all movies are guessed
+            if (newGuessedMovies.length === currentMovies.length) {
+              setGameStatus('won');
+            }
+          } else {
+            setLastGuessResult({
+              isCorrect: false,
+              message: language === 'en' 
+                ? 'No available movies left' 
+                : 'Keine verfügbaren Filme mehr'
+            });
           }
         } else {
           setLastGuessResult({
@@ -576,12 +599,12 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
               {renderScoreDisplay()}
               
               <div style={styles.movieList}>
-              {currentMovies.map((movie) => {
-                const isGuessed = movie.isGuessed;
-                const showTitle = 
-                  (gameMode === GAME_MODES.EASY && isGuessed) || 
-                  (gameMode === GAME_MODES.HARD && isGuessed);
-                
+                {currentMovies.map((movie) => {
+                  const isGuessed = 
+                    gameMode === GAME_MODES.EASY 
+                      ? movie.isGuessed 
+                      : !movie.hidden;
+                  
                   return (
                     <div 
                       key={movie.id} 
@@ -591,11 +614,13 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
                       }}
                     >
                       {isGuessed ? '✓ ' : ''}
-                      {isGuessed ? movie.title : '?????'}
+                      {isGuessed 
+                        ? (gameMode === GAME_MODES.EASY ? movie.title : movie.title)
+                        : '?????'}
                     </div>
                   );
                 })}
-            </div>
+              </div>
               
               <form onSubmit={handleSubmit}>
                 <input 
