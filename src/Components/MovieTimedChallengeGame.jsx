@@ -27,6 +27,8 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
   const [genres, setGenres] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [score, setScore] = useState(0);
+  const [unrevealedMovies, setUnrevealedMovies] = useState([]);
   const inputRef = useRef(null);
 
   const colors = isDarkMode 
@@ -35,25 +37,27 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         text: '#e5e7eb',
         cardBackground: '#1f2937',
         inputBackground: '#374151',
-        buttonBackground: '#4b5563'
+        buttonBackground: '#4b5563',
+        boxShadow:'0 4px 6px rgba(0, 0, 0, 0.3)' ,
       }
     : {
         background: '#f3f4f6',
         text: '#1f2937',
         cardBackground: 'white',
         inputBackground: '#e5e7eb',
-        buttonBackground: '#374151'
+        buttonBackground: '#374151',
+        boxShadow:'0 4px 6px rgba(0, 0, 0, 0.1)',
       };
 
   const styles = {
     container: {
       maxWidth: '600px',
-      margin: '100px auto', // Increased top margin
+      margin: '100px auto',
       padding: '20px',
-      backgroundColor: colors.background,
+      backgroundColor: colors.cardBackground,
       color: colors.text,
       borderRadius: '12px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+      boxShadow: colors.boxShadow,
     },
     header: {
       textAlign: 'center',
@@ -81,10 +85,9 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
     },
     movieItem: {
       padding: '10px',
-      backgroundColor: colors.cardBackground,
+      backgroundColor: colors.cardBackground, 
       borderRadius: '8px',
       textAlign: 'center',
-      //textDecoration: guessedMovies.includes(movie.title) ? 'line-through' : 'none'
     },
     startButton: {
       width: '100%',
@@ -158,6 +161,46 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
       fetchGenres();
     }, [language]);
   
+    const updateLocalStorageProfile = (newScore) => {
+      try {
+        const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile')) || {};
+        const today = new Date();
+        const currentDate = today.toISOString().split('T')[0];
+  
+        // Get or initialize game stats
+        const gameStats = storedProfile.gameStats || {};
+        const lastUpdateDate = gameStats.lastScoreUpdate 
+          ? new Date(gameStats.lastScoreUpdate).toISOString().split('T')[0] 
+          : null;
+  
+        // Update total score
+        gameStats.totalScore = (gameStats.totalScore || 0) + newScore;
+  
+        // Update daily score
+        if (currentDate !== lastUpdateDate) {
+          gameStats.dailyScore = newScore;
+        } else {
+          gameStats.dailyScore = (gameStats.dailyScore || 0) + newScore;
+        }
+  
+        // Update last score update timestamp
+        gameStats.lastScoreUpdate = today.toISOString();
+  
+        // Save updated profile
+        const updatedProfile = {
+          ...storedProfile,
+          gameStats
+        };
+  
+        localStorage.setItem('movieGameProfile', JSON.stringify(updatedProfile));
+  
+        return updatedProfile;
+      } catch (error) {
+        console.error('Error updating local storage:', error);
+        return null;
+      }
+    };
+
     // Fetch movies based on game mode and options
     const fetchMovieDetails = async (movieTitle) => {
       try {
@@ -186,13 +229,14 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
       try {
         setIsLoading(true);
         setError(null);
+        setUnrevealedMovies([]); // Reset unrevealed movies
         
         if (gameMode === GAME_MODES.EASY) {
           // Create placeholders with explicit IDs
           const placeholderMovies = Array.from({ length: 10 }, (_, index) => ({
-            id: `placeholder-${index + 1}`, // Unique ID for each placeholder
-            title: '?????', // Simplified title
-            originalId: index + 1, // Keep track of original index if needed
+            id: `placeholder-${index + 1}`,
+            title: '?????',
+            originalId: index + 1,
             isGuessed: false
           }));
           
@@ -211,7 +255,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
           setIsLoading(false);
           return placeholderMovies;
         } else {
-          // Hard mode remains the same as before
+          // Hard mode with movie storage
           const response = await fetch(
             `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=${language === 'en' ? 'en-US' : 'de-DE'}&page=1`
           );
@@ -223,10 +267,14 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
           const data = await response.json();
           
           const movies = data.results.slice(0, 10).map(movie => ({
+            id: movie.id,
             title: movie.title,
             original: true,
             hidden: true
           }));
+          
+          // Store unrevealed movies for potential later reveal
+          setUnrevealedMovies(movies.map(movie => movie.title));
           
           setCurrentMovies(movies);
           setIsLoading(false);
@@ -336,6 +384,10 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             
             // Check if all movies are guessed
             if (newGuessedMovies.length === currentMovies.length) {
+              // In Easy mode, points only awarded when all 10 movies are guessed
+              const newScore = 150; // 1000 points for completing Easy mode
+              setScore(prev => prev + newScore);
+              updateLocalStorageProfile(newScore);
               setGameStatus('won');
             }
           } else {
@@ -367,6 +419,11 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         if (matchedMovie) {
           const newGuessedMovies = [...guessedMovies, matchedMovie.title];
           setGuessedMovies(newGuessedMovies);
+          
+          // Award points for each correct guess in Hard mode
+          const newScore = 100; // 100 points per correct movie
+          setScore(prev => prev + newScore);
+          updateLocalStorageProfile(newScore);
           
           setLastGuessResult({
             isCorrect: true,
@@ -468,7 +525,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             style={styles.input}
           >
             <option value="">
-              {language === 'en' ? 'Select Decade' : 'Dekade auswählen'}
+              {language === 'en' ? 'Select Decade' : 'Jahrzehnt auswählen'}
             </option>
             {[1980, 1990, 2000, 2010, 2020].map(decade => (
               <option key={decade} value={decade}>
@@ -480,7 +537,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
       );
     };
   
-    // Render Game Content (similar to previous implementation)
+    // Render Game Content 
     const renderGameContent = () => {
       switch (gameStatus) {
         case 'not-started':
@@ -515,6 +572,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
                 {Math.floor(timeLeft / 60)}:
                 {(timeLeft % 60).toString().padStart(2, '0')}
               </div>
+              {renderScoreDisplay()}
               
               <div style={styles.movieList}>
               {currentMovies.map((movie) => {
@@ -582,9 +640,21 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
                     ? `You guessed ${guessedMovies.length} out of ${currentMovies.length} movies.`
                     : `Du hast ${guessedMovies.length} von ${currentMovies.length} Filmen erraten.`}
                 </p>
+
+                {gameMode === GAME_MODES.HARD && unrevealedMovies.length > 0 && (
+                  <div>
+                    <h3>{language === 'en' ? 'Missed Movies:' : 'Verpasste Filme:'}</h3>
+                    <ul style={{listStyleType: 'none', padding: 0}}>
+                      {unrevealedMovies.map((movie, index) => (
+                        <li key={index}>{movie}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
                 <button 
                   style={styles.startButton} 
-                  onClick={resetGameState} // Use resetGameState instead
+                  onClick={resetGameState}
                 >
                   {language === 'en' ? 'Try Again' : 'Nochmal versuchen'}
                 </button>
@@ -636,7 +706,20 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         return null;
       };    
   
-    return (
+      const renderScoreDisplay = () => {
+        return (
+          <div style={{
+            textAlign: 'left', 
+            color: colors.text,
+            marginTop: '10px',  // Add some vertical spacing between timer and score
+            fontSize: '18px'    // Optional: adjust font size if needed
+          }}>
+            {language === 'en' ? 'Score: ' : 'Punktzahl: '}{score}
+          </div>
+        );
+      };
+      
+      return (
         <div style={styles.container}>
           <div style={styles.header}>
             <h1>
