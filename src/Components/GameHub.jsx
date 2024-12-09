@@ -37,6 +37,7 @@ const GameHub = () => {
   });
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(!userProfile);
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
 
   const handleProfileUpdate = (newProfile) => { 
     setUserProfile(newProfile);
@@ -322,6 +323,30 @@ const GameHub = () => {
       borderRadius: '20px',
       boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
     },
+    leaderboardToggle: {
+      position: 'absolute',
+      top: isNavbarOpen ? 'auto' : 'auto',
+      bottom: isNavbarOpen ? '20px' : '70px',
+      right: isNavbarOpen ? '30px' : '35px',
+      backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '24px',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+      zIndex: 1002,
+    },
+    leaderboardContainer: {
+      position: 'absolute',
+      right: '20px',
+      bottom: '80px',
+      zIndex: 1000
+    },
   };
 
   const toggleDarkMode = () => {
@@ -360,6 +385,10 @@ const GameHub = () => {
     );
 
     localStorage.setItem('movieGameDailyScores', JSON.stringify(filteredScores));
+  };
+
+  const toggleLeaderboard = () => {
+    setIsLeaderboardOpen(!isLeaderboardOpen);
   };
 
   const renderNavbar = () => (
@@ -497,10 +526,22 @@ const GameHub = () => {
       )}
       </div>
       {userProfile && (
+        <button 
+          style={styles.leaderboardToggle}
+          onClick={toggleLeaderboard}
+          aria-label={language === 'en' ? 'Toggle Leaderboard' : 'Leaderboard umschalten'}
+        >
+          🏆
+        </button>
+      )}
+
+      {/* Conditionally render leaderboard */}
+      {userProfile && isLeaderboardOpen && (
         <DailyLeaderboard 
           userProfile={userProfile} 
           language={language} 
           isDarkMode={isDarkMode} 
+          onClose={toggleLeaderboard}
         />
       )}
     </>
