@@ -136,6 +136,7 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [usedMovies, setUsedMovies] = useState(new Set());
   const [germanTitle, setGermanTitle] = useState(null);
+  const [comboStreak, setComboStreak] = useState(0);
   const t = translations[language];
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const getCurrentColors = () => colors[isDarkMode ? 'dark' : 'light'];
@@ -197,6 +198,7 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
     // Function to handle giving up
     const handleGiveUp = () => {
       setGameState('lost');
+      setComboStreak(0);
     };
 
   // Timer effect for hard mode
@@ -377,7 +379,13 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
     
     if (guess.toLowerCase() === currentMovie.title.toLowerCase()) {
       const newPoints = Math.max(10 - questionsAsked, 1) * 100;
-      setScore(prev => prev + newPoints);
+
+      const comboMultiplier = Math.min(Math.floor(comboStreak / 5) + 1, 3); // Cap at 3x
+      const comboBonus = newPoints * (comboMultiplier - 1);
+      
+      // Set the score with base points and bonus
+      setScore(prev => prev + newPoints + comboBonus);
+      setComboStreak(prev => prev + 1);
       
       // Update local storage profile with new scores
       const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
@@ -400,7 +408,7 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
           // Reset daily score if it's a new day
           storedProfile.gameStats.dailyScore = newPoints;
         } else {
-          // Add to existing daily score
+          
           storedProfile.gameStats.dailyScore = 
             (storedProfile.gameStats.dailyScore || 0) + newPoints;
         }
@@ -420,8 +428,11 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
       setGameState('won');
 
     } else {
+      setComboStreak(0);
+      
       // Subtract 100 points for wrong answers in Normal and Hard mode
       if (gameMode !== 'EASY') {
+        setComboStreak(0);
         setScore(prev => prev - 100); // Now allows negative scores
       }
     
@@ -439,6 +450,7 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
     setScore(0);
     setUsedMovies(new Set());
     setRevealedClues([]);
+    setComboStreak(0);
   };
 
   const styles = {
@@ -821,6 +833,16 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
             {timeRemaining > 0 && (
               <div style={styles.timer}>
                 {t.time}: {timeRemaining}s
+              </div>
+            )}
+
+          {comboStreak > 0 && (
+              <div style={{
+                ...styles.statItem,
+                backgroundColor: '#22c55e',
+                color: 'white'
+              }}>
+                🔥 Combo: {comboStreak} (x{Math.min(Math.floor(comboStreak / 5) + 1, 3)})
               </div>
             )}
           </div>

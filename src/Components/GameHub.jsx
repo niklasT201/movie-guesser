@@ -5,6 +5,7 @@ import MoviePosterGame from './MoviePosterGame';
 import MovieTimedChallengeGame from './MovieTimedChallengeGame';
 import MovieRatingGame from './MovieRatingGame';
 import UserProfile from './UserProfile';
+import DailyLeaderboard from './DailyLeaderboard';
 import './responsive/GameHub.css';
 import './responsive/GameGrid.css';
 
@@ -327,6 +328,40 @@ const GameHub = () => {
     setIsDarkMode(!isDarkMode);
   };
 
+  const updateDailyScore = (newScore) => {
+    if (!userProfile) return;
+
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Retrieve existing daily scores
+    const storedScores = JSON.parse(localStorage.getItem('movieGameDailyScores') || '[]');
+    
+    // Check if there's already a score for today
+    const existingTodayScoreIndex = storedScores.findIndex(
+      score => new Date(score.date).toISOString().split('T')[0] === today
+    );
+
+    if (existingTodayScoreIndex !== -1) {
+      // Update existing today's score
+      storedScores[existingTodayScoreIndex].points = newScore;
+    } else {
+      // Add new score for today
+      storedScores.push({
+        date: new Date().toISOString(),
+        points: newScore
+      });
+    }
+
+    // Keep only the last 30 days of scores
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const filteredScores = storedScores.filter(
+      score => new Date(score.date) >= sevenDaysAgo
+    );
+
+    localStorage.setItem('movieGameDailyScores', JSON.stringify(filteredScores));
+  };
+
   const renderNavbar = () => (
     <>
       <button 
@@ -461,8 +496,15 @@ const GameHub = () => {
         </span>
       )}
       </div>
-      </>
-    );
+      {userProfile && (
+        <DailyLeaderboard 
+          userProfile={userProfile} 
+          language={language} 
+          isDarkMode={isDarkMode} 
+        />
+      )}
+    </>
+  );
 
   const renderContent = () => {
     if (isProfileModalOpen) {
