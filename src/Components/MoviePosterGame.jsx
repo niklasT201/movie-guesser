@@ -163,9 +163,11 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
     setAttempts(prev => prev + 1);
   
     if (normalizedGuess === normalizedTitle) {
+
       // Correct guess
       const points = Math.max(3 - attempts, 1) * 10;
       setScore(prev => prev + points);
+
       setFeedback(language === 'en' 
         ? `Correct! The movie is ${currentMovie.title}. You earned ${points} points!` 
         : `Richtig! Der Film ist ${currentMovie.title}. Sie haben ${points} Punkte verdient!`);
@@ -176,6 +178,26 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
         // Get current date
         const today = new Date();
         const currentDate = today.toISOString().split('T')[0];
+
+        if (!storedProfile.gameStats.dailyScores) {
+          storedProfile.gameStats.dailyScores = [];
+        }
+
+         // Check if there's already a score for today
+      const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
+        score => new Date(score.date).toISOString().split('T')[0] === currentDate
+      );
+
+      if (todayScoreIndex !== -1) {
+        // Update existing today's score
+        storedProfile.gameStats.dailyScores[todayScoreIndex].points += points;
+      } else {
+        // Add new daily score
+        storedProfile.gameStats.dailyScores.push({
+          date: today.toISOString(),
+          points: points
+        });
+      }
   
         // Parse the last score update date
         const lastUpdateDate = storedProfile.gameStats.lastScoreUpdate

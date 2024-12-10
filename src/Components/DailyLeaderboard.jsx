@@ -10,6 +10,36 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    // Retrieve and process daily scores when component mounts
+    if (userProfile) {
+      const processedDailyScores = getDailyScoresForLastWeek();
+      setDailyScores(processedDailyScores);
+    }
+  }, [userProfile]);
+
+  const getDailyScoresForLastWeek = () => {
+    // Retrieve the full game stats from localStorage
+    const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
+    
+    if (!storedProfile || !storedProfile.gameStats || !storedProfile.gameStats.dailyScores) {
+      return [];
+    }
+
+    // Get the daily scores
+    const allDailyScores = storedProfile.gameStats.dailyScores || [];
+
+    // Sort scores by date in descending order
+    const sortedScores = allDailyScores.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Get scores for the last 7 days
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    return sortedScores.filter(score => new Date(score.date) >= sevenDaysAgo)
+      .slice(0, 7); // Ensure only 7 most recent scores are shown
+  };
+
   const translations = {
     en: {
       title: 'Daily Scores',
@@ -90,7 +120,7 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
       weekday: 'short',
       month: 'short',
       day: 'numeric'
-    }).format(date);
+    }).format(new Date(date));
   };
 
   return (
