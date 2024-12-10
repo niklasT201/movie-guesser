@@ -353,39 +353,6 @@ const GameHub = () => {
     setIsDarkMode(!isDarkMode);
   };
 
-  const updateDailyScore = (newScore) => {
-    if (!userProfile) return;
-
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Retrieve existing daily scores
-    const storedScores = JSON.parse(localStorage.getItem('movieGameDailyScores') || '[]');
-    
-    // Check if there's already a score for today
-    const existingTodayScoreIndex = storedScores.findIndex(
-      score => new Date(score.date).toISOString().split('T')[0] === today
-    );
-
-    if (existingTodayScoreIndex !== -1) {
-      // Update existing today's score
-      storedScores[existingTodayScoreIndex].points = newScore;
-    } else {
-      // Add new score for today
-      storedScores.push({
-        date: new Date().toISOString(),
-        points: newScore
-      });
-    }
-
-    // Keep only the last 30 days of scores
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const filteredScores = storedScores.filter(
-      score => new Date(score.date) >= sevenDaysAgo
-    );
-
-    localStorage.setItem('movieGameDailyScores', JSON.stringify(filteredScores));
-  };
 
   const toggleLeaderboard = () => {
     setIsLeaderboardOpen(!isLeaderboardOpen);
@@ -637,8 +604,6 @@ export default GameHub;
 // streak tracking mechanism
 // achievements system ("Guessed 10 Movies in a Row", "Master of Year Mode")
 // daily quests
-// Leaderboard for daily points made
-// Combo Bonus (every 5/10 bonuses)
 // Persistent Score Tracking
 // Updating Score directly
 

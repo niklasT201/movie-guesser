@@ -720,7 +720,6 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
                     mode === 'NORMAL' ? '#3b82f6' : 
                     '#ef4444'
                   }`,
-                  transition: 'all 0.3s ease',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = 
