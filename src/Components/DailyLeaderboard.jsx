@@ -13,8 +13,8 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
   useEffect(() => {
     if (userProfile) {
       // Retrieve or initialize daily scores from localStorage
-      const storedScores = JSON.parse(localStorage.getItem('movieGameDailyScores') || '[]');
-     
+      const storedDailyScores = JSON.parse(localStorage.getItem('movieGameDailyScores') || '[]');
+      
       // Filter scores for the last 7 days
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
