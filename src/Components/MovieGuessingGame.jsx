@@ -403,6 +403,27 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
         storedProfile.gameStats.totalScore = 
           (storedProfile.gameStats.totalScore || 0) + newPoints;
     
+        // Ensure dailyScores array exists
+        if (!storedProfile.gameStats.dailyScores) {
+          storedProfile.gameStats.dailyScores = [];
+        }
+    
+        // Check if there's already a score for today
+        const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
+          score => new Date(score.date).toISOString().split('T')[0] === currentDate
+        );
+    
+        if (todayScoreIndex !== -1) {
+          // Update existing today's score
+          storedProfile.gameStats.dailyScores[todayScoreIndex].points += newPoints;
+        } else {
+          // Add new daily score
+          storedProfile.gameStats.dailyScores.push({
+            date: today.toISOString(),
+            points: newPoints
+          });
+        }
+    
         // Check if it's a new day or first score
         if (currentDate !== lastUpdateDate) {
           // Reset daily score if it's a new day

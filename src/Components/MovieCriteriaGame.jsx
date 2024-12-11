@@ -228,23 +228,45 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
           const today = new Date();
           const currentDate = today.toISOString().split('T')[0];
   
-          // Parse the last score update date
+          // Ensure dailyScores array exists
+          if (!storedProfile.gameStats.dailyScores) {
+            storedProfile.gameStats.dailyScores = [];
+          }
+  
+          // Check if there's already a score for today
+          const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
+            score => new Date(score.date).toISOString().split('T')[0] === currentDate
+          );
+  
+          const pointsEarned = 100;
+  
+          if (todayScoreIndex !== -1) {
+            // Update existing today's score
+            storedProfile.gameStats.dailyScores[todayScoreIndex].points += pointsEarned;
+          } else {
+            // Add new daily score
+            storedProfile.gameStats.dailyScores.push({
+              date: today.toISOString(),
+              points: pointsEarned
+            });
+          }
+  
+          // Update total score
+          storedProfile.gameStats.totalScore = 
+            (storedProfile.gameStats.totalScore || 0) + pointsEarned;
+  
+          // Check if it's a new day or first score
           const lastUpdateDate = storedProfile.gameStats.lastScoreUpdate 
             ? new Date(storedProfile.gameStats.lastScoreUpdate).toISOString().split('T')[0] 
             : null;
   
-          // Update total score
-          storedProfile.gameStats.totalScore = 
-            (storedProfile.gameStats.totalScore || 0) + 100;
-  
-          // Check if it's a new day or first score
           if (currentDate !== lastUpdateDate) {
             // Reset daily score if it's a new day
-            storedProfile.gameStats.dailyScore = 100;
+            storedProfile.gameStats.dailyScore = pointsEarned;
           } else {
             // Add to existing daily score
             storedProfile.gameStats.dailyScore = 
-              (storedProfile.gameStats.dailyScore || 0) + 100;
+              (storedProfile.gameStats.dailyScore || 0) + pointsEarned;
           }
   
           // Update last score update timestamp
