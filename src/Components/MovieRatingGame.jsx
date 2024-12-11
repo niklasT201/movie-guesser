@@ -86,11 +86,70 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
     const correct = rating === Math.round(currentMovie.vote_average * 10) / 10;
     setIsCorrect(correct);
 
+    let points = 0;
     if (correct) {
-      setScore(prev => prev + 1);
+      // Award points based on attempts
+      points = 10;
+      setScore(prev => prev + points);
     }
 
     setRoundsPlayed(prev => prev + 1);
+
+    // Update user profile if exists
+    const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
+    if (storedProfile) {
+      // Get current date
+      const today = new Date();
+      const currentDate = today.toISOString().split('T')[0];
+
+      // Ensure dailyScores array exists
+      if (!storedProfile.gameStats.dailyScores) {
+        storedProfile.gameStats.dailyScores = [];
+      }
+
+      // Check if there's already a score for today
+      const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
+        score => new Date(score.date).toISOString().split('T')[0] === currentDate
+      );
+
+      if (todayScoreIndex !== -1) {
+        // Update existing today's score
+        storedProfile.gameStats.dailyScores[todayScoreIndex].points += points;
+      } else {
+        // Add new daily score
+        storedProfile.gameStats.dailyScores.push({
+          date: today.toISOString(),
+          points: points
+        });
+      }
+
+      // Update total score
+      storedProfile.gameStats.totalScore = 
+        (storedProfile.gameStats.totalScore || 0) + points;
+
+      // Update Movie Criteria game stats
+      storedProfile.gameStats.movieCriteria = storedProfile.gameStats.movieCriteria || { gamesPlayed: 0, highScore: 0 };
+      storedProfile.gameStats.movieCriteria.gamesPlayed += 1;
+      storedProfile.gameStats.movieCriteria.highScore = Math.max(
+        storedProfile.gameStats.movieCriteria.highScore || 0, 
+        points
+      );
+
+      // Update daily score
+      storedProfile.gameStats.dailyScore = 
+        (storedProfile.gameStats.dailyScore || 0) + points;
+
+      // Update last score update timestamp
+      storedProfile.gameStats.lastScoreUpdate = today.toISOString();
+
+      // Save updated profile
+      localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+
+      // Call onProfileUpdate if passed as prop
+      if (userProfile && userProfile.onProfileUpdate) {
+        userProfile.onProfileUpdate(storedProfile);
+      }
+    }
 
     if (roundsPlayed + 1 >= MAX_ROUNDS) {
       setGameOver(true);
@@ -189,7 +248,7 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
         <div style={styles.gameOverContainer}>
           <h2>{language === 'en' ? 'Game Over' : 'Spiel Vorbei'}</h2>
           <p style={styles.scoreContainer}>
-            {language === 'en' ? 'Your Score:' : 'Deine Punktzahl:'} {score}/{MAX_ROUNDS}
+            {language === 'en' ? 'Your Score:' : 'Deine Punktzahl:'} {score}/{MAX_ROUNDS * 10}
           </p>
           <button 
             onClick={resetGame} 
@@ -248,8 +307,8 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
           
           <div style={styles.scoreContainer}>
             {language === 'en' 
-              ? `Score: ${score}/${MAX_ROUNDS}` 
-              : `Punktzahl: ${score}/${MAX_ROUNDS}`}
+              ? `Score: ${score}/${MAX_ROUNDS * 10}` 
+              : `Punktzahl: ${score}/${MAX_ROUNDS * 10}`}
           </div>
         </>
       )}
