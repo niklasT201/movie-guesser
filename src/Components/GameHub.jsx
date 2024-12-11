@@ -6,6 +6,7 @@ import MovieTimedChallengeGame from './MovieTimedChallengeGame';
 import MovieRatingGame from './MovieRatingGame';
 import UserProfile from './UserProfile';
 import DailyLeaderboard from './DailyLeaderboard';
+import { useAchievements, AchievementsList } from './Achievements';
 import './responsive/GameHub.css';
 import './responsive/GameGrid.css';
 
@@ -49,6 +50,14 @@ const GameHub = () => {
     setIsProfileModalOpen(true);
 
   };
+
+  const { unlockedAchievements, AchievementNotification } = useAchievements(userProfile, language);
+  const renderAchievementNotifications = () => {
+    return unlockedAchievements.map(achievement => (
+      <AchievementNotification key={achievement.id} achievement={achievement} />
+    ));
+  };
+
 
   const games = [
     {
@@ -594,6 +603,7 @@ const GameHub = () => {
       {renderNavbar()}
       <div style={styles.mainContent}>
         {renderContent()}
+        {renderAchievementNotifications()}
       </div>
     </div>
   );

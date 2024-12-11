@@ -235,6 +235,18 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
         if (userProfile && userProfile.onProfileUpdate) {
           userProfile.onProfileUpdate(storedProfile);
         }
+
+        // Achievement system
+        if (!storedProfile.gameStats.gameSpecificStats) {
+          storedProfile.gameStats.gameSpecificStats = {};
+        }
+        storedProfile.gameStats.gameSpecificStats['moviePoster'] = {
+          gamesPlayed: (storedProfile.gameStats.gameSpecificStats['moviePoster']?.gamesPlayed || 0) + 1
+        };
+      
+        // Increment total games played
+        storedProfile.gameStats.gamesPlayed = 
+          (storedProfile.gameStats.gamesPlayed || 0) + 1;
       }
       
       // Fetch new movie after a short delay
