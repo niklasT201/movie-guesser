@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
   const [dailyScores, setDailyScores] = useState([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [timeToReset, setTimeToReset] = useState('');
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -11,11 +12,46 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
   }, []);
 
   useEffect(() => {
+    // Calculate time until midnight
+    const updateTimeToReset = () => {
+      const now = new Date();
+      const midnight = new Date(
+        now.getFullYear(), 
+        now.getMonth(), 
+        now.getDate() + 1, 
+        0, 0, 0
+      );
+      
+      const difference = midnight.getTime() - now.getTime();
+      
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / (1000 * 60)) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+      
+      // Format with leading zeros
+      const formattedHours = hours.toString().padStart(2, '0');
+      const formattedMinutes = minutes.toString().padStart(2, '0');
+      const formattedSeconds = seconds.toString().padStart(2, '0');
+      
+      setTimeToReset(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+    };
+
+    // Initial update
+    updateTimeToReset();
+
+    // Update every second
+    const timer = setInterval(updateTimeToReset, 1000);
+
     // Retrieve and process daily scores when component mounts
     if (userProfile) {
       const processedDailyScores = getDailyScoresForLastWeek();
       setDailyScores(processedDailyScores);
     }
+
+    // Cleanup
+    return () => {
+      clearInterval(timer);
+    };
   }, [userProfile]);
 
   const getDailyScoresForLastWeek = () => {
@@ -55,12 +91,16 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
     en: {
       title: 'Daily Scores',
       noScores: 'No scores yet',
-      points: 'points'
+      points: 'points',
+      timeToReset: 'Time until daily reset',
+      currentDay: 'Current Day'
     },
     de: {
       title: 'Tägliche Punktzahlen',
       noScores: 'Noch keine Punktzahlen',
-      points: 'Punkte'
+      points: 'Punkte',
+      timeToReset: 'Zeit bis zum täglichen Zurücksetzen',
+      currentDay: 'Aktueller Tag'
     }
   };
 
@@ -123,6 +163,23 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
       textAlign: 'center',
       color: isDarkMode ? '#9ca3af' : '#6b7280',
       padding: '20px'
+    },
+    timerContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
+      padding: '10px',
+      borderRadius: '8px',
+      marginBottom: '20px'
+    },
+    timerLabel: {
+      marginRight: '10px',
+      color: isDarkMode ? '#e5e7eb' : '#1f2937'
+    },
+    timer: {
+      fontWeight: 'bold',
+      color: isDarkMode ? '#e5e7eb' : '#1f2937'
     }
   };
 
@@ -145,6 +202,11 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
           >
             ×
           </button>
+        </div>
+        
+        <div style={styles.timerContainer}>
+          <span style={styles.timerLabel}>{t.timeToReset}:</span>
+          <span style={styles.timer}>{timeToReset}</span>
         </div>
 
         <div style={styles.scoreList}>
