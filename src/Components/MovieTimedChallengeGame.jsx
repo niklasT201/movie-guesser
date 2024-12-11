@@ -169,15 +169,52 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
         const currentDate = today.toISOString().split('T')[0];
   
         // Get or initialize game stats
-        const gameStats = storedProfile.gameStats || {};
-        const lastUpdateDate = gameStats.lastScoreUpdate 
-          ? new Date(gameStats.lastScoreUpdate).toISOString().split('T')[0] 
+        const gameStats = storedProfile.gameStats || {
+          totalScore: 0,
+          dailyScores: [],
+          lastScoreUpdate: null,
+          movieGuesser: {
+            gamesPlayed: 0,
+            highScore: 0
+          }
+        };
+    
+        // Check if there's already a score for today
+        const todayScoreIndex = gameStats.dailyScores.findIndex(
+          score => new Date(score.date).toISOString().split('T')[0] === currentDate
+        );
+    
+        if (todayScoreIndex !== -1) {
+          // Update existing today's score
+          gameStats.dailyScores[todayScoreIndex].points += newScore;
+        } else {
+          // Add new daily score
+          gameStats.dailyScores.push({
+            date: today.toISOString(),
+            points: newScore
+          });
+        }
+    
+        // Parse the last score update date
+        const lastUpdateDate = gameStats.lastScoreUpdate
+          ? new Date(gameStats.lastScoreUpdate).toISOString().split('T')[0]
           : null;
   
         // Update total score
         gameStats.totalScore = (gameStats.totalScore || 0) + newScore;
-  
-        // Update daily score
+        
+        // Update Timed Challenge stats
+        gameStats.timedChallenge = gameStats.timedChallenge || {
+          gamesPlayed: 0,
+          highScore: 0
+        };
+        gameStats.timedChallenge.gamesPlayed += 1;
+        gameStats.timedChallenge.highScore = Math.max(
+          gameStats.timedChallenge.highScore || 0, 
+          newScore
+        );
+    
+        // Check if it's a new day or first score
         if (currentDate !== lastUpdateDate) {
           gameStats.dailyScore = newScore;
         } else {
