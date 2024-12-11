@@ -28,16 +28,27 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
 
     // Get the daily scores
     const allDailyScores = storedProfile.gameStats.dailyScores || [];
-
-    // Sort scores by date in descending order
-    const sortedScores = allDailyScores.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // Get scores for the last 7 days
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-    return sortedScores.filter(score => new Date(score.date) >= sevenDaysAgo)
+  
+    // Get current date and time
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+    // Filter and sort scores for the last 7 days
+    const scoresLastWeek = allDailyScores
+      .filter(score => {
+        const scoreDate = new Date(score.date);
+        const scoreDateOnly = new Date(scoreDate.getFullYear(), scoreDate.getMonth(), scoreDate.getDate());
+        
+        // Calculate the difference in days
+        const daysDifference = (today - scoreDateOnly) / (1000 * 60 * 60 * 24);
+        
+        // Keep scores within the last 7 days
+        return daysDifference >= 0 && daysDifference < 7;
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 7); // Ensure only 7 most recent scores are shown
+  
+    return scoresLastWeek;
   };
 
   const translations = {
