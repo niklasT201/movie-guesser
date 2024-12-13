@@ -51,7 +51,14 @@ const GameHub = () => {
 
   };
 
-  const { unlockedAchievements, AchievementNotification } = useAchievements(userProfile, language);
+  const { 
+    unlockedAchievements, 
+    AchievementNotification, 
+    AchievementsModal,
+    isAchievementsModalOpen,
+    setIsAchievementsModalOpen 
+  } = useAchievements(userProfile, language);
+  
   const renderAchievementNotifications = () => {
     return unlockedAchievements.map(achievement => (
       <AchievementNotification key={achievement.id} achievement={achievement} />
@@ -511,6 +518,19 @@ const GameHub = () => {
         </button>
       )}
 
+      {userProfile && (
+        <button 
+          style={{
+            ...styles.leaderboardToggle,
+            right: isNavbarOpen ? '80px' : '85px'  // Adjust positioning
+          }}
+          onClick={() => setIsAchievementsModalOpen(true)}
+          aria-label={language === 'en' ? 'View Achievements' : 'Erfolge anzeigen'}
+        >
+          🏅
+        </button>
+      )}
+
       {/* Conditionally render leaderboard */}
       {userProfile && isLeaderboardOpen && (
         <DailyLeaderboard 
@@ -604,6 +624,9 @@ const GameHub = () => {
       <div style={styles.mainContent}>
         {renderContent()}
         {renderAchievementNotifications()}
+        {isAchievementsModalOpen && (
+          <AchievementsModal isDarkMode={isDarkMode} />
+        )}
       </div>
     </div>
   );

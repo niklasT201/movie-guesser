@@ -108,6 +108,7 @@ export const ACHIEVEMENTS = {
 // Achievement Manager Hook
 export const useAchievements = (userProfile, language = 'en') => {
   const [unlockedAchievements, setUnlockedAchievements] = useState([]);
+  const [isAchievementsModalOpen, setIsAchievementsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!userProfile) return;
@@ -123,9 +124,7 @@ export const useAchievements = (userProfile, language = 'en') => {
     // Check for new achievements
     const newUnlockedAchievements = Object.values(ACHIEVEMENTS)
       .filter(achievement => 
-        // Check if achievement is not already unlocked
         !userProfile.achievements.unlocked.includes(achievement.id) &&
-        // Check achievement condition
         achievement.condition(userProfile)
       );
 
@@ -150,10 +149,26 @@ export const useAchievements = (userProfile, language = 'en') => {
     }
   }, [userProfile]);
 
-  // Achievement Display Component
+  // Achievement Notification Component
   const AchievementNotification = ({ achievement }) => {
+    const [isVisible, setIsVisible] = useState(true);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }, []);
+
+    if (!isVisible) return null;
+
     return (
-      <div className="achievement-notification" style={{
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
         display: 'flex',
         alignItems: 'center',
         backgroundColor: '#4CAF50',
@@ -161,15 +176,158 @@ export const useAchievements = (userProfile, language = 'en') => {
         padding: '15px',
         borderRadius: '8px',
         margin: '10px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+        zIndex: 1000,
+        maxWidth: '350px',
+        width: '90%'
       }}>
         <div style={{ fontSize: '40px', marginRight: '15px' }}>
           {achievement.icon}
         </div>
-        <div>
-          <h3>{achievement.title[language]}</h3>
-          <p>{achievement.description[language]}</p>
-          <small>+{achievement.points} points</small>
+        <div style={{ flex: 1 }}>
+          <h3 style={{ margin: 0, fontSize: '16px', marginBottom: '5px' }}>
+            {achievement.title[language]}
+          </h3>
+          <p style={{ margin: 0, fontSize: '14px', opacity: 0.9 }}>
+            {achievement.description[language]}
+          </p>
+          <small style={{ display: 'block', marginTop: '5px', opacity: 0.8 }}>
+            +{achievement.points} {language === 'en' ? 'points' : 'Punkte'}
+          </small>
+        </div>
+        <button 
+          onClick={() => setIsVisible(false)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'white',
+            fontSize: '20px',
+            cursor: 'pointer',
+            marginLeft: '10px'
+          }}
+        >
+          ×
+        </button>
+      </div>
+    );
+  };
+
+  // Achievements Modal Component
+  const AchievementsModal = ({ isDarkMode = false }) => {
+    const colors = {
+      light: {
+        background: '#f3f4f6',
+        text: '#1f2937',
+        unlockedBg: '#e9f5e9',
+        lockedBg: '#f3f4f6'
+      },
+      dark: {
+        background: '#121826',
+        text: '#e5e7eb',
+        unlockedBg: '#2c3e50',
+        lockedBg: '#1f2937'
+      }
+    };
+
+    const currentColors = isDarkMode ? colors.dark : colors.light;
+    const allAchievements = Object.values(ACHIEVEMENTS);
+    const unlockedAchievementIds = userProfile?.achievements?.unlocked || [];
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1100
+      }}>
+        <div style={{
+          backgroundColor: currentColors.background,
+          borderRadius: '12px',
+          padding: '20px',
+          maxWidth: '500px',
+          width: '90%',
+          maxHeight: '80%',
+          overflowY: 'auto',
+          color: currentColors.text
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '20px'
+          }}>
+            <h2 style={{ margin: 0 }}>
+              {language === 'en' ? 'Achievements' : 'Erfolge'}
+            </h2>
+            <button 
+              onClick={() => setIsAchievementsModalOpen(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer'
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          <div>
+            <p style={{ marginBottom: '20px' }}>
+              {language === 'en' 
+                ? `Total Achievement Points: ${userProfile?.achievements?.totalAchievementPoints || 0}`
+                : `Gesamt-Erfolgspunkte: ${userProfile?.achievements?.totalAchievementPoints || 0}`}
+            </p>
+
+            {allAchievements.map(achievement => {
+              const isUnlocked = unlockedAchievementIds.includes(achievement.id);
+              
+              return (
+                <div 
+                  key={achievement.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '15px',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    backgroundColor: isUnlocked 
+                      ? currentColors.unlockedBg 
+                      : currentColors.lockedBg,
+                    opacity: isUnlocked ? 1 : 0.6
+                  }}
+                >
+                  <div style={{ 
+                    fontSize: '40px', 
+                    marginRight: '15px',
+                    filter: isUnlocked ? 'none' : 'grayscale(100%)'
+                  }}>
+                    {achievement.icon}
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0 }}>
+                      {achievement.title[language]}
+                      {isUnlocked && <span style={{ marginLeft: '10px', color: 'green' }}>✓</span>}
+                    </h3>
+                    <p style={{ margin: '5px 0', color: currentColors.text }}>
+                      {achievement.description[language]}
+                    </p>
+                    {isUnlocked && (
+                      <small style={{ color: '#4CAF50' }}>
+                        +{achievement.points} {language === 'en' ? 'points' : 'Punkte'}
+                      </small>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -178,6 +336,9 @@ export const useAchievements = (userProfile, language = 'en') => {
   return {
     unlockedAchievements,
     AchievementNotification,
+    AchievementsModal,
+    isAchievementsModalOpen,
+    setIsAchievementsModalOpen,
     getAllAchievements: () => ACHIEVEMENTS,
     getUnlockedAchievements: () => 
       Object.values(ACHIEVEMENTS).filter(a => 
@@ -186,80 +347,4 @@ export const useAchievements = (userProfile, language = 'en') => {
   };
 };
 
-// Achievement List Component (Optional)
-export const AchievementsList = ({ userProfile, language = 'en', isDarkMode = false }) => {
-  const { getAllAchievements, getUnlockedAchievements } = useAchievements(userProfile, language);
-  
-  const colors = {
-    light: {
-      background: '#f3f4f6',
-      text: '#1f2937',
-      unlockedBg: '#e9f5e9',
-      lockedBg: '#f3f4f6'
-    },
-    dark: {
-      background: '#121826',
-      text: '#e5e7eb',
-      unlockedBg: '#2c3e50',
-      lockedBg: '#1f2937'
-    }
-  };
-
-  const currentColors = isDarkMode ? colors.dark : colors.light;
-  const unlockedAchievements = getUnlockedAchievements();
-
-  return (
-    <div style={{
-      backgroundColor: currentColors.background,
-      color: currentColors.text,
-      padding: '20px',
-      borderRadius: '12px'
-    }}>
-      <h2>{language === 'en' ? 'Achievements' : 'Erfolge'}</h2>
-      {Object.values(getAllAchievements()).map(achievement => {
-        const isUnlocked = unlockedAchievements.some(a => a.id === achievement.id);
-        
-        return (
-          <div 
-            key={achievement.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: '15px',
-              padding: '15px',
-              borderRadius: '8px',
-              backgroundColor: isUnlocked 
-                ? currentColors.unlockedBg 
-                : currentColors.lockedBg,
-              opacity: isUnlocked ? 1 : 0.6
-            }}
-          >
-            <div style={{ 
-              fontSize: '40px', 
-              marginRight: '15px',
-              filter: isUnlocked ? 'none' : 'grayscale(100%)'
-            }}>
-              {achievement.icon}
-            </div>
-            <div>
-              <h3 style={{ margin: 0 }}>
-                {achievement.title[language]}
-                {isUnlocked && <span style={{ marginLeft: '10px', color: 'green' }}>✓</span>}
-              </h3>
-              <p style={{ margin: '5px 0', color: currentColors.text }}>
-                {achievement.description[language]}
-              </p>
-              {isUnlocked && (
-                <small style={{ color: '#4CAF50' }}>
-                  +{achievement.points} {language === 'en' ? 'points' : 'Punkte'}
-                </small>
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-export default { ACHIEVEMENTS, useAchievements, AchievementsList };
+export default { ACHIEVEMENTS, useAchievements };
