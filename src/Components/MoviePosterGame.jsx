@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAchievements } from './Achievements';
 import './responsive/MoviePosterGame.css';
 
 const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
@@ -10,6 +11,14 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts, setMaxAttempts] = useState(3);
   const [revealedPieces, setRevealedPieces] = useState(0);
+
+  const { 
+    unlockedAchievements, 
+    AchievementNotification,
+    AchievementsModal,
+    isAchievementsModalOpen,
+    setIsAchievementsModalOpen 
+  } = useAchievements(userProfile, language);
 
   // Color scheme (reusing from previous implementation)
   const colors = {
@@ -173,17 +182,35 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
         : `Richtig! Der Film ist ${currentMovie.title}. Sie haben ${points} Punkte verdient!`);
       
       // Update user profile in local storage
-      const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
-      if (storedProfile) {
-        // Get current date
-        const today = new Date();
-        const currentDate = today.toISOString().split('T')[0];
-
-        if (!storedProfile.gameStats.dailyScores) {
-          storedProfile.gameStats.dailyScores = [];
+      const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile')) || {
+        gameStats: {
+          gamesPlayed: 0,
+          totalScore: 0,
+          movieGuesser: { gamesPlayed: 0 },
+          gameSpecificStats: {}
         }
+      };
 
-         // Check if there's already a score for today
+      // Update game-specific stats
+      if (!storedProfile.gameStats.gameSpecificStats) {
+        storedProfile.gameStats.gameSpecificStats = {};
+      }
+      storedProfile.gameStats.gameSpecificStats['moviePosterGuesser'] = true;
+
+      // Increment games played
+      storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1;
+      storedProfile.gameStats.movieGuesser.gamesPlayed = 
+        (storedProfile.gameStats.movieGuesser.gamesPlayed || 0) + 1;
+  
+      // Get current date
+      const today = new Date();
+      const currentDate = today.toISOString().split('T')[0];
+
+      if (!storedProfile.gameStats.dailyScores) {
+        storedProfile.gameStats.dailyScores = [];
+      }
+
+      // Check if there's already a score for today
       const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
         score => new Date(score.date).toISOString().split('T')[0] === currentDate
       );
@@ -199,46 +226,40 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
         });
       }
   
-        // Parse the last score update date
-        const lastUpdateDate = storedProfile.gameStats.lastScoreUpdate
-          ? new Date(storedProfile.gameStats.lastScoreUpdate).toISOString().split('T')[0]
-          : null;
+      // Parse the last score update date
+      const lastUpdateDate = storedProfile.gameStats.lastScoreUpdate
+        ? new Date(storedProfile.gameStats.lastScoreUpdate).toISOString().split('T')[0]
+        : null;
   
-        // Update total score for Movie Poster Guesser
-        storedProfile.gameStats.totalScore =
-          (storedProfile.gameStats.totalScore || 0) + points;
-        
-        // Update Movie Poster Guesser high score
-        storedProfile.gameStats.movieGuesser.highScore = Math.max(
-          storedProfile.gameStats.movieGuesser.highScore || 0, 
-          points
-        );
+      // Update total score
+      storedProfile.gameStats.totalScore =
+        (storedProfile.gameStats.totalScore || 0) + points;
+      
+      // Update Movie Poster Guesser high score
+      storedProfile.gameStats.movieGuesser.highScore = Math.max(
+        storedProfile.gameStats.movieGuesser.highScore || 0, 
+        points
+      );
   
-        // Check if it's a new day or first score
-        if (currentDate !== lastUpdateDate) {
-          // Reset daily score if it's a new day
-          storedProfile.gameStats.dailyScore = points;
-        } else {
-          // Add to existing daily score
-          storedProfile.gameStats.dailyScore =
-            (storedProfile.gameStats.dailyScore || 0) + points;
-        }
+      // Check if it's a new day or first score
+      if (currentDate !== lastUpdateDate) {
+        // Reset daily score if it's a new day
+        storedProfile.gameStats.dailyScore = points;
+      } else {
+        // Add to existing daily score
+        storedProfile.gameStats.dailyScore =
+          (storedProfile.gameStats.dailyScore || 0) + points;
+      }
   
-        // Update last score update timestamp
-        storedProfile.gameStats.lastScoreUpdate = today.toISOString();
+      // Update last score update timestamp
+      storedProfile.gameStats.lastScoreUpdate = today.toISOString();
   
-        // Save updated profile
-        localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+      // Save updated profile
+      localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
   
-        // Call onProfileUpdate if passed as prop
-        if (userProfile && userProfile.onProfileUpdate) {
-          userProfile.onProfileUpdate(storedProfile);
-        }
-
-        // Achievement system
-        if (!storedProfile.gameStats.gameSpecificStats) {
-          storedProfile.gameStats.gameSpecificStats = {};
-        }
+      // Call onProfileUpdate if passed as prop
+      if (userProfile && userProfile.onProfileUpdate) {
+        userProfile.onProfileUpdate(storedProfile);
       }
       
       // Fetch new movie after a short delay
@@ -269,6 +290,19 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
   return (
     <div style={styles.container}>
       <h1>{language === 'en' ? 'Movie Poster Guesser' : 'Film-Poster-Raten'}</h1>
+
+      {unlockedAchievements.map(achievement => (
+        <AchievementNotification 
+          key={achievement.id} 
+          achievement={achievement} 
+        />
+      ))}
+
+      {/* Achievements Modal */}
+      {isAchievementsModalOpen && (
+        <AchievementsModal isDarkMode={isDarkMode} />
+      )}
+
       
       {currentMovie && (
         <>
