@@ -209,7 +209,6 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
           (storedProfile.gameStats.totalScore || 0) + points;
         
         // Update Movie Poster Guesser high score
-        storedProfile.gameStats.movieGuesser.gamesPlayed += 1;
         storedProfile.gameStats.movieGuesser.highScore = Math.max(
           storedProfile.gameStats.movieGuesser.highScore || 0, 
           points
@@ -240,13 +239,6 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
         if (!storedProfile.gameStats.gameSpecificStats) {
           storedProfile.gameStats.gameSpecificStats = {};
         }
-        storedProfile.gameStats.gameSpecificStats['moviePoster'] = {
-          gamesPlayed: (storedProfile.gameStats.gameSpecificStats['moviePoster']?.gamesPlayed || 0) + 1
-        };
-      
-        // Increment total games played
-        storedProfile.gameStats.gamesPlayed = 
-          (storedProfile.gameStats.gamesPlayed || 0) + 1;
       }
       
       // Fetch new movie after a short delay
