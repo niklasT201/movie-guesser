@@ -633,7 +633,6 @@ const GameHub = () => {
 
 export default GameHub;
 
-// streak tracking mechanism
 // achievements system ("Guessed 10 Movies in a Row", "Master of Year Mode")
 // daily quests
 // Persistent Score Tracking

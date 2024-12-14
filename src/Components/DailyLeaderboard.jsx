@@ -93,14 +93,16 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
       noScores: 'No scores yet',
       points: 'points',
       timeToReset: 'Time until daily reset',
-      currentDay: 'Current Day'
+      currentDay: 'Current Day',
+      streak: 'Streak',
     },
     de: {
       title: 'Tägliche Punktzahlen',
       noScores: 'Noch keine Punktzahlen',
       points: 'Punkte',
       timeToReset: 'Zeit bis zum täglichen Zurücksetzen',
-      currentDay: 'Aktueller Tag'
+      currentDay: 'Aktueller Tag',
+      streak: 'Serie',
     }
   };
 
@@ -180,7 +182,24 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
     timer: {
       fontWeight: 'bold',
       color: isDarkMode ? '#e5e7eb' : '#1f2937'
-    }
+    },
+    streakContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
+      padding: '10px',
+      borderRadius: '8px',
+      marginBottom: '20px'
+    },
+    streakLabel: {
+      marginRight: '10px',
+      color: isDarkMode ? '#e5e7eb' : '#1f2937'
+    },
+    streak: {
+      fontWeight: 'bold',
+      color: isDarkMode ? '#e5e7eb' : '#1f2937'
+    },
   };
 
   const formatDate = (date) => {
@@ -190,6 +209,82 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
       day: 'numeric'
     }).format(new Date(date));
   };
+
+   // Function to update streak in user profile
+   const updateStreak = () => {
+    // Retrieve the full game stats from localStorage
+    const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
+    
+    if (!storedProfile) return;
+
+    // Initialize gameStats and streak if not exists
+    if (!storedProfile.gameStats) {
+      storedProfile.gameStats = {};
+    }
+
+    // Get today's date
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+
+    // Check if there are any daily scores for today
+    const todayScores = storedProfile.gameStats.dailyScores || [];
+    const todayHasScores = todayScores.some(score => 
+      new Date(score.date).toISOString().split('T')[0] === todayString
+    );
+
+    // Update streak
+    if (!storedProfile.gameStats.streak) {
+      storedProfile.gameStats.streak = {
+        currentStreak: 0,
+        lastStreakDate: null
+      };
+    }
+
+    const streak = storedProfile.gameStats.streak;
+    const lastStreakDate = streak.lastStreakDate 
+      ? new Date(streak.lastStreakDate) 
+      : null;
+
+    if (todayHasScores) {
+      // If today has scores and it's a consecutive day
+      if (!lastStreakDate || 
+          isConsecutiveDay(lastStreakDate, today)) {
+        streak.currentStreak = (streak.currentStreak || 0) + 1;
+        streak.lastStreakDate = todayString;
+      }
+    } else if (lastStreakDate) {
+      // If no scores today and last streak date exists
+      // Check if a day was missed
+      const daysMissed = getDaysDifference(lastStreakDate, today);
+      if (daysMissed > 1) {
+        // Streak broken
+        streak.currentStreak = 0;
+      }
+    }
+
+    // Save updated profile
+    localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+  };
+
+  // Helper function to check if two dates are consecutive days
+  const isConsecutiveDay = (lastDate, currentDate) => {
+    const oneDayMilliseconds = 24 * 60 * 60 * 1000;
+    return currentDate - lastDate === oneDayMilliseconds;
+  };
+
+  // Helper function to get days difference between two dates
+  const getDaysDifference = (date1, date2) => {
+    const oneDay = 24 * 60 * 60 * 1000;
+    return Math.round(Math.abs((date2 - date1) / oneDay));
+  };
+
+  // Call updateStreak when component mounts
+  React.useEffect(() => {
+    updateStreak();
+  }, []);
+
+  // Get current streak
+  const currentStreak = userProfile?.gameStats?.streak?.currentStreak || 0;
 
   return (
     <div style={styles.container}>
@@ -207,6 +302,11 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
         <div style={styles.timerContainer}>
           <span style={styles.timerLabel}>{t.timeToReset}:</span>
           <span style={styles.timer}>{timeToReset}</span>
+        </div>
+
+        <div style={styles.streakContainer}>
+          <span style={styles.streakLabel}>{t.streak}:</span>
+          <span style={styles.streak}>{currentStreak}</span>
         </div>
 
         <div style={styles.scoreList}>
