@@ -233,6 +233,16 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
             storedProfile.gameStats.dailyScores = [];
           }
   
+        // Ensure game-specific stats are tracked
+        if (!storedProfile.gameStats.gameSpecificStats) {
+          storedProfile.gameStats.gameSpecificStats = {};
+        }
+        // Mark this specific game as played
+        storedProfile.gameStats.gameSpecificStats['movieCriteriaGame'] = true;
+
+        // Increment total games played for the First Steps achievement
+        storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1; 
+
           // Check if there's already a score for today
           const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
             score => new Date(score.date).toISOString().split('T')[0] === currentDate

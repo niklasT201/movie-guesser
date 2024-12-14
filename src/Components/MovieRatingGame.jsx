@@ -142,6 +142,16 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
       // Update last score update timestamp
       storedProfile.gameStats.lastScoreUpdate = today.toISOString();
 
+      // Ensure game-specific stats are tracked
+      if (!storedProfile.gameStats.gameSpecificStats) {
+        storedProfile.gameStats.gameSpecificStats = {};
+      }
+      // Mark this specific game as played
+      storedProfile.gameStats.gameSpecificStats['movieRatingGame'] = true;
+
+      // Increment total games played for the First Steps achievement
+      storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1;
+
       // Save updated profile
       localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
 

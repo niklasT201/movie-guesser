@@ -178,6 +178,16 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             highScore: 0
           }
         };
+
+        // Ensure game-specific stats are tracked
+        if (!storedProfile.gameStats.gameSpecificStats) {
+          storedProfile.gameStats.gameSpecificStats = {};
+        }
+        // Mark this specific game as played
+        storedProfile.gameStats.gameSpecificStats['movieTimeGame'] = true;
+
+        // Increment total games played for the First Steps achievement
+        storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1;
     
         // Check if there's already a score for today
         const todayScoreIndex = gameStats.dailyScores.findIndex(

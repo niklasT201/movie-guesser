@@ -186,7 +186,10 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
         gameStats: {
           gamesPlayed: 0,
           totalScore: 0,
-          movieGuesser: { gamesPlayed: 0 },
+          movieGuesser: { 
+            gamesPlayed: 0,
+            correctlyGuessedPosters: 0 // Add this line to track correctly guessed posters
+          },
           gameSpecificStats: {}
         }
       };
@@ -201,6 +204,10 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
       storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1;
       storedProfile.gameStats.movieGuesser.gamesPlayed = 
         (storedProfile.gameStats.movieGuesser.gamesPlayed || 0) + 1;
+      
+      // Increment correctly guessed posters
+      storedProfile.gameStats.movieGuesser.correctlyGuessedPosters = 
+        (storedProfile.gameStats.movieGuesser.correctlyGuessedPosters || 0) + 1;
   
       // Get current date
       const today = new Date();

@@ -43,7 +43,7 @@ export const ACHIEVEMENTS = {
     icon: '🖼️',
     points: 30,
     condition: (userProfile) => 
-      (userProfile.gameStats.movieGuesser?.gamesPlayed || 0) >= 20
+      (userProfile.gameStats.movieGuesser?.correctlyGuessedPosters || 0) >= 20
   },
   DAILY_STREAK: {
     id: 'daily_streak',
