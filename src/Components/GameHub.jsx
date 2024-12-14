@@ -325,25 +325,10 @@ const GameHub = () => {
       cursor: 'pointer',
       fontSize: '24px'
     },
-    profileBadge: {
-      position: 'absolute',
-      top: isNavbarOpen ? '20px' : '20px',
-      right: isNavbarOpen ? '70px' : '70px',
-      zIndex: 1002,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-      cursor: 'pointer',
-      backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
-      padding: '8px 12px',
-      borderRadius: '20px',
-      boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-    },
     leaderboardToggle: {
-      position: 'absolute',
-      top: isNavbarOpen ? 'auto' : 'auto',
-      bottom: isNavbarOpen ? '20px' : '70px',
-      right: isNavbarOpen ? '30px' : '35px',
+      position: 'fixed',
+      bottom: '30px', 
+      right: '20px',
       backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
       border: 'none',
       cursor: 'pointer',
@@ -356,6 +341,23 @@ const GameHub = () => {
       justifyContent: 'center',
       boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
       zIndex: 1002,
+    },
+    achievementsToggle: {
+      position: 'fixed', // Change to fixed positioning
+      bottom: '30px', // Same bottom positioning
+      right: '80px', // Positioned to the left of leaderboard button
+      zIndex: 1002, // Slightly lower z-index than leaderboard
+      backgroundColor: isDarkMode ? '#374151' : '#f3f4f6',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '24px',
+      borderRadius: '50%',
+      width: '40px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
     },
     leaderboardContainer: {
       position: 'absolute',
@@ -519,11 +521,8 @@ const GameHub = () => {
       )}
 
       {userProfile && (
-        <button 
-          style={{
-            ...styles.leaderboardToggle,
-            right: isNavbarOpen ? '80px' : '85px'  // Adjust positioning
-          }}
+        <button
+          style={styles.achievementsToggle}
           onClick={() => setIsAchievementsModalOpen(true)}
           aria-label={language === 'en' ? 'View Achievements' : 'Erfolge anzeigen'}
         >
