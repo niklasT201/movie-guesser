@@ -6,7 +6,8 @@ import MovieTimedChallengeGame from './MovieTimedChallengeGame';
 import MovieRatingGame from './MovieRatingGame';
 import UserProfile from './UserProfile';
 import DailyLeaderboard from './DailyLeaderboard';
-import { useAchievements, AchievementsList } from './Achievements';
+import { useAchievements } from './Achievements';
+import { useDailyQuests } from './DailyQuests';
 import './responsive/GameHub.css';
 import './responsive/GameGrid.css';
 
@@ -64,6 +65,14 @@ const GameHub = () => {
       <AchievementNotification key={achievement.id} achievement={achievement} />
     ));
   };
+
+  const { 
+    dailyQuests, 
+    DailyQuestButton,
+    QuestModal,
+    questModalOpen,
+    setQuestModalOpen 
+  } = useDailyQuests(userProfile, language);
 
 
   const games = [
@@ -625,6 +634,22 @@ const GameHub = () => {
         {renderAchievementNotifications()}
         {isAchievementsModalOpen && (
           <AchievementsModal isDarkMode={isDarkMode} />
+        )}
+        
+        {/* Add these new lines */}
+        {userProfile && (
+          <DailyQuestButton 
+            isDarkMode={isDarkMode} 
+            style={{
+              bottom: '200px', // Adjust positioning as needed
+              right: '20px'
+            }} 
+          />
+        )}
+        {questModalOpen && (
+          <QuestModal 
+            isDarkMode={isDarkMode} 
+          />
         )}
       </div>
     </div>
