@@ -189,16 +189,25 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
       alignItems: 'center',
       backgroundColor: isDarkMode ? '#374151' : '#e5e7eb',
       padding: '10px',
-      borderRadius: '8px',
-      marginBottom: '20px'
+      borderRadius: '16px', // Slightly more rounded
+      marginBottom: '20px',
+      boxShadow: isDarkMode 
+        ? '0 4px 6px rgba(255,255,255,0.1)' 
+        : '0 4px 6px rgba(0,0,0,0.1)', // Add subtle shadow
     },
     streakLabel: {
       marginRight: '10px',
-      color: isDarkMode ? '#e5e7eb' : '#1f2937'
+      color: isDarkMode ? '#9ca3af' : '#6b7280', // Softer text color
+      fontSize: '14px', // Slightly smaller font
     },
     streak: {
       fontWeight: 'bold',
-      color: isDarkMode ? '#e5e7eb' : '#1f2937'
+      color: isDarkMode ? '#3b82f6' : '#2563eb', // Highlight color
+      backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.2)' : 'rgba(37, 99, 235, 0.1)', // Subtle background
+      padding: '4px 8px',
+      borderRadius: '8px',
+      minWidth: '40px', // Ensure consistent width
+      textAlign: 'center',
     },
   };
 
@@ -216,22 +225,22 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
     const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile'));
     
     if (!storedProfile) return;
-
+  
     // Initialize gameStats and streak if not exists
     if (!storedProfile.gameStats) {
       storedProfile.gameStats = {};
     }
-
+  
     // Get today's date
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
-
+  
     // Check if there are any daily scores for today
     const todayScores = storedProfile.gameStats.dailyScores || [];
     const todayHasScores = todayScores.some(score => 
       new Date(score.date).toISOString().split('T')[0] === todayString
     );
-
+  
     // Update streak
     if (!storedProfile.gameStats.streak) {
       storedProfile.gameStats.streak = {
@@ -239,43 +248,50 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
         lastStreakDate: null
       };
     }
-
+  
     const streak = storedProfile.gameStats.streak;
     const lastStreakDate = streak.lastStreakDate 
       ? new Date(streak.lastStreakDate) 
       : null;
-
+  
     if (todayHasScores) {
-      // If today has scores and it's a consecutive day
-      if (!lastStreakDate || 
-          isConsecutiveDay(lastStreakDate, today)) {
+      // If this is the first day or last streak was yesterday
+      if (!lastStreakDate || isYesterday(lastStreakDate, today)) {
         streak.currentStreak = (streak.currentStreak || 0) + 1;
         streak.lastStreakDate = todayString;
-      }
-    } else if (lastStreakDate) {
-      // If no scores today and last streak date exists
-      // Check if a day was missed
-      const daysMissed = getDaysDifference(lastStreakDate, today);
-      if (daysMissed > 1) {
-        // Streak broken
-        streak.currentStreak = 0;
+      } else if (isSameDay(lastStreakDate, today)) {
+        // If last streak was today, do nothing
+        return;
+      } else {
+        // If more than a day has passed, reset streak
+        streak.currentStreak = 1;
+        streak.lastStreakDate = todayString;
       }
     }
-
+  
     // Save updated profile
     localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
-  };
+  };  
 
   // Helper function to check if two dates are consecutive days
-  const isConsecutiveDay = (lastDate, currentDate) => {
-    const oneDayMilliseconds = 24 * 60 * 60 * 1000;
-    return currentDate - lastDate === oneDayMilliseconds;
+  const isYesterday = (lastDate, currentDate) => {
+    const yesterday = new Date(currentDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    return (
+      lastDate.getFullYear() === yesterday.getFullYear() &&
+      lastDate.getMonth() === yesterday.getMonth() &&
+      lastDate.getDate() === yesterday.getDate()
+    );
   };
-
-  // Helper function to get days difference between two dates
-  const getDaysDifference = (date1, date2) => {
-    const oneDay = 24 * 60 * 60 * 1000;
-    return Math.round(Math.abs((date2 - date1) / oneDay));
+  
+  // Helper function to check if two dates are the same day
+  const isSameDay = (date1, date2) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
   };
 
   // Call updateStreak when component mounts
