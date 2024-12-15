@@ -636,7 +636,7 @@ const GameHub = () => {
           <AchievementsModal isDarkMode={isDarkMode} />
         )}
         
-        {/* Add these new lines */}
+        {/* Add these new lines 
         {userProfile && (
           <DailyQuestButton 
             isDarkMode={isDarkMode} 
@@ -651,6 +651,7 @@ const GameHub = () => {
             isDarkMode={isDarkMode} 
           />
         )}
+*/}
       </div>
     </div>
   );
@@ -659,7 +660,6 @@ const GameHub = () => {
 export default GameHub;
 
 // achievements system ("Guessed 10 Movies in a Row", "Master of Year Mode")
-// daily quests
 // Persistent Score Tracking
 // Updating Score directly
 

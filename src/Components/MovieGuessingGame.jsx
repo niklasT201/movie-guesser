@@ -422,6 +422,10 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
         const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
           score => new Date(score.date).toISOString().split('T')[0] === currentDate
         );
+
+        storedProfile.gameStats.movieGuesser = storedProfile.gameStats.movieGuesser || { 
+          correctAnswers: 0 
+        };
     
         if (todayScoreIndex !== -1) {
           // Update existing today's score
@@ -455,7 +459,7 @@ const MovieGuessingGame = ({ language, isDarkMode, onProfileUpdate}) => {
           onProfileUpdate(storedProfile);
         }
       }
-      
+      storedProfile.gameStats.movieGuesser.correctAnswers += 1;
       setGameState('won');
 
     } else {

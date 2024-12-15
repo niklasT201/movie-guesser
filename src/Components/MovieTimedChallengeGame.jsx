@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
+const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
   // API Configuration
   const API_KEY = '014c0bfe3d16b0265fdd1fe8a7ccf1aa';
   const BASE_URL = 'https://api.themoviedb.org/3';
@@ -162,7 +162,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
       fetchGenres();
     }, [language]);
   
-    const updateLocalStorageProfile = (newScore) => {
+    const updateLocalStorageProfile = (newScore, isPerfectRun = false) => {
       try {
         const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile')) || {};
         const today = new Date();
@@ -176,6 +176,11 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
           movieGuesser: {
             gamesPlayed: 0,
             highScore: 0
+          },
+          timedChallenge: {
+            gamesPlayed: 0,
+            highScore: 0,
+            perfectRuns: 0 // Add this line to track perfect runs
           }
         };
 
@@ -233,6 +238,11 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
   
         // Update last score update timestamp
         gameStats.lastScoreUpdate = today.toISOString();
+        
+        if (isPerfectRun) {
+          gameStats.timedChallenge.perfectRuns = 
+            (gameStats.timedChallenge.perfectRuns || 0) + 1;
+        }
   
         // Save updated profile
         const updatedProfile = {
@@ -368,6 +378,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
     const handleSubmit = async (e) => {
       e.preventDefault();
       const trimmedInput = inputValue.trim();
+      let isPerfectRun = true;
       
       if (gameMode === GAME_MODES.EASY) {
         // In Easy mode, validate the movie against the selected criteria
@@ -378,6 +389,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             isCorrect: false,
             message: language === 'en' ? 'Movie not found' : 'Film nicht gefunden'
           });
+          isPerfectRun = false; // Mark as not perfect run
           setInputValue('');
           return;
         }
@@ -399,6 +411,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
               isCorrect: false,
               message: language === 'en' ? 'You already guessed this movie' : 'Diesen Film hast du bereits erraten'
             });
+            isPerfectRun = false; // Mark as not perfect run
             setInputValue('');
             return;
           }
@@ -435,7 +448,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
               // In Easy mode, points only awarded when all 10 movies are guessed
               const newScore = 150; // 1000 points for completing Easy mode
               setScore(prev => prev + newScore);
-              updateLocalStorageProfile(newScore);
+              updateLocalStorageProfile(newScore, isPerfectRun);
               setGameStatus('won');
             }
           } else {
@@ -453,6 +466,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
               ? 'Movie does not match the selected criteria' 
               : 'Film entspricht nicht den ausgewählten Kriterien'
           });
+          isPerfectRun = false; // Mark as not perfect run
         }
         
         setInputValue('');
@@ -495,6 +509,9 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             
             // Check if all movies are guessed
             if (newGuessedMovies.length === currentMovies.length) {
+              const newScore = 100 * currentMovies.length;
+              setScore(prev => prev + newScore);
+              updateLocalStorageProfile(newScore, isPerfectRun);
               setGameStatus('won');
             }
           } else {
@@ -510,6 +527,9 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, userProfile }) => {
             isCorrect: false,
             message: language === 'en' ? 'Incorrect Guess' : 'Falsch geraten'
           });
+          isPerfectRun = false; // Mark as not perfect run
+          setInputValue('');
+          return;
         }
         
         setInputValue('');

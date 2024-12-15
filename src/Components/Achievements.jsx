@@ -102,7 +102,93 @@ export const ACHIEVEMENTS = {
       const gamesPlayedCount = Object.keys(userProfile.gameStats?.gameSpecificStats || {}).length;
       return gamesPlayedCount >= 5;
     }
-  }
+  },
+  RAPID_FIRE: {
+    id: 'rapid_fire',
+    title: {
+      en: 'Rapid Fire',
+      de: 'Schnellfeuer'
+    },
+    description: {
+      en: 'Complete a timed challenge without any mistakes',
+      de: 'Zeitchallenge ohne Fehler abschließen'
+    },
+    icon: '⚡',
+    points: 40,
+    condition: (userProfile) => {
+      // This would require tracking perfect timed challenge completions
+      return userProfile.gameStats?.timedChallenge?.perfectRuns >= 1;
+    }
+  },
+  TRIVIA_CHAMPION: {
+    id: 'trivia_champion',
+    title: {
+      en: 'Trivia Champion',
+      de: 'Trivia-Meister'
+    },
+    description: {
+      en: 'Answer 100 movie trivia questions correctly',
+      de: '100 Film-Quizfragen korrekt beantworten'
+    },
+    icon: '🏆',
+    points: 75,
+    condition: (userProfile) => 
+      (userProfile.gameStats?.movieGuesser?.correctAnswers || 0) >= 100
+  },
+  GENRE_NINJA: {
+    id: 'genre_ninja',
+    title: {
+      en: 'Genre Ninja',
+      de: 'Genre-Ninja'
+    },
+    description: {
+      en: 'Correctly guess movies from 10 different genres',
+      de: 'Filme aus 10 verschiedenen Genres korrekt erraten'
+    },
+    icon: '🥷',
+    points: 50,
+    condition: (userProfile) => {
+      // This would require tracking unique genres guessed
+      const uniqueGenres = new Set(
+        userProfile.gameStats?.movieGuesser?.genresGuessed || []
+      );
+      return uniqueGenres.size >= 10;
+    }
+  },
+  PERFECT_ROUND: {
+    id: 'perfect_round',
+    title: {
+      en: 'Perfect Round',
+      de: 'Perfekte Runde'
+    },
+    description: {
+      en: 'Complete a game mode with a 100% accuracy',
+      de: 'Spielmodus mit 100% Genauigkeit abschließen'
+    },
+    icon: '✨',
+    points: 60,
+    condition: (userProfile) => {
+      // Check for a perfect round in any game mode
+      return Object.values(userProfile.gameStats || {}).some(
+        gameStats => gameStats.perfectRounds && gameStats.perfectRounds > 0
+      );
+    }
+  },
+  MARATHON_PLAYER: {
+    id: 'marathon_player',
+    title: {
+      en: 'Marathon Player',
+      de: 'Marathon-Spieler'
+    },
+    description: {
+      en: 'Play for a total of 5 hours',
+      de: 'Insgesamt 5 Stunden spielen'
+    },
+    icon: '⏳',
+    points: 100,
+    condition: (userProfile) => 
+      (userProfile.gameStats?.totalPlayTime || 0) >= 5 * 60 * 60 // 5 hours in seconds
+  },
 };
 
 // Achievement Manager Hook
