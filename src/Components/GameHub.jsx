@@ -385,6 +385,53 @@ const GameHub = () => {
     setIsLeaderboardOpen(!isLeaderboardOpen);
   };
 
+  useEffect(() => {
+    let startTime = Date.now();
+    
+    const trackWebsiteTime = () => {
+      const currentTime = Date.now();
+      const timeSpent = Math.floor((currentTime - startTime) / 1000); // Convert to seconds
+      
+      // Update user profile with website time
+      const updatedProfile = {
+        ...userProfile,
+        gameStats: {
+          ...userProfile.gameStats,
+          websiteTime: (userProfile.gameStats?.websiteTime || 0) + timeSpent
+        }
+      };
+      
+      // Save to localStorage
+      localStorage.setItem('movieGameProfile', JSON.stringify(updatedProfile));
+      
+      // Reset start time
+      startTime = currentTime;
+    };
+    
+    // Update every 5 minutes
+    const intervalId = setInterval(trackWebsiteTime, 5 * 60 * 1000);
+    
+    // Cleanup function to track time when component unmounts
+    return () => {
+      clearInterval(intervalId);
+      
+      // Track final time spent
+      const finalTimeSpent = Math.floor((Date.now() - startTime) / 1000);
+      
+      if (userProfile) {
+        const updatedProfile = {
+          ...userProfile,
+          gameStats: {
+            ...userProfile.gameStats,
+            websiteTime: (userProfile.gameStats?.websiteTime || 0) + finalTimeSpent
+          }
+        };
+        
+        localStorage.setItem('movieGameProfile', JSON.stringify(updatedProfile));
+      }
+    };
+  }, [userProfile]); 
+
   const renderNavbar = () => (
     <>
       <button 

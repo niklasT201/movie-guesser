@@ -162,7 +162,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
       fetchGenres();
     }, [language]);
   
-    const updateLocalStorageProfile = (newScore, isPerfectRun = false) => {
+    const updateLocalStorageProfile = (newScore, isPerfectRun = false, movieDetails = null) => {
       try {
         const storedProfile = JSON.parse(localStorage.getItem('movieGameProfile')) || {};
         const today = new Date();
@@ -175,7 +175,8 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
           lastScoreUpdate: null,
           movieGuesser: {
             gamesPlayed: 0,
-            highScore: 0
+            highScore: 0,
+            genresGuessed: [] // Add this to track unique genres
           },
           timedChallenge: {
             gamesPlayed: 0,
@@ -183,6 +184,17 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
             perfectRuns: 0 // Add this line to track perfect runs
           }
         };
+
+        if (movieDetails && movieDetails.genre_ids) {
+          const newGenres = movieDetails.genre_ids.filter(
+            genreId => !gameStats.movieGuesser.genresGuessed.includes(genreId)
+          );
+          
+          gameStats.movieGuesser.genresGuessed = [
+            ...gameStats.movieGuesser.genresGuessed, 
+            ...newGenres
+          ];
+        }
 
         // Ensure game-specific stats are tracked
         if (!storedProfile.gameStats.gameSpecificStats) {
@@ -448,7 +460,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
               // In Easy mode, points only awarded when all 10 movies are guessed
               const newScore = 150; // 1000 points for completing Easy mode
               setScore(prev => prev + newScore);
-              updateLocalStorageProfile(newScore, isPerfectRun);
+              updateLocalStorageProfile(newScore, isPerfectRun, movieDetails);
               setGameStatus('won');
             }
           } else {

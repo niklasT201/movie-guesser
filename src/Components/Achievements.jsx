@@ -16,6 +16,23 @@ export const ACHIEVEMENTS = {
     points: 10,
     condition: (userProfile) => userProfile.gameStats.gamesPlayed > 0
   },
+  PLAYER_STUFF: {
+    id: 'player_stuff',
+    title: {
+      en: 'Player Stuff',
+      de: 'Du bist Boss'
+    },
+    description: {
+      en: 'Create an Account',
+      de: 'Erstelle einen Account'
+    },
+    icon: '🥳',
+    points: 200,
+    condition: (userProfile) => {
+      // Simple check: if profile exists, consider it unlocked
+      return userProfile && userProfile.gameStats;
+    }
+  },
   MOVIE_MASTER: {
     id: 'movie_master',
     title: {
@@ -158,8 +175,8 @@ export const ACHIEVEMENTS = {
   PERFECT_ROUND: {
     id: 'perfect_round',
     title: {
-      en: 'Perfect Round',
-      de: 'Perfekte Runde'
+      en: 'Perfect Round (still in progress)',
+      de: 'Perfekte Runde (noch in Arbeit)'
     },
     description: {
       en: 'Complete a game mode with a 100% accuracy',
@@ -187,7 +204,7 @@ export const ACHIEVEMENTS = {
     icon: '⏳',
     points: 100,
     condition: (userProfile) => 
-      (userProfile.gameStats?.totalPlayTime || 0) >= 5 * 60 * 60 // 5 hours in seconds
+      (userProfile.gameStats?.websiteTime || 0) >= 5 * 60 * 60 // 5 hours in seconds
   },
 };
 

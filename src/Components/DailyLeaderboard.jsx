@@ -293,12 +293,7 @@ const DailyLeaderboard = ({ userProfile, language, isDarkMode, onClose }) => {
       date1.getDate() === date2.getDate()
     );
   };
-
-  // Call updateStreak when component mounts
-  React.useEffect(() => {
-    updateStreak();
-  }, []);
-
+  
   // Get current streak
   const currentStreak = userProfile?.gameStats?.streak?.currentStreak || 0;
 
