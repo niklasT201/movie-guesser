@@ -163,6 +163,72 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
     fetchRandomMovie();
   }, []);
 
+  const isYesterday = (lastDate, currentDate) => {
+    const yesterday = new Date(currentDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    return (
+      lastDate.getFullYear() === yesterday.getFullYear() &&
+      lastDate.getMonth() === yesterday.getMonth() &&
+      lastDate.getDate() === yesterday.getDate()
+    );
+  };
+
+  const isSameDay = (date1, date2) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
+  const updateStreak = (storedProfile) => {
+    // Initialize gameStats and streak if not exists
+    if (!storedProfile.gameStats) {
+      storedProfile.gameStats = {};
+    }
+
+    // Get today's date
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+
+    // Initialize streak if not exists
+    if (!storedProfile.gameStats.streak) {
+      storedProfile.gameStats.streak = {
+        currentStreak: 0,
+        lastStreakDate: null
+      };
+    }
+
+    const streak = storedProfile.gameStats.streak;
+    const lastStreakDate = streak.lastStreakDate 
+      ? new Date(streak.lastStreakDate) 
+      : null;
+
+    // Check if today has scores
+    const todayScores = storedProfile.gameStats.dailyScores || [];
+    const todayHasScores = todayScores.some(score => 
+      new Date(score.date).toISOString().split('T')[0] === todayString
+    );
+
+    if (todayHasScores) {
+      // If this is the first day or last streak was yesterday
+      if (!lastStreakDate || isYesterday(lastStreakDate, today)) {
+        streak.currentStreak = (streak.currentStreak || 0) + 1;
+        streak.lastStreakDate = todayString;
+      } else if (isSameDay(lastStreakDate, today)) {
+        // If last streak was today, do nothing
+        return storedProfile;
+      } else {
+        // If more than a day has passed, reset streak
+        streak.currentStreak = 1;
+        streak.lastStreakDate = todayString;
+      }
+    }
+
+    return storedProfile;
+  };
+
   const handleGuess = () => {
     if (!currentMovie) return;
   
@@ -188,7 +254,7 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
           totalScore: 0,
           movieGuesser: { 
             gamesPlayed: 0,
-            correctlyGuessedPosters: 0 // Add this line to track correctly guessed posters
+            correctlyGuessedPosters: 0
           },
           gameSpecificStats: {}
         }
@@ -260,13 +326,16 @@ const MoviePosterGame = ({ language, isDarkMode, userProfile }) => {
   
       // Update last score update timestamp
       storedProfile.gameStats.lastScoreUpdate = today.toISOString();
+
+      // Update streak logic - NEW ADDITION
+      const updatedProfile = updateStreak(storedProfile);
   
       // Save updated profile
-      localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+      localStorage.setItem('movieGameProfile', JSON.stringify(updatedProfile));
   
       // Call onProfileUpdate if passed as prop
       if (userProfile && userProfile.onProfileUpdate) {
-        userProfile.onProfileUpdate(storedProfile);
+        userProfile.onProfileUpdate(updatedProfile);
       }
       
       // Fetch new movie after a short delay

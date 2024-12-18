@@ -161,6 +161,25 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
       
       fetchGenres();
     }, [language]);
+
+    const isYesterday = (lastDate, currentDate) => {
+      const yesterday = new Date(currentDate);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      return (
+        lastDate.getFullYear() === yesterday.getFullYear() &&
+        lastDate.getMonth() === yesterday.getMonth() &&
+        lastDate.getDate() === yesterday.getDate()
+      );
+    };
+    
+    const isSameDay = (date1, date2) => {
+      return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+      );
+    };
   
     const updateLocalStorageProfile = (newScore, isPerfectRun = false, movieDetails = null) => {
       try {
@@ -261,6 +280,44 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
           ...storedProfile,
           gameStats
         };
+
+        if (!storedProfile.gameStats) {
+          storedProfile.gameStats = {};
+        }
+    
+        // Initialize streak if not exists
+        if (!storedProfile.gameStats.streak) {
+          storedProfile.gameStats.streak = {
+            currentStreak: 0,
+            lastStreakDate: null
+          };
+        }
+    
+        const streak = storedProfile.gameStats.streak;
+        const lastStreakDate = streak.lastStreakDate 
+          ? new Date(streak.lastStreakDate) 
+          : null;
+    
+        // Check if today has scores
+        const todayScores = storedProfile.gameStats.dailyScores || [];
+        const todayHasScores = todayScores.some(score => 
+          new Date(score.date).toISOString().split('T')[0] === currentDate
+        );
+    
+        if (todayHasScores) {
+          // If this is the first day or last streak was yesterday
+          if (!lastStreakDate || isYesterday(lastStreakDate, today)) {
+            streak.currentStreak = (streak.currentStreak || 0) + 1;
+            streak.lastStreakDate = currentDate;
+          } else if (isSameDay(lastStreakDate, today)) {
+            // If last streak was today, do nothing
+            return storedProfile;
+          } else {
+            // If more than a day has passed, reset streak
+            streak.currentStreak = 1;
+            streak.lastStreakDate = currentDate;
+          }
+        }
   
         localStorage.setItem('movieGameProfile', JSON.stringify(updatedProfile));
   
@@ -376,7 +433,7 @@ const MovieTimedChallengeGame = ({ language, isDarkMode, }) => {
       setTimeLeft(180);
       setGameStatus('not-started');
       setInputValue('');
-      setLastGuessResult(null); // Add this line to clear the last guess result
+      setLastGuessResult(null);
       
       // Reset game options if needed
       setGameOptions({

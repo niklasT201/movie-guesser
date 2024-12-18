@@ -174,6 +174,72 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
   // Function to verify guess
   const verifyGuess = async () => {
     if (!guess.trim()) return;
+
+    const isYesterday = (lastDate, currentDate) => {
+      const yesterday = new Date(currentDate);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      return (
+        lastDate.getFullYear() === yesterday.getFullYear() &&
+        lastDate.getMonth() === yesterday.getMonth() &&
+        lastDate.getDate() === yesterday.getDate()
+      );
+    };
+    
+    const isSameDay = (date1, date2) => {
+      return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+      );
+    };
+    
+    const updateStreak = (storedProfile) => {
+      // Initialize gameStats and streak if not exists
+      if (!storedProfile.gameStats) {
+        storedProfile.gameStats = {};
+      }
+    
+      // Get today's date
+      const today = new Date();
+      const todayString = today.toISOString().split('T')[0];
+    
+      // Initialize streak if not exists
+      if (!storedProfile.gameStats.streak) {
+        storedProfile.gameStats.streak = {
+          currentStreak: 0,
+          lastStreakDate: null
+        };
+      }
+    
+      const streak = storedProfile.gameStats.streak;
+      const lastStreakDate = streak.lastStreakDate 
+        ? new Date(streak.lastStreakDate) 
+        : null;
+    
+      // Check if today has scores
+      const todayScores = storedProfile.gameStats.dailyScores || [];
+      const todayHasScores = todayScores.some(score => 
+        new Date(score.date).toISOString().split('T')[0] === todayString
+      );
+    
+      if (todayHasScores) {
+        // If this is the first day or last streak was yesterday
+        if (!lastStreakDate || isYesterday(lastStreakDate, today)) {
+          streak.currentStreak = (streak.currentStreak || 0) + 1;
+          streak.lastStreakDate = todayString;
+        } else if (isSameDay(lastStreakDate, today)) {
+          // If last streak was today, do nothing
+          return storedProfile;
+        } else {
+          // If more than a day has passed, reset streak
+          streak.currentStreak = 1;
+          streak.lastStreakDate = todayString;
+        }
+      }
+    
+      return storedProfile;
+    };
     
     try {
       // Search for the movie
@@ -232,17 +298,17 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
           if (!storedProfile.gameStats.dailyScores) {
             storedProfile.gameStats.dailyScores = [];
           }
-  
-        // Ensure game-specific stats are tracked
-        if (!storedProfile.gameStats.gameSpecificStats) {
-          storedProfile.gameStats.gameSpecificStats = {};
-        }
-        // Mark this specific game as played
-        storedProfile.gameStats.gameSpecificStats['movieCriteriaGame'] = true;
-
-        // Increment total games played for the First Steps achievement
-        storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1; 
-
+      
+          // Ensure game-specific stats are tracked
+          if (!storedProfile.gameStats.gameSpecificStats) {
+            storedProfile.gameStats.gameSpecificStats = {};
+          }
+          // Mark this specific game as played
+          storedProfile.gameStats.gameSpecificStats['movieCriteriaGame'] = true;
+      
+          // Increment total games played for the First Steps achievement
+          storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1;
+      
           // Check if there's already a score for today
           const todayScoreIndex = storedProfile.gameStats.dailyScores.findIndex(
             score => new Date(score.date).toISOString().split('T')[0] === currentDate
@@ -282,12 +348,15 @@ const MovieCriteriaGame = ({ language, isDarkMode, onProfileUpdate}) => {
           // Update last score update timestamp
           storedProfile.gameStats.lastScoreUpdate = today.toISOString();
   
+          // Update streak BEFORE saving the profile
+          const updatedProfile = updateStreak(storedProfile);
+      
           // Save updated profile
-          localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+          localStorage.setItem('movieGameProfile', JSON.stringify(updatedProfile));
   
           // Call onProfileUpdate if it exists
           if (onProfileUpdate) {
-            onProfileUpdate(storedProfile);
+            onProfileUpdate(updatedProfile);
           }
         }
 

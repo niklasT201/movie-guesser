@@ -683,22 +683,6 @@ const GameHub = () => {
           <AchievementsModal isDarkMode={isDarkMode} />
         )}
         
-        {/* Add these new lines 
-        {userProfile && (
-          <DailyQuestButton 
-            isDarkMode={isDarkMode} 
-            style={{
-              bottom: '200px', // Adjust positioning as needed
-              right: '20px'
-            }} 
-          />
-        )}
-        {questModalOpen && (
-          <QuestModal 
-            isDarkMode={isDarkMode} 
-          />
-        )}
-*/}
       </div>
     </div>
   );
@@ -709,6 +693,7 @@ export default GameHub;
 // achievements system ("Guessed 10 Movies in a Row", "Master of Year Mode")
 // Persistent Score Tracking
 // Updating Score directly
+// achievements pop up always until reload
 
 // Genre Guessing Mode
 // Quote Guessing Mode

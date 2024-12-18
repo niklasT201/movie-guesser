@@ -82,6 +82,73 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
   const handleRatingSelect = (rating) => {
     if (selectedRating !== null) return;
 
+    // Helper functions for streak calculation
+    const isYesterday = (lastDate, currentDate) => {
+      const yesterday = new Date(currentDate);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      return (
+        lastDate.getFullYear() === yesterday.getFullYear() &&
+        lastDate.getMonth() === yesterday.getMonth() &&
+        lastDate.getDate() === yesterday.getDate()
+      );
+    };
+  
+    const isSameDay = (date1, date2) => {
+      return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+      );
+    };
+  
+    const updateStreak = (storedProfile) => {
+      // Initialize gameStats and streak if not exists
+      if (!storedProfile.gameStats) {
+        storedProfile.gameStats = {};
+      }
+  
+      // Get today's date
+      const today = new Date();
+      const todayString = today.toISOString().split('T')[0];
+  
+      // Initialize streak if not exists
+      if (!storedProfile.gameStats.streak) {
+        storedProfile.gameStats.streak = {
+          currentStreak: 0,
+          lastStreakDate: null
+        };
+      }
+  
+      const streak = storedProfile.gameStats.streak;
+      const lastStreakDate = streak.lastStreakDate 
+        ? new Date(streak.lastStreakDate) 
+        : null;
+  
+      // Check if today has scores
+      const todayScores = storedProfile.gameStats.dailyScores || [];
+      const todayHasScores = todayScores.some(score => 
+        new Date(score.date).toISOString().split('T')[0] === todayString
+      );
+  
+      if (todayHasScores) {
+        // If this is the first day or last streak was yesterday
+        if (!lastStreakDate || isYesterday(lastStreakDate, today)) {
+          streak.currentStreak = (streak.currentStreak || 0) + 1;
+          streak.lastStreakDate = todayString;
+        } else if (isSameDay(lastStreakDate, today)) {
+          // If last streak was today, do nothing
+          return storedProfile;
+        } else {
+          // If more than a day has passed, reset streak
+          streak.currentStreak = 1;
+          streak.lastStreakDate = todayString;
+        }
+      }
+  
+      return storedProfile;
+    };
+  
     setSelectedRating(rating);
     const correct = rating === Math.round(currentMovie.vote_average * 10) / 10;
     setIsCorrect(correct);
@@ -152,12 +219,15 @@ const MovieRatingGame = ({ language, isDarkMode, userProfile }) => {
       // Increment total games played for the First Steps achievement
       storedProfile.gameStats.gamesPlayed = (storedProfile.gameStats.gamesPlayed || 0) + 1;
 
+      // Update streak BEFORE saving the profile
+      const updatedProfile = updateStreak(storedProfile);
+  
       // Save updated profile
-      localStorage.setItem('movieGameProfile', JSON.stringify(storedProfile));
+      localStorage.setItem('movieGameProfile', JSON.stringify(updatedProfile));
 
       // Call onProfileUpdate if passed as prop
       if (userProfile && userProfile.onProfileUpdate) {
-        userProfile.onProfileUpdate(storedProfile);
+        userProfile.onProfileUpdate(updatedProfile);
       }
     }
 
